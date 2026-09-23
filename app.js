@@ -27,6 +27,9 @@ configureCloudinary();
 // ─── Create Express app ──────────────────────────────────────
 const app = express();
 
+// Trust proxy headers from Vercel / reverse proxies
+app.set('trust proxy', 1);
+
 // ============================================================
 //  SECURITY MIDDLEWARE
 // ============================================================
@@ -35,7 +38,7 @@ const app = express();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+    contentSecurityPolicy: process.env.NODE_ENV === 'production' && !process.env.VERCEL ? undefined : false,
   })
 );
 
@@ -52,7 +55,13 @@ const corsOptions = {
     // Allow requests with no origin (e.g. curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/.*\.vercel\.app$/.test(origin) ||
+      /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+      /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: origin ${origin} is not allowed.`));
@@ -80,7 +89,7 @@ const globalLimiter = rateLimit({
     success: false,
     message: 'Too many requests from this IP. Please try again after 15 minutes.',
   },
-  skip: (req) => process.env.NODE_ENV === 'development', // Disable in dev
+  skip: (req) => process.env.NODE_ENV === 'development' || process.env.VERCEL, // Disable in dev/serverless
 });
 
 app.use('/api', globalLimiter);
@@ -118,13 +127,34 @@ app.use(
 //  HTTP REQUEST LOGGING (Morgan)
 // ============================================================
 
-if (process.env.NODE_ENV === 'development') {
-  // Colorized, concise output for development
+if (process.env.NODE_ENV === 'development' || process.env.VERCEL) {
+  // Colorized, concise output to console for development & Vercel serverless
   app.use(morgan('dev'));
 } else {
-  // Combined format written to log file in production
+  // Combined format written to log file in persistent production server
   app.use(morgan('combined', { stream: morganStream }));
 }
+
+// ============================================================
+//  DATABASE CONNECTION MIDDLEWARE (Serverless-Safe)
+// ============================================================
+
+const connectDB = require('./config/db');
+
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    try {
+      await connectDB();
+    } catch (dbErr) {
+      console.error('Database connection error in request middleware:', dbErr.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection failed. Please ensure MONGODB_URI is set in Vercel environment variables and 0.0.0.0/0 is whitelisted in MongoDB Atlas.',
+      });
+    }
+  }
+  next();
+});
 
 // ============================================================
 //  STATIC FILES

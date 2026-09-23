@@ -10,9 +10,15 @@ const path = require('path');
 // Resolve the logs directory path
 const LOGS_DIR = path.join(__dirname, '..', 'logs');
 
-// Ensure the logs directory exists at startup
-if (!fs.existsSync(LOGS_DIR)) {
-  fs.mkdirSync(LOGS_DIR, { recursive: true });
+// Ensure the logs directory exists at startup (only on persistent local server, never on Vercel)
+if (!process.env.VERCEL) {
+  try {
+    if (!fs.existsSync(LOGS_DIR)) {
+      fs.mkdirSync(LOGS_DIR, { recursive: true });
+    }
+  } catch (e) {
+    // Graceful fallback for read-only filesystems
+  }
 }
 
 // ─── Log file paths ──────────────────────────────────────────
@@ -35,16 +41,34 @@ const formatLogEntry = (level, message, meta = {}) => {
 
 /**
  * Write a log line to a file asynchronously (non-blocking).
+ * Automatically redirects to console in serverless (e.g. Vercel) environments.
  *
  * @param {string} filePath - Absolute path to the log file
  * @param {string} line     - Log line to append
  */
 const writeToFile = (filePath, line) => {
-  fs.appendFile(filePath, line, (err) => {
-    if (err) {
-      console.error(`Failed to write to log file: ${filePath}`, err.message);
+  if (process.env.VERCEL) {
+    // In Vercel serverless functions, write directly to stdout
+    const trimmed = line.trim();
+    if (trimmed.includes('[ERROR]')) {
+      console.error(trimmed);
+    } else if (trimmed.includes('[WARN]')) {
+      console.warn(trimmed);
+    } else {
+      console.log(trimmed);
     }
-  });
+    return;
+  }
+
+  try {
+    fs.appendFile(filePath, line, (err) => {
+      if (err) {
+        console.error(`Failed to write to log file: ${filePath}`, err.message);
+      }
+    });
+  } catch (err) {
+    console.error('Log write fallback:', line.trim());
+  }
 };
 
 /**

@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -11,11 +12,19 @@
     },
     {
       "source": "/admin",
-      "destination": "/admin/index.html"
+      "destination": "/public/admin/index.html"
     },
     {
-      "source": "/admin/:path*",
-      "destination": "/admin/index.html"
+      "source": "/admin/(.*)",
+      "destination": "/public/admin/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/((?!api/|public/).*)",
+      "destination": "/public/$1"
     }
   ]
 }

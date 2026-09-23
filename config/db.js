@@ -7,11 +7,13 @@ const mongoose = require('mongoose');
 const dns = require('dns');
 
 // Use reliable public DNS resolvers to handle MongoDB Atlas SRV records on Windows
-try {
-  dns.setDefaultResultOrder('ipv4first');
-  dns.setServers(['8.8.8.8', '1.1.1.1']);
-} catch (e) {
-  // Fallback if DNS setServers fails in constrained runtime environments
+if (process.platform === 'win32') {
+  try {
+    dns.setDefaultResultOrder('ipv4first');
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (e) {
+    // Fallback if DNS setServers fails in constrained runtime environments
+  }
 }
 
 /**
