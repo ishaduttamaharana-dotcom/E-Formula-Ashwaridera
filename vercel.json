@@ -2,12 +2,28 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/admin",
-      "destination": "/admin/index.html"
+      "source": "/api/v1/:path*",
+      "destination": "/api/index.js"
     },
     {
-      "source": "/admin/(.*)",
-      "destination": "/admin/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/admin",
+      "destination": "/public/admin/index.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/public/admin/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/public/:path*"
     }
   ]
 }
