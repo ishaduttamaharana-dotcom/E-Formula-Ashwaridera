@@ -142,7 +142,7 @@ if (process.env.NODE_ENV === 'development' || process.env.VERCEL) {
 const connectDB = require('./config/db');
 
 app.use(async (req, res, next) => {
-  if (req.path.startsWith('/api')) {
+  if (req.path.startsWith('/api') || req.path.startsWith('/v1')) {
     try {
       await connectDB();
     } catch (dbErr) {
@@ -150,6 +150,7 @@ app.use(async (req, res, next) => {
       return res.status(503).json({
         success: false,
         message: 'Database connection failed. Please ensure MONGODB_URI is set in Vercel environment variables and 0.0.0.0/0 is whitelisted in MongoDB Atlas.',
+        details: dbErr.message,
       });
     }
   }
@@ -190,6 +191,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1', apiRouter);
 app.use('/api', apiRouter);
+app.use('/v1', apiRouter);
 
 // Serve Admin Panel SPA for /admin and /admin/* routes
 app.get(['/admin', '/admin/*'], (req, res, next) => {

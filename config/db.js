@@ -42,12 +42,13 @@ const connectDB = async () => {
 
   if (!cachedPromise) {
     const opts = {
-      serverSelectionTimeoutMS: 30000, // Tolerant selection window for network latency
-      connectTimeoutMS: 30000,
+      serverSelectionTimeoutMS: 15000, // Tolerant selection window for network latency
+      connectTimeoutMS: 15000,
       socketTimeoutMS: 45000,
       family: 4,                        // Force IPv4 DNS lookup
       maxPoolSize: 10,
-      minPoolSize: 2,
+      minPoolSize: process.env.VERCEL ? 0 : 2,
+      bufferCommands: false,           // Fail fast if connection is lost
     };
 
     cachedPromise = mongoose.connect(uri, opts).then((conn) => {
