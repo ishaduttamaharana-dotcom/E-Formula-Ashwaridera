@@ -1,0 +1,16 @@
+# controllers/
+# This folder will contain all controller files.
+# Controllers handle the business logic for each feature.
+# 
+# Planned controllers (Phase 2+):
+#   authController.js       - Register, login, logout, token refresh
+#   userController.js       - User CRUD, profile management
+#   teamController.js       - Team member CRUD
+#   galleryController.js    - Gallery CRUD + Cloudinary upload
+#   achievementController.js- Achievement CRUD
+#   contactController.js    - Contact form submission handling
+#   homeController.js       - Home page CMS content
+#   eventController.js      - Events CRUD
+#   sponsorController.js    - Sponsor application handling
+#   joinController.js       - Join team application handling
+#   adminController.js      - Admin dashboard + analytics

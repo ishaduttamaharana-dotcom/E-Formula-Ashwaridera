@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ashwa Riders — Ashwa-3 Race Car</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="mobile.css" />
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --void: #000000; --carbon: #080808; --carbon-2: #121212;
+            --muted-accent: #715A5A; --steel: #9FA7A6; --steel-light: #D3DAD9;
+            --hairline: rgba(211,218,217,0.15); --hairline-soft: rgba(211,218,217,0.08);
+            --paper: #E8ECEB; --paper-2: #D3DAD9; --ink: #222126; --ink-soft: rgba(34,33,38,0.65);
+            --logo-orange: #ff751f; --signal: #F25912; --signal-dim: rgba(242,89,18,0.12);
+            --signal-glow: rgba(242,89,18,0.28); --signal-bright: #FF6A26;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --ease: 0.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font-body); background: var(--void); color: #fff; overflow-x: hidden; line-height: 1.6; }
+        ::selection { background: var(--signal); color: #fff; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--carbon-2); } ::-webkit-scrollbar-thumb { background: var(--signal); }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+        .eyebrow { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--signal); display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--signal); display: inline-block; }
+        .section-title { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800; line-height: 1.08; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 14px; }
+        .section-title em { font-style: normal; color: var(--signal); }
+        .section-subtitle { font-size: 0.95rem; color: var(--steel); line-height: 1.8; font-weight: 300; max-width: 560px; }
+        .btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 28px; font-family: var(--font-body); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; transition: all var(--ease); cursor: pointer; text-decoration: none; border: none; }
+        .btn-primary { background: var(--signal); color: #fff; clip-path: polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%); }
+        .btn-primary:hover { background: var(--signal-bright); transform: translateY(-2px); box-shadow: 0 12px 32px var(--signal-glow); }
+        .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); clip-path: polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%); }
+        .btn-outline:hover { border-color: var(--signal); color: var(--signal); }
+
+        /* NAVBAR */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 20px 0; z-index: 1000; transition: all var(--ease); border-bottom: 1px solid transparent; }
+        .navbar.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(24px); border-bottom: 1px solid var(--hairline); padding: 13px 0; }
+        .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { font-family: var(--font-body); font-size: 1.35rem; font-weight: 900; letter-spacing: 0.02em; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; text-transform: uppercase; }
+        .nav-logo-wrapper { display: flex; flex-direction: column; }
+        .nav-logo span span { color: var(--logo-orange); }
+        .logo-mark { height: 42px; width: auto; object-fit: contain; }
+        .nav-subtitle { font-family: var(--font-mono); font-size: 0.6rem; color: var(--steel); letter-spacing: 0.14em; text-transform: uppercase; margin-top: -2px; }
+        .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; }
+        .nav-links a { color: rgba(255,255,255,0.55); text-decoration: none; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em; padding: 8px 14px; position: relative; transition: color var(--ease); }
+        .nav-links a::after { content: ''; position: absolute; bottom: 2px; left: 14px; right: 14px; height: 1px; background: var(--signal); transform: scaleX(0); transform-origin: left; transition: transform var(--ease); }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+        .nav-cta { padding: 9px 20px !important; background: var(--signal); color: #fff !important; font-weight: 700; clip-path: polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); margin-left: 8px; }
+        .nav-cta:hover { background: var(--signal-bright); } .nav-cta::after { display: none !important; }
+        .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; }
+
+        /* SPLIT PANEL */
+        .car-scroll-track { position: relative; width: 100%; height: 550vh; background: var(--void); }
+        .car-sticky-viewport { position: sticky; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; display: flex; }
+        .story-side { position: relative; width: 38%; height: 100%; background: var(--carbon-2); border-right: 1px solid var(--hairline); z-index: 5; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
+        .story-side::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--signal); }
+        .story-side-watermark { position: absolute; bottom: -10px; left: 20px; font-family: var(--font-body); font-size: 11rem; font-weight: 900; color: rgba(255,255,255,0.025); line-height: 1; text-transform: uppercase; pointer-events: none; user-select: none; letter-spacing: -0.04em; }
+        .stage-panel { position: absolute; inset: 0; padding: 0 32px 28px 40px; display: flex; flex-direction: column; justify-content: center; opacity: 0; transform: translateY(16px); transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1); pointer-events: none; }
+        .stage-panel.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .stage-badge { font-family: var(--font-mono); font-size: 0.62rem; color: var(--signal); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .stage-badge::before { content: ''; width: 16px; height: 1px; background: var(--signal); display: inline-block; }
+        .stage-number { font-family: var(--font-mono); font-size: 6rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,0.05); position: absolute; top: 30%; right: 24px; letter-spacing: -0.05em; pointer-events: none; }
+        .stage-title { font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }
+        .stage-title em { font-style: normal; color: var(--signal); }
+        .stage-desc { font-size: 0.88rem; color: var(--steel-light); line-height: 1.75; font-weight: 300; margin-bottom: 22px; max-width: 340px; }
+        .stage-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 18px; border-top: 1px solid var(--hairline); }
+        .stage-stat-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--steel); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+        .stage-stat-val { font-size: 1.55rem; font-weight: 800; color: #fff; line-height: 1; }
+        .stage-stat-val sub { font-size: 0.72rem; color: var(--signal); font-weight: 400; vertical-align: baseline; margin-left: 2px; }
+        .stage-btn-row { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .canvas-side { position: relative; flex: 1; height: 100%; background: #080808; }
+        .studio-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.014) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.014) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(0,0,0,1) 20%, transparent 80%); pointer-events: none; z-index: 1; }
+        #carFrameCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; cursor: grab; }
+        #carFrameCanvas:active { cursor: grabbing; }
+        .hud-top { position: absolute; top: 96px; left: 20px; z-index: 8; display: flex; flex-direction: column; gap: 6px; }
+        .hud-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(8,8,8,0.82); backdrop-filter: blur(16px); border: 1px solid var(--hairline); padding: 5px 14px; font-family: var(--font-mono); font-size: 0.62rem; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; text-transform: uppercase; }
+        .hud-pill .live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--signal); animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.3;transform:scale(0.65);} }
+        .hud-val { color: #fff; font-weight: 700; } .hud-accent { color: var(--signal); }
+        .timeline-bottom { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 8; display: flex; align-items: center; background: rgba(8,8,8,0.82); backdrop-filter: blur(16px); border: 1px solid var(--hairline); }
+        .tl-step { display: flex; align-items: center; cursor: pointer; padding: 10px 18px; border-right: 1px solid var(--hairline); transition: background 0.3s ease; position: relative; }
+        .tl-step:last-child { border-right: none; }
+        .tl-step:hover { background: rgba(242,89,18,0.08); }
+        .tl-step.active { background: rgba(242,89,18,0.12); }
+        .tl-step.active::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--signal); }
+        .tl-num { font-family: var(--font-mono); font-size: 0.58rem; color: var(--signal); letter-spacing: 0.08em; margin-right: 6px; }
+        .tl-label { font-family: var(--font-mono); font-size: 0.58rem; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; text-transform: uppercase; }
+        .tl-step.active .tl-label { color: #fff; }
+        .car-scroll-prompt { position: absolute; right: 28px; top: 50%; transform: translateY(-50%); z-index: 8; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.58rem; writing-mode: vertical-rl; color: rgba(255,255,255,0.3); letter-spacing: 0.12em; text-transform: uppercase; transition: opacity 0.5s ease; }
+        .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--signal), transparent); animation: scroll-drop 2s infinite; }
+        @keyframes scroll-drop { 0%{opacity:1;} 100%{opacity:0;} }
+
+        /* STATS STRIP */
+        .stats-strip { background: var(--carbon-2); border-top: 3px solid var(--signal); border-bottom: 1px solid var(--hairline); position: relative; z-index: 10; }
+        .stats-strip-inner { display: grid; grid-template-columns: repeat(4,1fr); border-left: 1px solid var(--hairline); }
+        .stat-block { padding: 36px 28px; border-right: 1px solid var(--hairline); position: relative; overflow: hidden; transition: background var(--ease); }
+        .stat-block:hover { background: rgba(242,89,18,0.06); }
+        .stat-block::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--signal); transform: scaleX(0); transform-origin: left; transition: transform var(--ease); }
+        .stat-block:hover::after { transform: scaleX(1); }
+        .stat-key { font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted-accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+        .stat-num { font-size: 2.8rem; font-weight: 900; line-height: 1; color: #fff; letter-spacing: -0.03em; }
+        .stat-num .unit { font-size: 1rem; font-weight: 400; color: var(--signal); margin-left: 4px; }
+        .stat-sub { font-family: var(--font-mono); font-size: 0.6rem; color: var(--steel); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+        /* TECH SECTION */
+        .tech-section { background: var(--void); padding: 100px 0; position: relative; }
+        .tech-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 22rem; font-weight: 900; color: rgba(255,255,255,0.018); letter-spacing: -0.06em; text-transform: uppercase; pointer-events: none; user-select: none; white-space: nowrap; }
+        .tech-header { margin-bottom: 50px; }
+        .sys-tabs { display: flex; border-bottom: 1px solid var(--hairline); margin-bottom: 40px; overflow-x: auto; }
+        .sys-tab { padding: 13px 22px; cursor: pointer; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--steel); background: transparent; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.3s ease; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+        .sys-tab:hover { color: #fff; } .sys-tab.active { color: var(--signal); border-bottom-color: var(--signal); }
+        .sys-panel { display: none; }
+        .sys-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); animation: fadeUp 0.4s ease; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+        .sys-card { background: var(--carbon-2); padding: 36px 32px; transition: background var(--ease); }
+        .sys-card:hover { background: #1a1a1a; } .sys-card.full { grid-column: 1/-1; }
+        .sys-card-icon { width: 44px; height: 44px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--signal); margin-bottom: 16px; }
+        .sys-card h3 { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; color: #fff; }
+        .sys-card p { font-size: 0.86rem; color: var(--steel); line-height: 1.75; font-weight: 300; margin-bottom: 20px; }
+        .spec-list { list-style: none; }
+        .spec-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--hairline-soft); font-size: 0.83rem; }
+        .spec-list li:last-child { border-bottom: none; }
+        .spec-list .k { font-family: var(--font-mono); color: var(--steel); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        .spec-list .v { font-weight: 600; color: #fff; }
+
+        /* BUILD TIMELINE */
+        .build-section { background: var(--carbon-2); padding: 100px 0; overflow: hidden; position: relative; }
+        .build-section::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--signal), transparent); }
+        .build-timeline { display: flex; margin-top: 56px; border: 1px solid var(--hairline); overflow-x: auto; }
+        .build-step { min-width: 220px; flex: 1; padding: 32px 28px; border-right: 1px solid var(--hairline); position: relative; transition: background var(--ease); }
+        .build-step:last-child { border-right: none; }
+        .build-step:hover { background: rgba(242,89,18,0.07); }
+        .build-step::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--hairline); transition: background var(--ease); }
+        .build-step:hover::before, .build-step.done::before { background: var(--signal); }
+        .build-step-num { font-family: var(--font-mono); font-size: 0.6rem; color: var(--signal); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+        .build-step-icon { font-size: 1.5rem; color: var(--steel-light); margin-bottom: 14px; }
+        .build-step h4 { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; color: #fff; }
+        .build-step p { font-size: 0.8rem; color: var(--steel); line-height: 1.65; font-weight: 300; }
+        .build-step-tag { margin-top: 18px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted-accent); text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* GALLERY */
+        .gallery-section { background: var(--steel-light); padding: 100px 0; }
+        .gallery-section .eyebrow { color: var(--signal); }
+        .gallery-section .section-title { color: var(--ink); } .gallery-section .section-title em { color: var(--signal); }
+        .gallery-section .section-subtitle { color: var(--ink-soft); }
+        .gallery-masonry { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 260px 260px; gap: 3px; margin-top: 48px; }
+        .g-item { background: var(--carbon); position: relative; overflow: hidden; display: flex; align-items: flex-end; cursor: pointer; transition: all var(--ease); }
+        .g-item:first-child { grid-row: 1/3; }
+        .g-item::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 24px 24px; }
+        .g-item::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%); }
+        .g-label { position: relative; z-index: 2; padding: 20px; font-family: var(--font-mono); font-size: 0.68rem; color: rgba(255,255,255,0.7); letter-spacing: 0.08em; text-transform: uppercase; }
+        .g-overlay { position: absolute; inset: 0; z-index: 3; background: rgba(242,89,18,0.15); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--ease); }
+        .g-overlay i { font-size: 2rem; color: var(--signal); }
+        .g-item:hover .g-overlay { opacity: 1; } .g-item:hover { filter: brightness(1.1); }
+
+        /* CTA */
+        .cta-section { position: relative; overflow: hidden; padding: 100px 0; background: var(--void); }
+        .cta-section::before { content: ''; position: absolute; top: -20%; left: -10%; right: -10%; bottom: -20%; background: var(--signal); clip-path: polygon(0 30%, 100% 0%, 100% 70%, 0 100%); }
+        .cta-inner { position: relative; z-index: 2; text-align: center; padding: 40px 20px; }
+        .cta-inner .eyebrow { color: rgba(255,255,255,0.7); } .cta-inner .eyebrow::before { background: rgba(255,255,255,0.5); }
+        .cta-inner .section-title { color: #fff; font-size: clamp(2rem,4.5vw,3.5rem); }
+        .cta-inner .section-subtitle { color: rgba(255,255,255,0.8); margin: 0 auto 36px; }
+        .cta-inner .btn-primary { background: #fff; color: var(--signal); }
+        .cta-inner .btn-primary:hover { background: var(--void); color: #fff; }
+        .cta-inner .btn-outline { border-color: rgba(255,255,255,0.5); }
+
+        /* FOOTER */
+        .footer { background: var(--carbon-2); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+        .footer-brand .logo { font-family: var(--font-body); font-size: 1.35rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+        .footer-brand .logo span { color: var(--logo-orange); }
+        .footer-brand p { margin-top: 14px; font-size: 0.85rem; line-height: 1.8; max-width: 300px; font-weight: 300; }
+        .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .footer ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .footer ul a { color: var(--steel); text-decoration: none; font-size: 0.86rem; transition: color var(--ease); }
+        .footer ul a:hover { color: var(--signal); }
+        .social-links { display: flex; gap: 8px; margin-top: 20px; }
+        .social-links a { width: 36px; height: 36px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel); transition: all var(--ease); text-decoration: none; }
+        .social-links a:hover { border-color: var(--signal); color: var(--signal); }
+        .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; }
+
+        /* TOAST */
+        .toast { position: fixed; bottom: 28px; right: 28px; z-index: 3000; padding: 14px 24px; background: var(--carbon-2); color: #fff; box-shadow: 0 24px 60px rgba(0,0,0,0.5); border: 1px solid var(--hairline); border-left: 3px solid var(--signal); transform: translateY(20px); opacity: 0; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); pointer-events: none; font-size: 0.86rem; max-width: 360px; display: flex; align-items: center; gap: 12px; }
+        .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .toast-icon { color: var(--signal); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) { .story-side { width: 42%; } .footer-grid { grid-template-columns: 1fr 1fr; } .gallery-masonry { grid-template-columns: 1fr 1fr; grid-template-rows: auto; } .g-item:first-child { grid-row: auto; } }
+        @media (max-width: 768px) {
+            .car-scroll-track { height: 220vh; }
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(0,0,0,0.98); padding: 20px; gap: 2px; border-bottom: 1px solid var(--hairline); }
+            .nav-links.open { display: flex; } .nav-links a { width: 100%; padding: 12px 6px; } .mobile-toggle { display: block; }
+            .car-sticky-viewport { flex-direction: column; height: 100dvh; height: 100vh; } .story-side { width: 100%; height: 45vh; } .canvas-side { flex: 1; height: 55vh; }
+            .stage-panel { padding: 16px 20px 16px 28px; } .stage-title { font-size: 1.2rem; }
+            .stats-strip-inner { grid-template-columns: 1fr 1fr; } .sys-panel.active { grid-template-columns: 1fr; }
+            .gallery-masonry { grid-template-columns: 1fr; grid-template-rows: auto; }
+            .footer-grid { grid-template-columns: 1fr; gap: 30px; } .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+            .timeline-bottom { display: none; }
+        }
+        @media (max-width: 480px) { .stats-strip-inner { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle toast-icon"></i><span id="toast-message">Scroll to experience Ashwa-3</span></div>
+
+<nav class="navbar" id="navbar">
+    <div class="container">
+        <a href="index.html" class="nav-logo">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+            <div class="nav-logo-wrapper"><span>Ashwa<span>Riders</span></span><span class="nav-subtitle">E-FORMULA · SVPCET</span></div>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="team.html">Team</a></li>
+            <li><a href="car.html" class="active">Car</a></li><li><a href="gallery.html">Gallery</a></li>
+            <li><a href="sponsors.html">Sponsors</a></li><li><a href="achievements.html">Achievements</a></li>
+            <li><a href="contact.html">Contact</a></li><li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+        </ul>
+        <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- Mobile Navigation Drawer -->
+<div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+<aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+  <div class="mobile-nav-header">
+    <div class="mobile-nav-brand">
+      <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+      <span>Ashwa Riders</span>
+    </div>
+    <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <nav class="mobile-nav-links">
+    <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link active" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+    <a class="mobile-nav-link" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+  </nav>
+  <div class="mobile-nav-footer">
+    <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+  </div>
+</aside>
+
+<div class="car-scroll-track" id="carScrollTrack">
+    <div class="car-sticky-viewport" id="carStickyViewport">
+        <div class="story-side">
+            <div class="story-side-watermark">A3</div>
+            <div class="stage-panel active" id="stage-0">
+                <div class="stage-badge">// 2026 E-Formula</div><div class="stage-number">00</div>
+                <h1 class="stage-title">Ashwa<em>-3</em><br>Race Car</h1>
+                <p class="stage-desc">India's most advanced Formula Student electric race car. Engineered for precision, built for speed.</p>
+                <div class="stage-stats"><div><div class="stage-stat-label">Peak Power</div><div class="stage-stat-val">120<sub>kW</sub></div></div><div><div class="stage-stat-label">0–100 km/h</div><div class="stage-stat-val">3.2<sub>sec</sub></div></div></div>
+                <div class="stage-btn-row"><a href="#specs-section" class="btn btn-primary"><i class="fas fa-play"></i> Explore Specs</a><a href="index.html#recruitment" class="btn btn-outline"><i class="fas fa-user-plus"></i> Join Team</a></div>
+            </div>
+            <div class="stage-panel" id="stage-1">
+                <div class="stage-badge">Stage 01 // Reveal</div><div class="stage-number">01</div>
+                <h2 class="stage-title">Engineered<br><em>Without</em> Compromise</h2>
+                <p class="stage-desc">Scroll deeper as internal mechanical components separate and body panels unveil raw carbon engineering beneath.</p>
+                <div class="stage-stats"><div><div class="stage-stat-label">Frame Weight</div><div class="stage-stat-val">28<sub>kg</sub></div></div><div><div class="stage-stat-label">Downforce</div><div class="stage-stat-val">450<sub>kg</sub></div></div></div>
+            </div>
+            <div class="stage-panel" id="stage-2">
+                <div class="stage-badge">Stage 02 // Tech</div><div class="stage-number">02</div>
+                <h2 class="stage-title">Precision in<br><em>Every</em> Component</h2>
+                <p class="stage-desc">Double wishbone Öhlins TTX suspension, 600V battery pack, and Motec M150 ECU in perfect synchronicity.</p>
+                <div class="stage-stats"><div><div class="stage-stat-label">Voltage</div><div class="stage-stat-val">600<sub>V</sub></div></div><div><div class="stage-stat-label">Sensors</div><div class="stage-stat-val">40<sub>+Ch</sub></div></div></div>
+            </div>
+            <div class="stage-panel" id="stage-3">
+                <div class="stage-badge">Stage 03 // Performance</div><div class="stage-number">03</div>
+                <h2 class="stage-title">Built to<br><em>Move</em> You</h2>
+                <p class="stage-desc">Extreme downforce, active DRS drag reduction, and real-time AI telematics engineered to shatter lap records.</p>
+                <div class="stage-stats"><div><div class="stage-stat-label">Top Speed</div><div class="stage-stat-val">140<sub>km/h</sub></div></div><div><div class="stage-stat-label">Torque</div><div class="stage-stat-val">240<sub>Nm</sub></div></div></div>
+            </div>
+            <div class="stage-panel" id="stage-4">
+                <div class="stage-badge">Stage 04 // Final Hero</div><div class="stage-number">04</div>
+                <h2 class="stage-title">Built for<br><em>What's</em> Next.</h2>
+                <p class="stage-desc">Components return to full assembly. The race car is ready to set new benchmarks on circuit.</p>
+                <div class="stage-stats"><div><div class="stage-stat-label">Total Power</div><div class="stage-stat-val">120<sub>kW</sub></div></div><div><div class="stage-stat-label">Total Weight</div><div class="stage-stat-val">220<sub>kg</sub></div></div></div>
+                <div class="stage-btn-row"><a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join Team</a></div>
+            </div>
+        </div>
+        <div class="canvas-side">
+            <div class="studio-grid"></div>
+            <canvas id="carFrameCanvas"></canvas>
+            <div class="hud-top">
+                <div class="hud-pill"><span class="live-dot"></span><span>Frame <span class="hud-val" id="hudFrameIdx">001</span> / 240</span></div>
+                <div class="hud-pill"><span class="hud-accent" id="hudStageLabel">00 // HERO</span></div>
+            </div>
+            <div class="car-scroll-prompt" id="carScrollPrompt"><div class="scroll-line"></div><span>Scroll</span></div>
+            <div class="timeline-bottom" id="timelineHud">
+                <div class="tl-step active" data-step="0"><span class="tl-num">00</span><span class="tl-label">Hero</span></div>
+                <div class="tl-step" data-step="1"><span class="tl-num">01</span><span class="tl-label">Reveal</span></div>
+                <div class="tl-step" data-step="2"><span class="tl-num">02</span><span class="tl-label">Tech</span></div>
+                <div class="tl-step" data-step="3"><span class="tl-num">03</span><span class="tl-label">Performance</span></div>
+                <div class="tl-step" data-step="4"><span class="tl-num">04</span><span class="tl-label">Final</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-strip">
+    <div class="stats-strip-inner">
+        <div class="stat-block"><div class="stat-key">Peak Power</div><div class="stat-num"><span class="counter" data-target="120">0</span><span class="unit">kW</span></div><div class="stat-sub">Electric Motor Output</div></div>
+        <div class="stat-block"><div class="stat-key">0–100 km/h</div><div class="stat-num"><span class="counter" data-target="3" data-decimal="1">0</span><span class="unit">s</span></div><div class="stat-sub">Sprint Acceleration</div></div>
+        <div class="stat-block"><div class="stat-key">Downforce</div><div class="stat-num"><span class="counter" data-target="450">0</span><span class="unit">kg</span></div><div class="stat-sub">@ 100 km/h</div></div>
+        <div class="stat-block"><div class="stat-key">Vehicle Weight</div><div class="stat-num"><span class="counter" data-target="220">0</span><span class="unit">kg</span></div><div class="stat-sub">Total with Driver</div></div>
+    </div>
+</div>
+
+<section class="tech-section" id="specs-section">
+    <div class="tech-watermark">TECH</div>
+    <div class="container">
+        <div class="tech-header"><span class="eyebrow">Engineering Systems</span><h2 class="section-title">Built for <em>Performance</em></h2><p class="section-subtitle">Every vehicle subsystem is engineered to operate in total harmony at race speed.</p></div>
+        <div class="sys-tabs">
+            <button class="sys-tab active" data-tab="chassis"><i class="fas fa-cubes"></i> Chassis</button>
+            <button class="sys-tab" data-tab="suspension"><i class="fas fa-car-side"></i> Suspension</button>
+            <button class="sys-tab" data-tab="aero"><i class="fas fa-wind"></i> Aerodynamics</button>
+            <button class="sys-tab" data-tab="electronics"><i class="fas fa-microchip"></i> Electronics</button>
+            <button class="sys-tab" data-tab="ai"><i class="fas fa-brain"></i> AI &amp; Data</button>
+        </div>
+        <div class="sys-panel active" id="tab-chassis">
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-cubes"></i></div><h3>Carbon Monocoque Chassis</h3><p>Full carbon fiber monocoque designed for maximum structural rigidity and driver safety conforming to FIA Formula Student standards.</p><ul class="spec-list"><li><span class="k">Material</span><span class="v">Carbon Fiber / Honeycomb</span></li><li><span class="k">Weight</span><span class="v">28 kg</span></li><li><span class="k">Torsional Rigidity</span><span class="v">45,000 Nm/deg</span></li><li><span class="k">Safety Standard</span><span class="v">FIA Formula Student</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-ruler-combined"></i></div><h3>Chassis Dimensions</h3><p>Optimized geometry providing ideal weight distribution and driver ergonomics at maximum cornering loads.</p><ul class="spec-list"><li><span class="k">Wheelbase</span><span class="v">1,550 mm</span></li><li><span class="k">Front Track</span><span class="v">1,200 mm</span></li><li><span class="k">Rear Track</span><span class="v">1,180 mm</span></li><li><span class="k">CoG Height</span><span class="v">265 mm</span></li></ul></div>
+        </div>
+        <div class="sys-panel" id="tab-suspension">
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-car-side"></i></div><h3>Suspension Architecture</h3><p>Double wishbone push-rod suspension at all four corners delivers precise handling and adjustable setup for varying circuit conditions.</p><ul class="spec-list"><li><span class="k">Type</span><span class="v">Double Wishbone Push-Rod</span></li><li><span class="k">Dampers</span><span class="v">Öhlins TTX 2-way</span></li><li><span class="k">Anti-roll Bars</span><span class="v">Adjustable Front &amp; Rear</span></li><li><span class="k">Wheel Travel</span><span class="v">60 mm</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-circle-dot"></i></div><h3>Braking System</h3><p>Carbon-ceramic brake discs with regenerative braking blended to maximize energy recovery under deceleration.</p><ul class="spec-list"><li><span class="k">Front Discs</span><span class="v">Carbon-Ceramic 260mm</span></li><li><span class="k">Calipers</span><span class="v">4-Piston Brembo</span></li><li><span class="k">Regen Braking</span><span class="v">Up to 80 kW recovery</span></li><li><span class="k">Brake Bias</span><span class="v">Adjustable 40–60%</span></li></ul></div>
+        </div>
+        <div class="sys-panel" id="tab-aero">
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-wind"></i></div><h3>Aerodynamics Package</h3><p>Full CFD-optimized aerodynamic suite delivering exceptional downforce-to-drag ratios for both high-speed stability and cornering grip.</p><ul class="spec-list"><li><span class="k">Downforce @ 100 km/h</span><span class="v">450 kg</span></li><li><span class="k">Drag Coefficient (Cd)</span><span class="v">0.68</span></li><li><span class="k">Front Wing</span><span class="v">3-Element Carbon</span></li><li><span class="k">Rear Wing</span><span class="v">2-Element + Active DRS</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-table-cells"></i></div><h3>Underbody &amp; Diffuser</h3><p>Ground-effect underbody channels airflow through a full-width rear diffuser generating significant venturi suction at speed.</p><ul class="spec-list"><li><span class="k">Underbody</span><span class="v">Carbon Ground Effect</span></li><li><span class="k">Diffuser</span><span class="v">Full-Width 9-Channel</span></li><li><span class="k">DRS Range</span><span class="v">0–12° Active Adjustment</span></li><li><span class="k">Sidepods</span><span class="v">Undercut Carbon Composite</span></li></ul></div>
+        </div>
+        <div class="sys-panel" id="tab-electronics">
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-microchip"></i></div><h3>Vehicle Control Unit</h3><p>Motec M150 ECU running proprietary real-time vehicle control software, power management, and safety interlocks.</p><ul class="spec-list"><li><span class="k">ECU</span><span class="v">Motec M150</span></li><li><span class="k">Sensors</span><span class="v">40+ Active Channels</span></li><li><span class="k">Telemetry</span><span class="v">4G / Wi-Fi Real-time</span></li><li><span class="k">Data Logging</span><span class="v">100 Hz Frequency</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-battery-full"></i></div><h3>Battery System</h3><p>600V high-voltage lithium-ion battery pack with active thermal management and multi-layer BMS protection.</p><ul class="spec-list"><li><span class="k">Pack Voltage</span><span class="v">600 V nominal</span></li><li><span class="k">Capacity</span><span class="v">7.2 kWh usable</span></li><li><span class="k">Thermal Mgmt.</span><span class="v">Active liquid cooling</span></li><li><span class="k">BMS</span><span class="v">Multi-layer protection</span></li></ul></div>
+        </div>
+        <div class="sys-panel" id="tab-ai">
+            <div class="sys-card full"><div class="sys-card-icon"><i class="fas fa-brain"></i></div><h3>AI &amp; Predictive Performance</h3><p>Machine learning models running on-board analyze lap telematics in real-time for thermal optimization, traction control, and race strategy simulation.</p><ul class="spec-list"><li><span class="k">Telemetry AI</span><span class="v">Real-time lap analytics</span></li><li><span class="k">Predictive Model</span><span class="v">Thermal &amp; energy forecasting</span></li><li><span class="k">Driver Assist</span><span class="v">Dynamic traction slip control</span></li><li><span class="k">Race Strategy</span><span class="v">Automated stint simulations</span></li><li><span class="k">Vision System</span><span class="v">Camera-based track mapping</span></li><li><span class="k">Compute Platform</span><span class="v">NVIDIA Jetson embedded AI</span></li></ul></div>
+        </div>
+    </div>
+</section>
+
+<section class="build-section">
+    <div class="container">
+        <span class="eyebrow">From Concept to Circuit</span>
+        <h2 class="section-title">The Build <em>Journey</em></h2>
+        <p class="section-subtitle">Ashwa-3 was designed, fabricated, and tested entirely by our student engineering team over 14 months.</p>
+        <div class="build-timeline">
+            <div class="build-step done"><div class="build-step-num">01 // Phase</div><div class="build-step-icon"><i class="fas fa-pencil-ruler"></i></div><h4>Concept &amp; Design</h4><p>Defining aerodynamic goals, suspension geometry, and electric powertrain layout using simulation tools.</p><div class="build-step-tag">Sep 2024 — Nov 2024</div></div>
+            <div class="build-step done"><div class="build-step-num">02 // Phase</div><div class="build-step-icon"><i class="fas fa-drafting-compass"></i></div><h4>CAD &amp; Simulation</h4><p>Full 3D modeling in CATIA V5 with CFD aero analysis and structural FEA stress testing.</p><div class="build-step-tag">Nov 2024 — Jan 2025</div></div>
+            <div class="build-step done"><div class="build-step-num">03 // Phase</div><div class="build-step-icon"><i class="fas fa-tools"></i></div><h4>Fabrication</h4><p>Carbon fiber monocoque layup, CNC machined uprights, and welded sub-frame assembly completed.</p><div class="build-step-tag">Jan 2025 — Apr 2025</div></div>
+            <div class="build-step done"><div class="build-step-num">04 // Phase</div><div class="build-step-icon"><i class="fas fa-bolt"></i></div><h4>Electronics Integration</h4><p>600V battery pack installation, wiring harness routing, ECU mapping and sensor calibration.</p><div class="build-step-tag">Apr 2025 — Jun 2025</div></div>
+            <div class="build-step done"><div class="build-step-num">05 // Phase</div><div class="build-step-icon"><i class="fas fa-tachometer-alt"></i></div><h4>Testing &amp; Tuning</h4><p>Skid-pad, autocross, and endurance testing with real-time telemetry data to refine setup.</p><div class="build-step-tag">Jun 2025 — Aug 2025</div></div>
+            <div class="build-step"><div class="build-step-num">06 // Phase</div><div class="build-step-icon"><i class="fas fa-flag-checkered"></i></div><h4>Race Day</h4><p>Full competition events including acceleration, skid-pad, autocross, and 22km endurance run.</p><div class="build-step-tag">Formula Bharat 2026</div></div>
+        </div>
+    </div>
+</section>
+
+<section class="gallery-section">
+    <div class="container">
+        <span class="eyebrow">Visual Breakdown</span>
+        <h2 class="section-title">In the <em>Details</em></h2>
+        <p class="section-subtitle">A closer look at Ashwa-3's high-performance precision craftsmanship and engineering systems.</p>
+        <div class="gallery-masonry">
+            <div class="g-item"><div class="g-label">Front Aero Wing</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item"><div class="g-label">Carbon Monocoque</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item"><div class="g-label">600V Battery Module</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item"><div class="g-label">Rear Diffuser &amp; DRS</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item"><div class="g-label">Öhlins Suspension</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="cta-inner">
+        <span class="eyebrow">Open Positions</span>
+        <h2 class="section-title">Want to Build the<br>Next Machine?</h2>
+        <p class="section-subtitle" style="margin:0 auto 36px;">Join our team of engineers and help design, build, and race the next generation of Ashwa Formula cars.</p>
+        <div style="display:inline-flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+            <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join the Team</a>
+            <a href="contact.html" class="btn btn-outline"><i class="fas fa-envelope"></i> Get in Touch</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand"><div class="logo">Ashwa<span>Riders</span></div><p>Building India's most advanced Formula Student race car. Driven by engineering excellence, fueled by passion.</p><div class="social-links"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a><a href="#"><i class="fab fa-youtube"></i></a><a href="#"><i class="fab fa-x-twitter"></i></a><a href="#"><i class="fab fa-github"></i></a></div></div>
+            <div><h4>Team</h4><ul><li><a href="team.html">Members</a></li><li><a href="index.html#recruitment">Join Us</a></li><li><a href="car.html">Our Car</a></li><li><a href="achievements.html">Achievements</a></li></ul></div>
+            <div><h4>Resources</h4><ul><li><a href="#">Blog</a></li><li><a href="#">Press Kit</a></li><li><a href="assets/docs/ashwa-riders-sponsorship-brochure.pdf">Brochure</a></li><li><a href="#">Donate</a></li></ul></div>
+            <div><h4>Contact</h4><ul><li><a href="contact.html">Get in Touch</a></li><li><a href="sponsors.html">Sponsor Us</a></li><li><a href="#">Merchandise</a></li><li><a href="#">Newsletter</a></li></ul></div>
+        </div>
+        <div class="footer-bottom"><span>© 2026 Ashwa Riders. All rights reserved.</span><span>Built by the Ashwa Riders Team</span></div>
+    </div>
+</footer>
+
+<script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 60); });
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', () => { navLinks.classList.toggle('open'); mobileToggle.innerHTML = navLinks.classList.contains('open') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>'; });
+        document.querySelectorAll('.nav-links a').forEach(link => { link.addEventListener('click', () => { navLinks.classList.remove('open'); mobileToggle.innerHTML = '<i class="fas fa-bars"></i>'; }); });
+    }
+    function showToast(msg, icon='fa-check-circle') { const t=document.getElementById('toast'); document.getElementById('toast-message').textContent=msg; t.querySelector('.toast-icon').className='toast-icon fas '+icon; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),3200); }
+    document.querySelectorAll('.sys-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.sys-tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.sys-panel').forEach(p=>p.classList.remove('active')); tab.classList.add('active'); const p=document.getElementById('tab-'+tab.dataset.tab); if(p)p.classList.add('active'); }); });
+    (function(){
+        const counters=document.querySelectorAll('.counter'); let animated=false;
+        function run(){ if(animated)return; const s=document.querySelector('.stats-strip'); if(!s)return; if(s.getBoundingClientRect().top<window.innerHeight*0.9){ animated=true; counters.forEach(el=>{ const target=parseFloat(el.dataset.target); const isD=el.dataset.decimal; const dur=1600; const st=performance.now(); function step(now){ const p=Math.min((now-st)/dur,1); const e=1-Math.pow(1-p,3); el.textContent=isD?(target*e).toFixed(1):Math.round(target*e); if(p<1)requestAnimationFrame(step); } requestAnimationFrame(step); }); } }
+        window.addEventListener('scroll',run); run();
+    })();
+    (function initCarCanvasExperience(){
+        const TOTAL_FRAMES = 240;
+        const frameImages = [];
+        let loadedCount = 0;
+        let targetFrameIdx = 1;
+        let currentFrameIdx = 1;
+        let hasRendered = false;
+
+        const canvas = document.getElementById('carFrameCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        const carScrollTrack = document.getElementById('carScrollTrack');
+        const hudFrameIdx = document.getElementById('hudFrameIdx');
+        const hudStageLabel = document.getElementById('hudStageLabel');
+        const carScrollPrompt = document.getElementById('carScrollPrompt');
+
+        function handleResize(){
+            if(!canvas) return;
+            const s = canvas.parentElement;
+            canvas.width = s ? s.offsetWidth : window.innerWidth;
+            canvas.height = s ? s.offsetHeight : window.innerHeight;
+            renderFrame(currentFrameIdx);
+        }
+        window.addEventListener('resize', handleResize);
+
+        function drawImageProp(ctx, img, w, h){
+            if(!ctx || !img || !img.complete || img.naturalWidth === 0) return;
+            const ir = img.naturalWidth / img.naturalHeight;
+            const cr = w / h;
+            let rW, rH, rX, rY;
+            if(cr > ir){
+                rH = h;
+                rW = h * ir;
+                rX = (w - rW) / 2;
+                rY = 0;
+            } else {
+                rW = w;
+                rH = w / ir;
+                rX = 0;
+                rY = (h - rH) / 2;
+            }
+            ctx.fillStyle = '#080808';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, rX, rY, rW, rH);
+        }
+
+        function renderFrame(index){
+            if(!ctx || !canvas) return;
+            const s = Math.max(1, Math.min(TOTAL_FRAMES, Math.round(index)));
+            let img = frameImages[s - 1];
+
+            // Nearest-frame fallback if current frame isn't loaded yet
+            if(!img || !img.complete || img.naturalWidth === 0){
+                for(let d = 1; d < TOTAL_FRAMES; d++){
+                    if(s - 1 - d >= 0 && frameImages[s - 1 - d] && frameImages[s - 1 - d].complete && frameImages[s - 1 - d].naturalWidth > 0){
+                        img = frameImages[s - 1 - d];
+                        break;
+                    }
+                    if(s - 1 + d < TOTAL_FRAMES && frameImages[s - 1 + d] && frameImages[s - 1 + d].complete && frameImages[s - 1 + d].naturalWidth > 0){
+                        img = frameImages[s - 1 + d];
+                        break;
+                    }
+                }
+            }
+
+            if(img && img.complete && img.naturalWidth > 0){
+                drawImageProp(ctx, img, canvas.width, canvas.height);
+            }
+        }
+
+        function preloadFrames(){
+            for(let i = 1; i <= TOTAL_FRAMES; i++){
+                const img = new Image();
+                const num = String(i).padStart(3, '0');
+                // Relative path works across all servers and sub-directories
+                img.src = `assets/videotophoto/ezgif-frame-${num}.jpg`;
+
+                img.onload = () => {
+                    loadedCount++;
+                    if(i === 1 || !hasRendered || loadedCount === 1){
+                        hasRendered = true;
+                        handleResize();
+                        renderFrame(currentFrameIdx);
+                    }
+                };
+
+                img.onerror = () => {
+                    if(!img.dataset.retry){
+                        img.dataset.retry = '1';
+                        img.src = `./assets/videotophoto/ezgif-frame-${num}.jpg`;
+                    } else if(img.dataset.retry === '1'){
+                        img.dataset.retry = '2';
+                        img.src = `/assets/videotophoto/ezgif-frame-${num}.jpg`;
+                    } else if(img.dataset.retry === '2'){
+                        img.dataset.retry = '3';
+                        img.src = `/Backend/public/assets/videotophoto/ezgif-frame-${num}.jpg`;
+                    }
+                };
+
+                frameImages.push(img);
+            }
+        }
+        preloadFrames();
+
+        function renderLoop(){
+            requestAnimationFrame(renderLoop);
+            if(Math.abs(targetFrameIdx - currentFrameIdx) > 0.05){
+                currentFrameIdx += (targetFrameIdx - currentFrameIdx) * 0.15;
+                renderFrame(currentFrameIdx);
+                if(hudFrameIdx) hudFrameIdx.textContent = String(Math.round(currentFrameIdx)).padStart(3, '0');
+            }
+        }
+        renderLoop();
+
+        const stageDefinitions = [
+            { id: 'stage-0', label: '00 // HERO', min: 0.00, max: 0.15 },
+            { id: 'stage-1', label: '01 // REVEAL', min: 0.15, max: 0.40 },
+            { id: 'stage-2', label: '02 // TECH', min: 0.40, max: 0.65 },
+            { id: 'stage-3', label: '03 // PERFORMANCE', min: 0.65, max: 0.85 },
+            { id: 'stage-4', label: '04 // FINAL HERO', min: 0.85, max: 1.00 }
+        ];
+
+        function updateScrollState(){
+            if(!carScrollTrack) return;
+            const tr = carScrollTrack.getBoundingClientRect();
+            const ts = carScrollTrack.offsetHeight - window.innerHeight;
+            if(ts <= 0) return;
+            const cs = -tr.top;
+            const rp = Math.max(0, Math.min(1, cs / ts));
+            targetFrameIdx = 1 + rp * (TOTAL_FRAMES - 1);
+            let asi = 0;
+            stageDefinitions.forEach((st, idx) => {
+                const ic = rp >= st.min && (rp < st.max || idx === stageDefinitions.length - 1);
+                const el = document.getElementById(st.id);
+                if(el) el.classList.toggle('active', ic);
+                if(ic) asi = idx;
+            });
+            document.querySelectorAll('.tl-step').forEach((s, i) => s.classList.toggle('active', i === asi));
+            if(hudStageLabel) hudStageLabel.textContent = stageDefinitions[asi].label;
+            if(carScrollPrompt) carScrollPrompt.style.opacity = rp > 0.04 ? '0' : '1';
+        }
+
+        window.addEventListener('scroll', updateScrollState, { passive: true });
+        updateScrollState();
+        handleResize();
+
+        document.querySelectorAll('.tl-step').forEach(step => {
+            step.addEventListener('click', () => {
+                const si = parseInt(step.dataset.step);
+                const tp = stageDefinitions[si].min + 0.02;
+                const ts = carScrollTrack.offsetHeight - window.innerHeight;
+                window.scrollTo({ top: carScrollTrack.offsetTop + (tp * ts), behavior: 'smooth' });
+            });
+        });
+
+        // Mouse drag to rotate car directly on canvas for desktop
+        if(canvas && carScrollTrack){
+            let isDragging = false;
+            let startX = 0;
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if(!isDragging) return;
+                const dx = e.clientX - startX;
+                startX = e.clientX;
+                const ts = carScrollTrack.offsetHeight - window.innerHeight;
+                if(ts > 0){
+                    window.scrollBy({ top: -dx * 3, behavior: 'auto' });
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+        }
+    })();
+</script>
+<script src="auth.js"></script>
+<script src="cms.js"></script>
+<script src="/mobile-nav.js"></script>
+<script src="/car-cms.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# services/
+# This folder will contain service layer files.
+# Services encapsulate complex business logic that is shared
+# across multiple controllers.
+#
+# Planned services (Phase 2+):
+#   emailService.js       - Send transactional emails
+#   cloudinaryService.js  - Upload, delete, transform Cloudinary assets
+#   notificationService.js- Create and dispatch notifications
+#   analyticsService.js   - Aggregate analytics data for the dashboard

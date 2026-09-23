@@ -1,0 +1,50 @@
+{
+  "name": "ashwa-riders-backend",
+  "version": "1.0.0",
+  "description": "Scalable production-ready backend for the Ashwa Riders Formula Student team website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "echo \"Linting not configured yet\"",
+    "test": "node tests/phase2-backend-verification.js",
+    "migrate": "node scripts/migrate-cms.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.6.1",
+    "compression": "^1.7.5",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "express-rate-limit": "^7.5.1",
+    "express-validator": "^7.2.1",
+    "fs-extra": "^11.3.0",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.4",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "."
+    ],
+    "ignore": [
+      "node_modules",
+      "logs",
+      "uploads",
+      "public"
+    ],
+    "ext": "js,json"
+  }
+}

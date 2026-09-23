@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Applications — Ashwa Riders E-Formula</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- FontAwesome & Base CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="cms.css" />
+
+  <style>
+    :root {
+      --logo-orange: #ff751f; /* Protected Logo Color */
+      --signal: #F25912;
+      --signal-bright: #FF6A26;
+      --carbon-2: #121212;
+      --muted-accent: #715A5A;
+      --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: var(--font-stack-inter);
+      --font-body: var(--font-stack-inter);
+    }
+    body { font-family: var(--font-body); font-weight: 400; }
+    .app-card {
+      background: rgba(10, 10, 12, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+    .app-card:hover {
+      border-color: var(--signal);
+      background: rgba(18, 18, 22, 0.95);
+    }
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-badge.Pending {
+      background: rgba(255, 193, 7, 0.15);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+    .status-badge.Accepted {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    .status-badge.Rejected {
+      background: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+      border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+    }
+    .app-label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .admin-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+        <div class="nav-logo-wrapper">
+          <span>Ashwa<span>Riders</span></span>
+          <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="car.html">Car</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="my-applications.html" class="active">Applications</a></li>
+        <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ─── HERO SECTION ─── -->
+  <section class="section-padding" style="padding-top: 140px; background: var(--paper);">
+    <div class="container">
+      <div class="reveal">
+        <span class="eyebrow"><i class="fas fa-file-alt"></i> Recruitment Console</span>
+        <h2 class="section-title">Join Team <span class="text-gradient">Applications</span></h2>
+        <p class="section-subtitle" id="pageSubTitle">Track your submitted applications and recruitment status.</p>
+      </div>
+
+      <!-- Admin Filter / Search Bar -->
+      <div id="adminFilterWrap" style="display:none;margin-bottom:24px;background:rgba(255,255,255,0.03);padding:16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;">
+          <input type="text" id="adminSearchInput" placeholder="🔍 Search candidate name, college, or department..." style="padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;outline:none;" />
+          <select id="adminStatusFilter" style="padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;outline:none;">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending 🟡</option>
+            <option value="Accepted">Accepted 🟢</option>
+            <option value="Rejected">Rejected 🔴</option>
+          </select>
+          <button id="adminSearchBtn" class="ar-cms-btn ar-cms-btn--edit"><i class="fas fa-search"></i> Search</button>
+        </div>
+      </div>
+
+      <!-- Applications List Container -->
+      <div id="applicationsContainer">
+        <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p style="margin-top:12px;">Loading applications...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>© 2026 Ashwa Riders. All rights reserved.</span>
+        <span>Built by the Ashwa Riders Team</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/join-cms.js"></script>
+
+  <script>
+    (function() {
+      'use strict';
+      const STORAGE_KEY = 'ar_user';
+
+      const getUser = () => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch { return null; }
+      };
+
+      const user = getUser();
+      const isAdmin = user && user.role === 'admin';
+
+      const container = document.getElementById('applicationsContainer');
+      const adminFilterWrap = document.getElementById('adminFilterWrap');
+      const subTitle = document.getElementById('pageSubTitle');
+
+      if (!user) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:60px 20px;background:rgba(255,255,255,0.03);border-radius:8px;">
+            <h3>Authentication Required</h3>
+            <p style="color:rgba(255,255,255,0.6);margin:12px 0 20px;">Please log in to view your submitted applications.</p>
+            <a href="index.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Go to Homepage</a>
+          </div>
+        `;
+        return;
+      }
+
+      if (isAdmin) {
+        subTitle.textContent = 'Admin Application Management Console — View, filter, accept, or reject candidates.';
+        adminFilterWrap.style.display = 'block';
+        fetchAdminApplications();
+      } else {
+        fetchUserApplications();
+      }
+
+      async function fetchUserApplications() {
+        try {
+          const res = await fetch('/api/v1/join/my-applications', { credentials: 'include' });
+          const data = await res.json();
+          renderApplications(data.data || [], false);
+        } catch (err) {
+          container.innerHTML = `<div style="color:#f44336;">Error loading applications: ${err.message}</div>`;
+        }
+      }
+
+      async function fetchAdminApplications() {
+        try {
+          const search = document.getElementById('adminSearchInput').value;
+          const status = document.getElementById('adminStatusFilter').value;
+          let url = '/api/v1/admin/join?';
+          if (search) url += `search=${encodeURIComponent(search)}&`;
+          if (status) url += `status=${encodeURIComponent(status)}`;
+
+          const res = await fetch(url, { credentials: 'include' });
+          const data = await res.json();
+          renderApplications(data.data || [], true);
+        } catch (err) {
+          container.innerHTML = `<div style="color:#f44336;">Error loading admin applications: ${err.message}</div>`;
+        }
+      }
+
+      document.getElementById('adminSearchBtn').addEventListener('click', fetchAdminApplications);
+
+      function renderApplications(items, adminMode) {
+        if (items.length === 0) {
+          container.innerHTML = `
+            <div style="text-align:center;padding:60px 20px;background:rgba(255,255,255,0.03);border-radius:8px;">
+              <h3>No Applications Found</h3>
+              <p style="color:rgba(255,255,255,0.6);margin-top:8px;">${adminMode ? 'No candidate applications match your filter.' : 'You have not submitted any applications yet.'}</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+
+        items.forEach(app => {
+          const card = document.createElement('div');
+          card.className = 'app-card';
+
+          const statusIcon = app.status === 'Accepted' ? '🟢' : (app.status === 'Rejected' ? '🔴' : '🟡');
+          const createdDate = new Date(app.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+          const resumeBtn = app.resumeUrl ? `<a href="${app.resumeUrl}" target="_blank" class="ar-cms-btn ar-cms-btn--edit" style="font-size:0.75rem;padding:4px 10px;"><i class="fas fa-file-download"></i> Download Resume</a>` : '<span style="color:rgba(255,255,255,0.4);font-size:0.8rem;">No Resume</span>';
+
+          const adminActions = adminMode ? `
+            <div class="admin-controls">
+              <button class="ar-cms-btn ar-cms-btn--save" style="background:#4caf50;" onclick="updateStatus('${app._id}', 'Accepted')">🟢 Accept</button>
+              <button class="ar-cms-btn ar-cms-btn--delete" onclick="updateStatus('${app._id}', 'Rejected')">🔴 Reject</button>
+              <button class="ar-cms-btn ar-cms-btn--cancel" style="margin-left:auto;" onclick="deleteApp('${app._id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          ` : '';
+
+          card.innerHTML = `
+            <div class="app-header">
+              <div>
+                <h3 style="margin:0;font-size:1.1rem;color:#fff;">${app.department} Department</h3>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:2px;">Submitted on ${createdDate}</div>
+              </div>
+              <div class="status-badge ${app.status}">
+                <span>${statusIcon}</span> ${app.status}
+              </div>
+            </div>
+
+            <div class="app-grid">
+              <div>
+                <div class="app-label">Candidate Name</div>
+                <b>${app.fullName}</b>
+              </div>
+              <div>
+                <div class="app-label">College & Branch</div>
+                <div>${app.college} (${app.branch})</div>
+              </div>
+              <div>
+                <div class="app-label">Contact</div>
+                <div>${app.email}<br />${app.phone}</div>
+              </div>
+              <div>
+                <div class="app-label">Resume</div>
+                <div>${resumeBtn}</div>
+              </div>
+            </div>
+
+            ${app.motivation ? `<div style="font-size:0.85rem;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.2);padding:10px;border-radius:4px;margin-top:10px;"><strong>Motivation:</strong> ${app.motivation}</div>` : ''}
+
+            ${adminActions}
+          `;
+
+          container.appendChild(card);
+        });
+      }
+
+      window.updateStatus = async (id, newStatus) => {
+        try {
+          const res = await fetch(`/api/v1/admin/join/${id}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ status: newStatus }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            if (window.ARCms) window.ARCms.showSuccessNotification(`Status updated to ${newStatus}`);
+            fetchAdminApplications();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      window.deleteApp = async (id) => {
+        if (!confirm('Are you sure you want to delete this application?')) return;
+        try {
+          const res = await fetch(`/api/v1/admin/join/${id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+          const data = await res.json();
+          if (data.success) {
+            if (window.ARCms) window.ARCms.showSuccessNotification('Application deleted');
+            fetchAdminApplications();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+    })();
+  </script>
+</body>
+</html>

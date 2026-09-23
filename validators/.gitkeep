@@ -1,0 +1,10 @@
+# validators/
+# This folder will contain express-validator validation chain arrays.
+# Validators are used as middleware before controller handlers.
+#
+# Planned validators (Phase 2+):
+#   authValidator.js       - Registration and login field validation
+#   contactValidator.js    - Contact form field validation
+#   teamValidator.js       - Team member data validation
+#   joinValidator.js       - Join application field validation
+#   sponsorValidator.js    - Sponsor application field validation

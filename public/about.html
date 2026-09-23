@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashwa Riders — About</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="mobile.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       ASHWA RIDERS — DESIGN SYSTEM (shared)
+       Base: deep racing BLACK + warm paper · Signal: TEAL
+       Font: Inter stack (clean, modern, technical automotive)
+    ══════════════════════════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #000000;
+      --carbon: #080808;
+      --carbon-2: #121212;
+      --muted-accent: #715A5A;
+      --steel: #9FA7A6;
+      --steel-light: #D3DAD9;
+      --hairline: rgba(211, 218, 217, 0.15);
+      --hairline-soft: rgba(211, 218, 217, 0.08);
+
+      --paper: #E8ECEB;
+      --paper-2: #D3DAD9;
+      --ink: #222126;
+      --ink-soft: rgba(34, 33, 38, 0.65);
+      --ink-faint: rgba(34, 33, 38, 0.45);
+      --line-dark: rgba(34, 33, 38, 0.12);
+
+      /* Refined Color System */
+      --logo-orange: #ff751f; /* Protected Logo Color */
+
+      --signal: #F25912; /* Primary Accent Orange */
+      --signal-bright: #FF6A26;
+      --signal-glow: rgba(242, 89, 18, 0.28);
+
+      --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: var(--font-stack-inter);
+      --font-body: var(--font-stack-inter);
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-premium: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); overflow-x: hidden; line-height: 1.6; font-weight: 400; }
+    ::selection { background: var(--signal-bright); color: #10141c; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--paper); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 0; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--signal); }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+
+    .text-gradient { color: var(--signal); font-style: normal; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    .text-center { text-align: center; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 34px; border-radius: 2px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.09em; text-transform: uppercase; transition: all var(--ease); cursor: pointer; border: 1px solid transparent; text-decoration: none; position: relative; }
+    .btn-primary { background: var(--signal); color: #10141c; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .btn-primary:hover { background: var(--signal-bright); }
+    .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); }
+    .btn-secondary:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+    .btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+    .section-padding { padding: 96px 0; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--signal); margin-bottom: 14px; display: inline-block; }
+    .eyebrow::before { content: '// '; opacity: 0.6; }
+    .eyebrow.on-dark { color: var(--signal-bright); }
+
+    .section-title { font-size: clamp(2rem, 3.8vw, 3.1rem); line-height: 1.08; margin-bottom: 18px; text-transform: uppercase; }
+    .section-subtitle { font-size: 1.03rem; color: var(--ink-soft); max-width: 640px; line-height: 1.75; font-weight: 300; }
+    .section-title-light { color: #fff; }
+    .section-subtitle-light { color: rgba(255, 255, 255, 0.55); }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-scale { opacity: 0; transform: translateY(18px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-scale.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ── Navigation ── */
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 22px 0; z-index: 1000; transition: all var(--ease); border-bottom: 1px solid transparent; }
+    .navbar.scrolled { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--hairline); padding: 14px 0; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+
+    /* NEW LOGO LAYOUT (matching home) */
+    .nav-logo { 
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: 0.02em; 
+      color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; text-transform: uppercase; 
+    }
+    .nav-logo-wrapper {
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .nav-logo span span { color: var(--logo-orange); }
+    .logo-mark {
+      height: 48px; width: auto; flex-shrink: 0; 
+      object-fit: contain;
+      transition: all var(--ease);
+    }
+    .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 6px var(--signal-bright)); }
+    body.light .nav-logo { color: var(--ink); }
+
+    .nav-subtitle {
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 400; 
+      letter-spacing: 0.15em; color: var(--steel); text-transform: uppercase;
+      margin-top: -2px; text-align: left;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-family: var(--font-mono); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--ease); padding: 8px 14px; display: inline-flex; align-items: center; position: relative; }
+    .nav-links a::after { content: ''; position: absolute; bottom: 2px; left: 14px; right: 14px; height: 1px; background: var(--signal-bright); transform: scaleX(0); transform-origin: left; transition: transform var(--ease); }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a.active { color: #fff; }
+
+    .nav-cta { padding: 9px 22px !important; background: var(--signal); color: #10141c !important; font-weight: 700; clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); margin-left: 10px; }
+    .nav-cta:hover { background: var(--signal-bright); }
+    .nav-cta::after { display: none !important; content: none !important; }
+
+    .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+    .theme-toggle { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 46px; height: 46px; background: var(--void); color: #fff; border: 1px solid var(--hairline); font-size: 1.1rem; cursor: pointer; transition: all var(--ease); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
+    .theme-toggle:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    body.light .theme-toggle { background: var(--paper); color: var(--ink); border-color: var(--line-dark); }
+    body.light .theme-toggle:hover { border-color: var(--signal); }
+
+    /* ═══════════════ ABOUT HERO ═══════════════ */
+    .about-hero {
+      position: relative;
+      min-height: 62vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding-top: 120px;
+      border-bottom: 1px solid var(--hairline);
+      background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png');
+      background-size: cover;
+      background-position: center 45%;
+      background-repeat: no-repeat;
+    }
+    .about-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: rgba(0, 0, 0, 0.72);
+      pointer-events: none;
+    }
+    .about-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 75%);
+      pointer-events: none;
+    }
+    .about-hero .hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    .about-hero .hero-bg .gradient-orb { position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.12; background: var(--signal); pointer-events: none; }
+    .about-hero .hero-bg .orb1 { width: 520px; height: 520px; top: -200px; right: -100px; }
+    .about-hero .hero-bg .orb2 { width: 400px; height: 400px; bottom: -160px; left: -100px; opacity: 0.06; }
+    .about-hero .hero-content { position: relative; z-index: 2; padding-bottom: 50px; }
+    .about-hero h1 {
+      font-size: clamp(2.2rem, 5.6vw, 4rem);
+      color: #fff;
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+    }
+    .about-hero h1 .text-gradient { color: var(--signal-bright); text-shadow: 0 0 60px rgba(227, 183, 63, 0.2); }
+    .about-hero .tagline {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--signal-bright);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 12px;
+    }
+    .about-hero p {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      max-width: 620px;
+      line-height: 1.85;
+      margin-top: 20px;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ═══════════════ WHO WE ARE (split) ═══════════════ */
+    .split-block { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center; }
+    .split-block.reverse { grid-template-columns: 1.1fr 0.9fr; }
+    .split-image { aspect-ratio: 4/5; background: linear-gradient(155deg, var(--paper-2), var(--paper)); border: 1px solid var(--line-dark); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .split-image.dark { background: linear-gradient(155deg, var(--carbon), var(--void)); border-color: var(--hairline); }
+    .split-image i { font-size: 4rem; color: var(--signal); opacity: 0.8; }
+    .split-image.dark i { color: var(--signal-bright); }
+    .split-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+    .split-copy p { color: var(--ink-soft); font-weight: 300; line-height: 1.85; margin-bottom: 16px; font-size: 1rem; }
+    .split-copy p.lead { font-size: 1.1rem; color: var(--ink); font-weight: 400; }
+
+    /* ═══════════════ VISION & MISSION — NEW REDESIGN ═══════════════ */
+    .vm-new { display: flex; flex-direction: column; gap: 40px; margin-top: 20px; }
+    .vm-new-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 32px;
+      align-items: flex-start;
+      background: var(--paper);
+      padding: 32px 40px 32px 28px;
+      border-left: 4px solid var(--signal);
+      transition: all var(--ease);
+      box-shadow: 0 1px 0 0 var(--line-dark);
+    }
+    .vm-new-item:hover { background: #fff; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04); transform: translateX(4px); }
+    .vm-new-item .vm-icon {
+      width: 64px; height: 64px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; color: var(--signal);
+      background: rgba(255, 117, 31, 0.08);
+      border-radius: 2px;
+      transition: all var(--ease);
+    }
+    .vm-new-item:hover .vm-icon { background: var(--signal); color: #fff; }
+    .vm-new-item .vm-text h3 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 8px; color: var(--ink); }
+    .vm-new-item .vm-text h3 span { color: var(--signal); }
+    .vm-new-item .vm-text p { font-weight: 300; color: var(--ink-soft); line-height: 1.75; font-size: 0.98rem; max-width: 600px; }
+    .vm-new-item .vm-text ul { list-style: none; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+    .vm-new-item .vm-text ul li { font-size: 0.85rem; font-weight: 400; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+    .vm-new-item .vm-text ul li::before { content: '◆'; color: var(--signal); font-size: 0.55rem; opacity: 0.6; }
+
+    /* ═══════════════ VALUE CARDS ═══════════════ */
+    .value-grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-dark); border: 1px solid var(--line-dark); }
+    .value-card-x { background: var(--paper); padding: 32px 26px; transition: all var(--ease); cursor: default; overflow: hidden; }
+    .value-card-x:hover { background: #fff; }
+    .value-card-x i { font-size: 1.5rem; color: var(--signal); }
+    .value-card-x h4 { font-size: 1.02rem; text-transform: uppercase; margin: 16px 0 0; transition: margin var(--ease); }
+    .value-card-x p { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.7; font-weight: 300; max-height: 0; opacity: 0; overflow: hidden; transition: all var(--ease); margin-top: 0; }
+    .value-card-x:hover p { max-height: 200px; opacity: 1; margin-top: 10px; }
+    .value-card-x:hover h4 { margin-bottom: 0; }
+
+    /* ═══════════════ PHILOSOPHY ═══════════════ */
+    .philosophy-band { background: var(--void); color: #fff; padding: 110px 0; text-align: center; position: relative; overflow: hidden; }
+    .philosophy-band::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 56px 56px; }
+    .philosophy-band .container { position: relative; z-index: 1; }
+    .philosophy-band .statement { font-family: var(--font-display); font-size: clamp(1.6rem, 3.4vw, 2.6rem); text-transform: uppercase; max-width: 820px; margin: 0 auto 24px; line-height: 1.3; }
+    .philosophy-band .statement span { color: var(--signal-bright); }
+    .philosophy-band p { color: rgba(255,255,255,0.55); font-weight: 300; max-width: 620px; margin: 0 auto; line-height: 1.85; font-size: 1.02rem; }
+
+    /* ═══════════════ TEAM STRUCTURE ═══════════════ */
+    .org-chart { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 50px; }
+    .org-node {
+      font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.03em;
+      padding: 16px 38px; border: 1px solid var(--line-dark); background: var(--paper);
+      text-decoration: none; color: var(--ink); font-size: 0.95rem; font-weight: 700;
+      transition: all var(--ease); position: relative;
+    }
+    .org-node:hover { border-color: var(--signal); color: var(--signal); background: #fff; }
+    .org-node.top { background: var(--void); color: #fff; border-color: var(--hairline); }
+    .org-node.top:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .org-connector { width: 1px; height: 30px; background: var(--line-dark); }
+    .org-node-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    /* ═══════════════ DEPARTMENTS ═══════════════ */
+    .dept-grid-detailed { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+    .dept-card-x { background: var(--void); padding: 30px 26px; text-decoration: none; color: inherit; transition: all var(--ease); position: relative; overflow: hidden; }
+    .dept-card-x::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, var(--signal) 0%, transparent 60%); opacity: 0; transition: opacity var(--ease); }
+    .dept-card-x:hover::before { opacity: 0.12; }
+    .dept-card-x i.dept-icon { font-size: 1.6rem; color: var(--signal-bright); position: relative; z-index: 1; }
+    .dept-card-x h5 { color: #fff; font-size: 1rem; margin: 14px 0 4px; text-transform: uppercase; position: relative; z-index: 1; }
+    .dept-card-x .resp-label { font-family: var(--font-mono); font-size: 0.66rem; color: var(--steel); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: block; position: relative; z-index: 1; }
+    .dept-card-x ul { list-style: none; position: relative; z-index: 1; }
+    .dept-card-x ul li { font-size: 0.82rem; color: var(--steel-light); padding: 4px 0; }
+    .dept-card-x ul li::before { content: '— '; color: var(--signal-bright); }
+
+    /* ═══════════════ PROCESS FLOW ═══════════════ */
+    .process-list { display: flex; flex-direction: column; margin-top: 50px; border-top: 1px solid var(--line-dark); }
+    .process-step { border-bottom: 1px solid var(--line-dark); }
+    .process-step summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 22px; padding: 22px 4px; font-family: var(--font-display); text-transform: uppercase; }
+    .process-step summary::-webkit-details-marker { display: none; }
+    .process-step .step-num { font-family: var(--font-mono); font-size: 0.85rem; color: var(--signal); width: 34px; flex-shrink: 0; }
+    .process-step .step-name { font-size: 1.05rem; flex: 1; }
+    .process-step .step-toggle { width: 30px; height: 30px; border: 1px solid var(--line-dark); display: flex; align-items: center; justify-content: center; transition: all var(--ease); flex-shrink: 0; }
+    .process-step[open] .step-toggle { transform: rotate(45deg); border-color: var(--signal); color: var(--signal); }
+    .process-step .step-detail { padding: 0 4px 26px 56px; color: var(--ink-soft); font-weight: 300; font-size: 0.94rem; line-height: 1.75; max-width: 620px; }
+
+    /* ═══════════════ FORMULA BHARAT ═══════════════ */
+    .fb-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+    .fb-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .fb-tag { font-family: var(--font-mono); font-size: 0.75rem; padding: 8px 16px; border: 1px solid var(--hairline); color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.03em; }
+
+    /* ═══════════════ WORKSHOP GALLERY ═══════════════ */
+    .workshop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-dark); border: 1px solid var(--line-dark); }
+    .workshop-item { aspect-ratio: 4/3; background: var(--void); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: all var(--ease); position: relative; overflow: hidden; cursor: pointer; }
+    .workshop-item:hover { background: var(--carbon-2); }
+    .workshop-item i { font-size: 1.8rem; color: var(--signal-bright); }
+    .workshop-item span { font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.06em; }
+    .workshop-item img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.55; transition: opacity var(--ease), transform var(--ease); }
+    .workshop-item:hover img { opacity: 0.75; transform: scale(1.04); }
+    .workshop-item span, .workshop-item i { position: relative; z-index: 1; }
+    .workshop-item::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.8)); z-index: 0; }
+
+    /* ═══════════════ MESSAGE CARDS ═══════════════ */
+    .message-card { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: center; background: var(--paper); border: 1px solid var(--line-dark); padding: 40px; }
+    .message-photo { aspect-ratio: 1/1; background: linear-gradient(155deg, var(--paper-2), var(--paper)); border: 1px solid var(--line-dark); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .message-photo i { font-size: 3rem; color: var(--signal); opacity: 0.7; }
+    .message-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .message-quote { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.5; font-style: normal; color: var(--ink); }
+    .message-quote::before { content: '\201C'; color: var(--signal); margin-right: 4px; }
+    .message-meta { margin-top: 18px; display: flex; align-items: center; gap: 14px; }
+    .message-meta .name-role { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-faint); }
+    .message-meta .name-role b { color: var(--ink); display: block; font-size: 0.92rem; font-family: var(--font-body); font-weight: 700; }
+    .message-meta a { color: var(--signal); font-size: 1.1rem; }
+
+    /* ═══════════════ CHIP GRID ═══════════════ */
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+    .chip { font-family: var(--font-mono); font-size: 0.82rem; padding: 12px 22px; border: 1px solid var(--line-dark); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; transition: all var(--ease); }
+    .chip:hover { border-color: var(--signal); color: var(--signal); }
+
+    /* ═══════════════ BENEFIT GRID ═══════════════ */
+    .benefit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); margin-top: 44px; }
+    .benefit-card { background: var(--void); padding: 30px 24px; }
+    .benefit-card i { font-size: 1.4rem; color: var(--signal-bright); }
+    .benefit-card h5 { color: #fff; font-size: 0.95rem; margin: 14px 0 0; text-transform: uppercase; }
+
+    /* ═══════════════ CTA ═══════════════ */
+    .cta-band { padding: 100px 0; background: var(--void); text-align: center; color: #fff; position: relative; overflow: hidden; border-top: 1px solid var(--hairline); }
+    .cta-band::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 56px 56px; }
+    .cta-band .container { position: relative; z-index: 1; }
+
+    /* ═══════════════ FOOTER ═══════════════ */
+    .footer { background: var(--void); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+    .footer .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+    .footer .footer-brand .logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+    .footer .footer-brand .logo span { color: var(--signal-bright); }
+    .footer .footer-brand p { margin-top: 14px; font-size: 0.88rem; line-height: 1.75; max-width: 300px; font-weight: 300; }
+    .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .footer ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer ul a { color: var(--steel); text-decoration: none; font-size: 0.88rem; transition: color var(--ease); }
+    .footer ul a:hover { color: var(--signal-bright); }
+    .footer .social-links { display: flex; gap: 10px; margin-top: 20px; }
+    .footer .social-links a { width: 38px; height: 38px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel); transition: all var(--ease); text-decoration: none; }
+    .footer .social-links a:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .footer .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; }
+
+    /* ── Light theme overrides ── */
+    body.light { background: var(--paper); color: var(--ink); }
+    body.light .navbar.scrolled { background: rgba(246, 244, 238, 0.92); border-bottom: 1px solid var(--line-dark); }
+    body.light .navbar .nav-links a { color: var(--ink-soft); }
+    body.light .navbar .nav-links a:hover, body.light .navbar .nav-links a.active { color: var(--ink); }
+    body.light .navbar .nav-logo { color: var(--ink); }
+    body.light .vm-new-item { background: var(--paper); }
+    body.light .vm-new-item:hover { background: #fff; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .footer .footer-grid { grid-template-columns: 1fr 1fr; }
+      .split-block, .split-block.reverse { grid-template-columns: 1fr; }
+      .value-grid-6 { grid-template-columns: repeat(2, 1fr); }
+      .dept-grid-detailed { grid-template-columns: repeat(2, 1fr); }
+      .fb-panel { grid-template-columns: 1fr; }
+      .workshop-grid { grid-template-columns: repeat(2, 1fr); }
+      .message-card { grid-template-columns: 1fr; text-align: center; }
+      .message-meta { justify-content: center; }
+      .benefit-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; flex-direction: column; align-items: flex-start; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(0, 0, 0, 0.98); padding: 24px; gap: 4px; border-bottom: 1px solid var(--hairline); }
+      .nav-links.open { display: flex; }
+      .nav-links a { width: 100%; padding: 12px 6px; }
+      .mobile-toggle { display: block; }
+      .logo-mark { height: 36px; }
+      .nav-logo { font-size: 1.2rem; gap: 8px; }
+      .nav-subtitle { font-size: 0.55rem; }
+      .about-hero { min-height: 50vh; padding-top: 110px; background-position: center 40%; }
+      .section-padding { padding: 60px 0; }
+      .value-grid-6 { grid-template-columns: 1fr; }
+      .dept-grid-detailed { grid-template-columns: 1fr; }
+      .workshop-grid { grid-template-columns: 1fr; }
+      .benefit-grid { grid-template-columns: 1fr; }
+      .org-node-group { flex-direction: column; }
+      .footer .footer-grid { grid-template-columns: 1fr; gap: 34px; }
+      .footer .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .vm-new-item { grid-template-columns: 1fr; gap: 16px; padding: 24px 20px; border-left-width: 3px; }
+      .vm-new-item .vm-icon { width: 48px; height: 48px; font-size: 1.3rem; }
+      .vm-new-item .vm-text ul { flex-direction: column; gap: 4px; }
+    }
+    @media (max-width: 480px) {
+      .about-hero { background-position: center 35%; }
+      .vm-new-item { padding: 20px 16px; }
+      .vm-new-item .vm-text h3 { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+        <div class="nav-logo-wrapper">
+          <span>Ashwa<span>Riders</span></span>
+          <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="car.html">Car</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+      </ul>
+      <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="mobile-nav-brand">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+        <span>Ashwa Riders</span>
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link active" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+    </nav>
+    <div class="mobile-nav-footer">
+      <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+    </div>
+  </aside>
+
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <!-- ════════════════════════════════════ 1. HERO ════════════════════════════════════ -->
+  <section id="section-hero" class="about-hero">
+    <div class="hero-bg"><div class="gradient-orb orb1"></div><div class="gradient-orb orb2"></div></div>
+    <div class="container hero-content">
+      <div class="reveal">
+        <span class="eyebrow on-dark"><i class="fas fa-flag-checkered"></i> About Ashwa Riders</span>
+        <h1>About Ashwa Riders</h1>
+        <div class="tagline">Engineering Excellence Through Innovation</div>
+        <p>Ashwa Riders is the official Formula Student team of SVPCET, dedicated to designing, manufacturing, and racing Formula-style vehicles while developing future engineers through innovation, teamwork, and real-world engineering challenges.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 2. WHO WE ARE ════════════════════════════════════ -->
+  <section id="section-who-we-are" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="split-block">
+        <div class="split-image reveal-left">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg" alt="E-Formula Ashwa Riders team" loading="lazy" />
+        </div>
+        <div class="split-copy reveal-right">
+          <span class="eyebrow">Who We Are</span>
+          <h2 class="section-title">Who We Are</h2>
+          <p class="lead">We are E-Formula Ashwa Riders, the Formula Student Electric team of St. Vincent Pallotti College of Engineering &amp; Technology (SVPCET), Nagpur — proudly the first Formula Student Electric team from Central India.</p>
+          <p>Founded in 2020, the team brings together students from Mechanical, Electrical, Electronics, Computer Science, Business, and Management to design, build, and race a fully electric Formula-style race car every season.</p>
+          <p>Every member contributes to transforming ideas into a competitive electric racing machine while gaining practical experience far beyond the classroom.</p>
+          <p><strong>At E-Formula Ashwa Riders, students don't just study engineering — they practice it.</strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 3. OUR STORY ════════════════════════════════════ -->
+  <section id="section-story" class="section-padding" style="background: var(--paper-2);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 760px; margin: 0 auto;">
+        <span class="eyebrow">Our Story</span>
+        <h2 class="section-title">Every Great Race Begins <span class="text-gradient">With an Idea</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">
+          E-Formula Ashwa Riders was founded in 2020 at SVPCET, Nagpur, with a mission to unite Formula
+          enthusiasts from diverse engineering backgrounds and build Central India's first Formula Student
+          Electric race car. We debuted at Formula Bharat 2021-22 with our first vehicle, ZEUS, and have
+          competed on India's biggest student motorsport stage every season since.
+        </p>
+        <p class="section-subtitle" style="margin: 20px auto 0;">
+          In 2023, our second-generation vehicle, Tarkshya, carried the team to an All India Rank of 10th
+          out of 37 competing electric teams at Formula Bharat — ahead of squads from several IITs and NITs.
+          Every battery pack, motor controller, chassis calculation, and line of telemetry code since has
+          built on that foundation, guided by our team motto: Adapt. Improvise. Overcome.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 4. VISION & MISSION ════════════════════════════════════ -->
+  <section id="section-vision-mission" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto 20px;">
+        <span class="eyebrow">Vision &amp; Mission</span>
+        <h2 class="section-title">Where We're <span class="text-gradient">Headed</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">Our north star and the path we walk every day.</p>
+      </div>
+
+      <div class="vm-new reveal-scale">
+        <!-- Vision -->
+        <div class="vm-new-item">
+          <div class="vm-icon"><i class="fas fa-eye"></i></div>
+          <div class="vm-text">
+            <h3>Our <span>Vision</span></h3>
+            <p>To be Central India's leading Formula Student Electric team by continuously innovating in EV powertrain engineering, competing nationally at Formula Bharat, and inspiring the next generation of electric-mobility engineers.</p>
+          </div>
+        </div>
+
+        <!-- Mission -->
+        <div class="vm-new-item">
+          <div class="vm-icon"><i class="fas fa-bullseye"></i></div>
+          <div class="vm-text">
+            <h3>Our <span>Mission</span></h3>
+            <p>We design, build, and race a competitive Formula Student Electric vehicle while advancing engineering education and sustainable mobility.</p>
+            <ul>
+              <li>Design and race a competitive Formula Student Electric vehicle</li>
+              <li>Advance electric powertrain and battery engineering education</li>
+              <li>Promote practical engineering education beyond the syllabus</li>
+              <li>Encourage innovation and sustainable-mobility research</li>
+              <li>Develop leadership and teamwork across disciplines</li>
+              <li>Represent SVPCET Nagpur at Formula Bharat and national competitions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 5. CORE VALUES ════════════════════════════════════ -->
+  <section id="section-core-values" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
+        <span class="eyebrow">Core Values</span>
+        <h2 class="section-title">What We <span class="text-gradient">Stand For</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">Hover each card to discover the principles that drive us.</p>
+      </div>
+      <div class="value-grid-6 reveal-scale">
+        <div class="value-card-x"><i class="fas fa-lightbulb"></i><h4>Innovation</h4><p>We push boundaries, challenge the status quo, and embrace new ideas to engineer better solutions every season.</p></div>
+        <div class="value-card-x"><i class="fas fa-users"></i><h4>Teamwork</h4><p>Collaboration across disciplines is at our core. We succeed together by respecting every member's contribution.</p></div>
+        <div class="value-card-x"><i class="fas fa-graduation-cap"></i><h4>Education</h4><p>We believe in learning by doing and growing as engineers through hands-on challenges and real-world problem-solving.</p></div>
+        <div class="value-card-x"><i class="fas fa-trophy"></i><h4>Excellence</h4><p>We hold ourselves to the highest standards in every aspect of our work, from design to competition.</p></div>
+        <div class="value-card-x"><i class="fas fa-seedling"></i><h4>Sustainability</h4><p>We champion green mobility through our electric vehicle platform and promote awareness of sustainable engineering practices.</p></div>
+        <div class="value-card-x"><i class="fas fa-handshake"></i><h4>Integrity</h4><p>Honesty, transparency, and ethical engineering guide our decisions and shape our team culture.</p></div>
+      </div>
+    </div>
+  </section>
+
+ 
+
+  <!-- ════════════════════════════════════ 7. TEAM STRUCTURE ════════════════════════════════════ -->
+  <section id="section-team-structure" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
+        <span class="eyebrow">Team Structure</span>
+        <h2 class="section-title">How We're <span class="text-gradient">Organized</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">Click any level to view its members.</p>
+      </div>
+      <div class="org-chart reveal-scale">
+        <a href="team.html#faculty-advisor" class="org-node top">Faculty Coordinator</a>
+        <div class="org-connector"></div>
+        <a href="team.html#captain" class="org-node top">Captain</a>
+        <div class="org-connector"></div>
+        <a href="team.html#vice-captain" class="org-node top">Vice Captain</a>
+        <div class="org-connector"></div>
+        <a href="team.html#department-heads" class="org-node">Department Heads</a>
+        <div class="org-connector"></div>
+        <a href="team.html#members" class="org-node">Team Members</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 8. DEPARTMENTS ════════════════════════════════════ -->
+  <section id="section-departments" class="section-padding" style="background: var(--void); color: #fff;">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
+        <span class="eyebrow on-dark">Departments</span>
+        <h2 class="section-title section-title-light">Eleven Departments. <span class="text-gradient">One Machine.</span></h2>
+        <p class="section-subtitle section-subtitle-light">Every discipline reports to the same lap-time target. Here's who builds what.</p>
+      </div>
+      <div class="dept-grid-detailed reveal-scale">
+        <div class="dept-card-x"><i class="fas fa-gas-pump dept-icon"></i><h5>Powertrain</h5><span class="resp-label">Team Lead</span><ul><li>Motor &amp; controller</li><li>Battery management</li><li>Thermal systems</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-cogs dept-icon"></i><h5>Drivetrain</h5><span class="resp-label">Team Lead</span><ul><li>Transmission</li><li>Differential</li><li>Axles &amp; bearings</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-wind dept-icon"></i><h5>Aerodynamics</h5><span class="resp-label">Team Lead</span><ul><li>CFD &amp; FEA</li><li>Wings &amp; bodywork</li><li>Downforce optimization</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-chart-line dept-icon"></i><h5>Data Acquisition</h5><span class="resp-label">Team Lead</span><ul><li>Telemetry</li><li>Sensors &amp; logging</li><li>Data analysis</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-car dept-icon"></i><h5>Vehicle Dynamics</h5><span class="resp-label">Team Lead</span><ul><li>Handling &amp; setup</li><li>Kinematics</li><li>Tire modelling</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-microchip dept-icon"></i><h5>System Integration</h5><span class="resp-label">Team Lead</span><ul><li>ECU &amp; wiring</li><li>Controls</li><li>Dashboard &amp; UI</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-code dept-icon"></i><h5>Firmware</h5><span class="resp-label">Team Lead</span><ul><li>Embedded C</li><li>Low-level control</li><li>RTOS &amp; comms</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-circle dept-icon"></i><h5>Brakes</h5><span class="resp-label">Team Lead</span><ul><li>Hydraulics</li><li>Disc &amp; caliper</li><li>ABS strategy</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-steering-wheel dept-icon"></i><h5>Steering</h5><span class="resp-label">Team Lead</span><ul><li>Rack &amp; pinion</li><li>Column &amp; quick-release</li><li>Driver feedback</li></ul></div>
+        <div class="dept-card-x"><i class="fas fa-arrows-alt-v dept-icon"></i><h5>Suspension</h5><span class="resp-label">Team Lead</span><ul><li>Springs &amp; dampers</li><li>Anti-roll bars</li><li>Uprights &amp; wishbones</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 9. HOW WE BUILD ════════════════════════════════════ -->
+  <section id="section-process" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
+        <span class="eyebrow">Our Process</span>
+        <h2 class="section-title">How We Build a <span class="text-gradient">Formula Car</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">Click a stage to see what it involves.</p>
+      </div>
+
+      <div class="process-list reveal-scale">
+        <details class="process-step">
+          <summary><span class="step-num">01</span><span class="step-name">Research</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">We study last season's data, rulebook changes, and competitor designs to set performance targets for the new car.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">02</span><span class="step-name">Concept Design</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">Cross-department reviews translate targets into a system architecture — chassis layout, battery and motor package, and packaging constraints.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">03</span><span class="step-name">CAD Modeling</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">Every component is modelled in full assembly CAD before a single part is manufactured, catching fit and clearance issues early.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">04</span><span class="step-name">Simulation</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">FEA, CFD, and lap-time simulation validate structural integrity, aero performance, and expected track performance.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">05</span><span class="step-name">Manufacturing</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">Parts are machined, welded, and composited in-house and with manufacturing partners, following our build drawings exactly.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">06</span><span class="step-name">Assembly</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">Sub-systems come together on the rolling chassis, with torque specs and wiring checked against the build manual.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">07</span><span class="step-name">Testing</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">Shakedown runs, endurance simulation, and driver seat-time tune the car before it ever reaches scrutineering.</div>
+        </details>
+        <details class="process-step">
+          <summary><span class="step-num">08</span><span class="step-name">Competition</span><span class="step-toggle"><i class="fas fa-plus"></i></span></summary>
+          <div class="step-detail">Scrutineering, static events, and dynamic events at Formula Bharat — the culmination of a full season's work.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 10. FORMULA BHARAT ════════════════════════════════════ -->
+  <section id="section-formula-bharat" class="section-padding" style="background: var(--void); color: #fff;">
+    <div class="container">
+      <div class="fb-panel reveal-scale">
+        <div>
+          <span class="eyebrow on-dark">Why Formula Bharat?</span>
+          <h2 class="section-title section-title-light">Formula <span class="text-gradient">Bharat</span></h2>
+          <p class="section-subtitle section-subtitle-light">
+            Formula Bharat is India's premier Formula Student competition, held annually at the Kari Motor
+            Speedway in Coimbatore, where engineering teams design, manufacture, and compete with
+            Formula-style race cars in combustion and electric categories. E-Formula Ashwa Riders has
+            competed at Formula Bharat every season since our 2021-22 debut with ZEUS, improving to an
+            All India Rank of 10th out of 37 electric teams in 2023 with Tarkshya, and returning to
+            compete again at Formula Bharat 2025.
+          </p>
+          <div class="fb-tags">
+            <span class="fb-tag">Engineering Design</span>
+            <span class="fb-tag">Cost &amp; Manufacturing</span>
+            <span class="fb-tag">Business Presentation</span>
+            <span class="fb-tag">Acceleration</span>
+            <span class="fb-tag">Skidpad</span>
+            <span class="fb-tag">Autocross</span>
+            <span class="fb-tag">Endurance</span>
+          </div>
+        </div>
+        <div class="split-image dark">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784445596/WhatsApp_Image_2026-07-19_at_11.46.38_AM_1_b6kp8z.jpg" alt="E-Formula Ashwa Riders at Formula Bharat" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 11. WORKSHOP GALLERY ════════════════════════════════════ -->
+  <section id="section-workshop" class="section-padding" style="background: var(--void); color: #fff; padding-top: 0;">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
+        <span class="eyebrow on-dark">Workshop</span>
+        <h2 class="section-title section-title-light">Where It All <span class="text-gradient">Comes Together</span></h2>
+      </div>
+      <div class="workshop-grid reveal-scale">
+        <div class="workshop-item">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483846/SAVE_20260111_173616.jpg_1_srifam.jpg" alt="CAD Lab" loading="lazy" />
+          <i class="fas fa-cube"></i><span>CAD Lab</span>
+        </div>
+        <div class="workshop-item">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483829/1768116510403.jpg_1_ibfo5t.jpg" alt="Manufacturing" loading="lazy" />
+          <i class="fas fa-industry"></i><span>Manufacturing</span>
+        </div>
+        <div class="workshop-item">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483764/2026011201302668.jpg_1_vlfcsb.jpg" alt="Assembly" loading="lazy" />
+          <i class="fas fa-toolbox"></i><span>Assembly</span>
+        </div>
+        <div class="workshop-item">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483702/WhatsApp_Image_2026-06-14_at_12.13.28_AM_h0tl39.jpg" alt="Testing" loading="lazy" />
+          <i class="fas fa-gauge-high"></i><span>Testing</span>
+        </div>
+        <div class="workshop-item">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483677/IMG-20260227-WA0016.jpg_n48hsu.jpg" alt="Workshop" loading="lazy" />
+          <i class="fas fa-warehouse"></i><span>Workshop</span>
+        </div>
+        <div class="workshop-item">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483679/WhatsApp_Image_2026-06-14_at_12.16.57_AM_1_ohzzaa.jpg" alt="Competition Prep" loading="lazy" />
+          <i class="fas fa-flag-checkered"></i><span>Competition Prep</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 12. FACULTY MESSAGE ════════════════════════════════════ -->
+  <section id="section-faculty" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto 10px;">
+        <span class="eyebrow">Faculty Message</span>
+        <h2 class="section-title">A Word From Our <span class="text-gradient">Faculty Coordinator</span></h2>
+      </div>
+      <div class="message-card reveal-scale">
+        <div class="message-photo">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483675/WhatsApp_Image_2026-06-14_at_12.16.57_AM_dzrwqz.jpg" alt="Prof. Atul Kumar Saxena, Faculty Coordinator" loading="lazy" />
+        </div>
+        <div>
+          <p class="message-quote">Formula Bharat gives our students a rare chance to apply theory under real constraints — budget, time, and physics don't negotiate. Watching them design, fail, iterate, and improve every season is the best teaching we do all year.</p>
+          <div class="message-meta">
+            <span class="name-role"><b>Prof. Atul Kumar Saxena</b>Faculty Coordinator, E-Formula Ashwa Riders</span>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 13. CAPTAIN'S MESSAGE ════════════════════════════════════ -->
+  <section id="section-captain" class="section-padding" style="background: var(--paper-2);">
+    <div class="container">
+      <div class="message-card reveal-scale">
+        <div class="message-photo">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg" alt="Shreyash Gaikwad, Team Captain" loading="lazy" />
+        </div>
+        <div>
+          <p class="message-quote">Every battery cell balanced and every calculation completed brings us one step closer to the finish line at Formula Bharat.</p>
+          <div class="message-meta">
+            <span class="name-role"><b>Shreyash Gaikwad</b>Team Captain, Formula Bharat 2023 Season</span>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════ 14. WHY JOIN US ════════════════════════════════════ -->
+  <section id="section-why-join" class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
+        <span class="eyebrow">Why Join Ashwa Riders</span>
+        <h2 class="section-title">Skills You'll Actually <span class="text-gradient">Use</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">Members learn far beyond the classroom syllabus.</p>
+      </div>
+      <div class="chip-grid reveal-scale">
+        <span class="chip">CAD</span><span class="chip">Simulation</span><span class="chip">Manufacturing</span>
+        <span class="chip">Battery &amp; BMS</span><span class="chip">Project Management</span><span class="chip">Leadership</span>
+        <span class="chip">Marketing</span><span class="chip">Public Speaking</span><span class="chip">Industry Collaboration</span>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- ════════════════════════════════════ 16. CTA ════════════════════════════════════ -->
+  <section id="section-cta" class="cta-band">
+    <div class="container reveal">
+      <span class="eyebrow on-dark" style="display:block;">Get Involved</span>
+      <h2 style="font-size: clamp(2rem, 4vw, 3.2rem); text-transform:uppercase; margin: 6px 0 16px; color:#fff;">Ready to <span class="text-gradient">Race</span> With Us?</h2>
+      <p style="color: rgba(255,255,255,0.55); font-weight: 300; max-width: 500px; margin: 0 auto 34px;">
+        Join a team of passionate engineers and innovators, or help power our next season as a sponsor.
+      </p>
+      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Become a Team Member</a>
+        <a href="sponsors.html" class="btn btn-secondary"><i class="fas fa-handshake"></i> Become a Sponsor</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">Ashwa<span>Riders</span></div>
+          <p>Building India's most advanced Formula Student race car. Driven by excellence, fueled by passion.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-x-twitter"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>Team</h4>
+          <ul>
+            <li><a href="team.html">Members</a></li>
+            <li><a href="index.html#recruitment">Join Us</a></li>
+            <li><a href="car.html">Our Car</a></li>
+            <li><a href="achievements.html">Achievements</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#">Press Kit</a></li>
+            <li><a href="/assets/docs/ashwa-riders-sponsorship-brochure.pdf">Brochure</a></li>
+            <li><a href="#">Donate</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="contact.html">Get in Touch</a></li>
+            <li><a href="sponsors.html">Sponsor Us</a></li>
+            <li><a href="#">Merchandise</a></li>
+            <li><a href="#">Newsletter</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Ashwa Riders. All rights reserved.</span>
+        <span>Built by the Ashwa Riders Team</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ─── Navbar scroll ──────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ─── Mobile toggle ──────────────────────────────────
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      mobileToggle.innerHTML = navLinks.classList.contains('open') ?
+        '<i class="fas fa-times"></i>' :
+        '<i class="fas fa-bars"></i>';
+    });
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+
+    // ─── Theme Toggle ──────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    let isDark = true;
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+      document.body.classList.toggle('light', !isDark);
+      themeToggle.innerHTML = isDark ?
+        '<i class="fas fa-moon"></i>' :
+        '<i class="fas fa-sun"></i>';
+    });
+
+    // ─── Scroll Reveal ──────────────────────────────────
+    (function initReveal() {
+      const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+      function checkReveals() {
+        const trigger = window.innerHeight * 0.88;
+        reveals.forEach(el => { if (el.getBoundingClientRect().top < trigger) el.classList.add('visible'); });
+      }
+      window.addEventListener('scroll', checkReveals);
+      window.addEventListener('resize', checkReveals);
+      checkReveals();
+    })();
+
+    // ─── Only one process step open at a time ────────────
+    document.querySelectorAll('.process-step').forEach(detail => {
+      detail.addEventListener('toggle', () => {
+        if (detail.open) {
+          document.querySelectorAll('.process-step').forEach(d => { if (d !== detail) d.open = false; });
+        }
+      });
+    });
+  </script>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/mobile-nav.js"></script>
+  <script src="/about-cms.js"></script>
+</body>
+</html>

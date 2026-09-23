@@ -1,0 +1,16 @@
+# models/
+# This folder will contain all Mongoose schema and model definitions.
+# Models are added in Phase 2 and beyond.
+#
+# Planned models (Phase 2+):
+#   User.js           - User account schema (name, email, password, role)
+#   Admin.js          - Admin account schema (or extended role in User)
+#   Team.js           - Team member schema
+#   Gallery.js        - Gallery item schema (image, caption, cloudinaryId)
+#   Achievement.js    - Achievement schema (title, description, date, image)
+#   Contact.js        - Contact form submission schema
+#   HomeContent.js    - CMS schema for home page sections
+#   Event.js          - Event schema
+#   Sponsor.js        - Sponsor application schema
+#   JoinApplication.js- Join team application schema
+#   Notification.js   - Notification schema

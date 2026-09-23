@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashwa Riders — Achievements</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="mobile.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       ASHWA RIDERS — DESIGN SYSTEM v3 (Achievements)
+       Base: racing BLACK + warm paper · Signal: TEAL
+       Font: Inter stack (clean, modern, technical automotive)
+    ══════════════════════════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #000000;
+      --carbon: #080808;
+      --carbon-2: #121212;
+      --muted-accent: #715A5A;
+      --steel: #9FA7A6;
+      --steel-light: #D3DAD9;
+      --hairline: rgba(211, 218, 217, 0.15);
+      --hairline-soft: rgba(211, 218, 217, 0.08);
+
+      --paper: #E8ECEB;
+      --paper-2: #D3DAD9;
+      --ink: #222126;
+      --ink-soft: rgba(34, 33, 38, 0.65);
+      --ink-faint: rgba(34, 33, 38, 0.45);
+      --line-dark: rgba(34, 33, 38, 0.12);
+
+      /* Refined Color System */
+      --logo-orange: #ff751f; /* Protected Logo Color */
+
+      --signal: #F25912; /* Primary Accent Orange */
+      --signal-bright: #FF6A26;
+      --signal-glow: rgba(242, 89, 18, 0.28);
+
+      --silver-tone: #9FA7A6;
+      --cyan-tone: #715A5A;
+
+      --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: var(--font-stack-inter);
+      --font-body: var(--font-stack-inter);
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-premium: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); overflow-x: hidden; line-height: 1.6; font-weight: 400; }
+    ::selection { background: var(--signal-bright); color: #10141c; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--paper); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 0; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--signal); }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+    .text-gradient { color: var(--signal); font-style: normal; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 34px; border-radius: 2px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      transition: all var(--ease); cursor: pointer; border: 1px solid transparent;
+      text-decoration: none; position: relative;
+    }
+    .btn-primary { background: var(--signal); color: #10141c; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .btn-primary:hover { background: var(--signal-bright); }
+    .btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+    .btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+    .section-padding { padding: 100px 0; }
+
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--signal);
+      margin-bottom: 14px; display: inline-block;
+    }
+    .eyebrow::before { content: '// '; opacity: 0.6; }
+    .eyebrow.on-dark { color: var(--signal-bright); }
+
+    .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.06; margin-bottom: 16px; text-transform: uppercase; }
+    .section-subtitle { font-size: 1.02rem; color: var(--ink-soft); max-width: 560px; line-height: 1.75; font-weight: 300; }
+    .section-title-light { color: #fff; }
+    .section-subtitle-light { color: rgba(255, 255, 255, 0.55); }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-scale { opacity: 0; transform: translateY(18px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-scale.visible { opacity: 1; transform: translateY(0); }
+
+    .section-header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+
+    /* ── Navigation ── */
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 22px 0; z-index: 1000; transition: all var(--ease); border-bottom: 1px solid transparent; }
+    .navbar.scrolled { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--hairline); padding: 14px 0; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+
+    /* NEW LOGO LAYOUT (matching home, about, team, gallery, contact) */
+    .nav-logo { 
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: 0.02em; 
+      color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; text-transform: uppercase; 
+    }
+    .nav-logo-wrapper {
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .nav-logo span span { color: var(--logo-orange); }
+    .logo-mark {
+      height: 48px; width: auto; flex-shrink: 0; 
+      object-fit: contain;
+      transition: all var(--ease);
+    }
+    .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 6px var(--signal-bright)); }
+    body.light .nav-logo { color: var(--ink); }
+
+    .nav-subtitle {
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 400; 
+      letter-spacing: 0.15em; color: var(--steel); text-transform: uppercase;
+      margin-top: -2px; text-align: left;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.6); text-decoration: none; font-family: var(--font-mono);
+      font-size: 0.74rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--ease);
+      padding: 8px 14px; display: inline-flex; align-items: center; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 2px; left: 14px; right: 14px; height: 1px;
+      background: var(--signal-bright); transform: scaleX(0); transform-origin: left;
+      transition: transform var(--ease);
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a.active { color: #fff; }
+
+    .nav-cta {
+      padding: 9px 22px !important; background: var(--signal); color: #10141c !important; font-weight: 700;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); margin-left: 10px;
+    }
+    .nav-cta:hover { background: var(--signal-bright); }
+    .nav-cta::after { display: none !important; content: none !important; }
+
+    .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+    /* ── Achievements Hero ── */
+    .achievements-hero {
+      position: relative; min-height: 56vh; display: flex; align-items: center;
+      background: var(--void); overflow: hidden; padding-top: 120px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .achievements-hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 75%);
+    }
+    .achievements-hero .hero-glow { position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.16; background: var(--signal); z-index: 1; }
+    .achievements-hero .g1 { width: 520px; height: 520px; top: -220px; right: -140px; }
+    .achievements-hero .g2 { width: 380px; height: 380px; bottom: -200px; left: -120px; opacity: 0.08; }
+    .achievements-hero .hero-content { position: relative; z-index: 3; }
+    .achievements-hero h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); color: #fff; line-height: 1.05; text-transform: uppercase; }
+    .achievements-hero p { font-size: 1.05rem; color: rgba(255, 255, 255, 0.55); max-width: 540px; line-height: 1.8; margin-top: 16px; font-weight: 300; }
+
+    .achievements-hero .hero-stats { display: flex; gap: 0; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--hairline); flex-wrap: wrap; row-gap: 20px; }
+    .achievements-hero .hero-stats .stat-item { flex: 1 1 20%; min-width: 120px; padding-right: 20px; position: relative; text-align: left; }
+    .achievements-hero .hero-stats .stat-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background: var(--hairline); }
+    .achievements-hero .hero-stats .stat-number { font-family: var(--font-mono); font-size: clamp(1.6rem, 2.4vw, 2.2rem); font-weight: 700; color: #fff; }
+    .achievements-hero .hero-stats .stat-label { font-family: var(--font-mono); font-size: 0.66rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 6px; }
+
+    .hero-slideshow { position: absolute; inset: 0; z-index: 0; }
+    .hero-slideshow .slide {
+      position: absolute; inset: 0; background-position: center; background-size: cover;
+      opacity: 0; transition: opacity 1.6s ease-in-out;
+    }
+    .hero-slideshow .slide.active { opacity: 0.5; }
+    .achievements-hero .hero-scrim {
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.82) 55%, var(--void) 100%),
+                  linear-gradient(90deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.15) 45%);
+    }
+    .hero-photo-tag {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
+      font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.45);
+    }
+    .hero-photo-tag i { color: var(--signal-bright); }
+
+    /* ── Filter Bar & Add Button ── */
+    .toolbar-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 40px 0 50px; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-btn {
+      padding: 9px 22px; border-radius: 2px; border: 1px solid var(--line-dark);
+      background: transparent; font-family: var(--font-mono); font-weight: 500; font-size: 0.72rem;
+      letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all var(--ease);
+      color: var(--ink-soft); display: flex; align-items: center; gap: 8px;
+    }
+    .filter-btn:hover { border-color: var(--signal); color: var(--ink); }
+    .filter-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .filter-btn .count { font-size: 0.62rem; opacity: 0.6; font-weight: 400; }
+    .filter-btn.active .count { opacity: 0.75; color: rgba(255, 255, 255, 0.75); }
+
+    .add-achievement-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 26px; background: var(--signal); color: #10141c;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.78rem;
+      letter-spacing: 0.08em; text-transform: uppercase; border: none; cursor: pointer;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+      transition: all var(--ease);
+    }
+    .add-achievement-btn:hover { background: var(--signal-bright); transform: translateY(-2px); }
+
+    /* ── Achievements Grid ── */
+    .achievement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .achievement-card {
+      background: #fff; border-radius: 2px; padding: 30px 26px;
+      border: 1px solid var(--line-dark); transition: all var(--ease);
+      position: relative; overflow: hidden;
+    }
+    .achievement-card:hover { transform: translateY(-5px); border-color: var(--signal); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06); }
+    .achievement-card .card-media {
+      width: 100%; height: 140px; border-radius: 2px; overflow: hidden; margin-bottom: 16px;
+      background: var(--paper-2); display: flex; align-items: center; justify-content: center;
+    }
+    .achievement-card .card-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .achievement-card .card-icon { font-size: 2.2rem; color: var(--signal); }
+    .achievement-card .card-badge {
+      position: absolute; top: 16px; right: 16px; padding: 4px 12px; border-radius: 2px;
+      font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+      font-family: var(--font-mono); z-index: 2; display: flex; align-items: center; gap: 6px;
+    }
+    .achievement-card .card-badge.competition { background: rgba(184, 134, 11, 0.1); color: var(--signal); }
+    .achievement-card .card-badge.award { background: rgba(184, 134, 11, 0.1); color: var(--signal); }
+    .achievement-card .card-badge.record { background: rgba(79, 179, 201, 0.12); color: var(--cyan-tone); }
+    .achievement-card .card-badge.certificate { background: rgba(16, 20, 28, 0.06); color: var(--ink-faint); }
+    .achievement-card .card-badge.custom { background: rgba(184, 134, 11, 0.16); color: var(--signal); }
+    .achievement-card .card-year { font-family: var(--font-mono); font-size: 0.82rem; color: var(--signal); font-weight: 700; margin-bottom: 4px; }
+    .achievement-card h3 { font-size: 1.12rem; margin-bottom: 6px; line-height: 1.3; text-transform: none; }
+    .achievement-card p { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.7; font-weight: 300; }
+    .achievement-card .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line-dark); }
+    .achievement-card .card-footer .location { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint); }
+    .achievement-card .card-footer .location i { margin-right: 4px; }
+    .achievement-card .card-footer .result { font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700; color: var(--signal); }
+    .achievement-card .card-footer .result.silver { color: var(--silver-tone); }
+    .achievement-card .card-footer .result.cyan { color: var(--cyan-tone); }
+    .achievement-card .remove-btn {
+      position: absolute; top: 16px; left: 16px; width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(16,20,28,0.06); color: var(--ink-faint); border: none; cursor: pointer;
+      display: none; align-items: center; justify-content: center; font-size: 0.7rem; z-index: 3;
+      transition: all var(--ease);
+    }
+    .achievement-card.user-added .remove-btn { display: flex; }
+    .achievement-card .remove-btn:hover { background: #e3453f; color: #fff; }
+
+    /* ── Add Achievement Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(6px);
+      z-index: 4000; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--paper); width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto;
+      border: 1px solid var(--line-dark); position: relative;
+      transform: translateY(20px); opacity: 0; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); opacity: 1; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 24px 28px; border-bottom: 1px solid var(--line-dark); }
+    .modal-header h3 { font-size: 1.2rem; text-transform: uppercase; }
+    .modal-close { width: 34px; height: 34px; border: 1px solid var(--line-dark); background: transparent; cursor: pointer; color: var(--ink-soft); transition: all var(--ease); }
+    .modal-close:hover { border-color: var(--signal); color: var(--signal); }
+    .modal-body { padding: 24px 28px 28px; }
+    .form-row { margin-bottom: 18px; }
+    .form-row label { display: block; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); margin-bottom: 8px; }
+    .form-row input[type="text"], .form-row input[type="number"], .form-row textarea, .form-row select {
+      width: 100%; padding: 11px 14px; border: 1px solid var(--line-dark); background: #fff;
+      font-family: var(--font-body); font-size: 0.9rem; color: var(--ink); border-radius: 2px;
+    }
+    .form-row input:focus, .form-row textarea:focus, .form-row select:focus { outline: none; border-color: var(--signal); }
+    .form-row textarea { resize: vertical; min-height: 70px; }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .photo-drop {
+      border: 1px dashed var(--line-dark); padding: 18px; text-align: center; cursor: pointer;
+      transition: all var(--ease); position: relative; border-radius: 2px;
+    }
+    .photo-drop:hover { border-color: var(--signal); }
+    .photo-drop i { font-size: 1.4rem; color: var(--ink-faint); margin-bottom: 6px; display: block; }
+    .photo-drop span { font-size: 0.78rem; color: var(--ink-faint); font-family: var(--font-mono); }
+    .photo-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .photo-preview { margin-top: 12px; display: none; }
+    .photo-preview img { width: 100%; max-height: 140px; object-fit: cover; border-radius: 2px; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 22px; }
+    .modal-actions .btn { flex: 1; justify-content: center; }
+    .form-hint { font-size: 0.72rem; color: var(--ink-faint); margin-top: 4px; font-family: var(--font-mono); }
+
+    /* ════════════════════════════════════════════════════
+       REDESIGNED TIMELINE SECTION — with background image
+    ════════════════════════════════════════════════════ */
+    .timeline-section {
+      position: relative;
+      padding: 120px 0 130px;
+      overflow: hidden;
+      background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784492223/IMG_9374_cile31.jpg');
+      background-size: cover;
+      background-position: center 40%;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+    .timeline-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: rgba(0, 0, 0, 0.78);
+      pointer-events: none;
+    }
+    .timeline-section::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      pointer-events: none;
+    }
+    .timeline-section .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+    .timeline-header .eyebrow {
+      color: var(--signal-bright);
+      font-size: 0.8rem;
+    }
+    .timeline-header .eyebrow::before {
+      content: '◆ ';
+      opacity: 1;
+      color: var(--signal-bright);
+    }
+    .timeline-header h2 {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+      text-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+    }
+    .timeline-header h2 .text-gradient {
+      color: var(--signal-bright);
+      text-shadow: 0 0 60px rgba(227, 183, 63, 0.2);
+    }
+    .timeline-header p {
+      color: rgba(255, 255, 255, 0.55);
+      max-width: 560px;
+      margin: 0 auto;
+      font-weight: 300;
+      font-size: 1.05rem;
+      line-height: 1.8;
+    }
+
+    /* ── Modern Timeline ──
+       --tl-axis  : distance from .timeline-modern left edge to the
+                    centre of the spine/node axis.
+       --tl-node  : diameter of the dot.
+       --tl-gap   : gap between axis centre and the card's left edge.
+       padding-left on .timeline-modern = --tl-axis + half-node + --tl-gap
+    ── */
+    .timeline-modern {
+      --tl-axis : 20px;   /* single source of truth for spine centre */
+      --tl-node : 18px;   /* node diameter */
+      --tl-gap  : 20px;   /* space between node edge and card */
+
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      max-width: 860px;
+      margin: 0 auto;
+      /* padding-left = axis + half-node + gap */
+      padding-left: calc(var(--tl-axis) + calc(var(--tl-node) / 2) + var(--tl-gap));
+    }
+
+    /* ── Continuous spine: a single absolute element, not per-item ── */
+    .timeline-modern::before {
+      content: '';
+      position: absolute;
+      /* Centre of spine = --tl-axis, spine width = 2px → left = axis - 1px */
+      left: calc(var(--tl-axis) - 1px);
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom,
+        var(--signal-bright) 0%,
+        rgba(227, 183, 63, 0.15) 100%);
+      border-radius: 2px;
+      box-shadow: 0 0 20px rgba(227, 183, 63, 0.1);
+      z-index: 1;
+    }
+
+    .timeline-item-modern {
+      position: relative;
+      padding-bottom: 48px;
+      /* horizontal padding inherited from .timeline-modern padding-left */
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .timeline-item-modern.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Node: centre aligned to spine axis ── */
+    .timeline-item-modern::before {
+      content: '';
+      position: absolute;
+      /*
+        From item's left border the container padding is applied above it,
+        so from the item's left padding edge (0) we want the node centred on
+        the spine.
+        The .timeline-modern left edge is the reference:
+          axis centre from item-left = -(padding-left) + axis
+                                     = -(axis + half-node + gap) + axis
+                                     = -(half-node + gap)
+          node left = -(half-node + gap) - half-node = -(node + gap)
+        Simplified:
+          left = -(var(--tl-node) + var(--tl-gap))
+      */
+      left: calc(-1 * (var(--tl-node) + var(--tl-gap)));
+      top: 8px;
+      width: var(--tl-node);
+      height: var(--tl-node);
+      border-radius: 50%;
+      background: var(--signal);
+      border: 3px solid rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 0 4px rgba(227, 183, 63, 0.25), 0 0 30px rgba(227, 183, 63, 0.08);
+      transition: all 0.4s ease;
+      z-index: 2;
+    }
+    .timeline-item-modern:hover::before {
+      transform: scale(1.25);
+      box-shadow: 0 0 0 6px rgba(227, 183, 63, 0.35), 0 0 50px rgba(227, 183, 63, 0.15);
+    }
+
+    .timeline-item-modern .tl-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 28px 32px 30px;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .timeline-item-modern .tl-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--signal-bright);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .timeline-item-modern:hover .tl-card::before {
+      opacity: 1;
+    }
+    .timeline-item-modern:hover .tl-card {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(227, 183, 63, 0.2);
+      transform: translateX(6px);
+    }
+
+    .tl-card .tl-year {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--signal-bright);
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .tl-card .tl-year .year-line {
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: rgba(227, 183, 63, 0.3);
+    }
+    .tl-card .tl-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .tl-card .tl-title .highlight {
+      color: var(--signal-bright);
+    }
+    .tl-card .tl-desc {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.8;
+      font-weight: 300;
+      max-width: 620px;
+    }
+    .tl-card .tl-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .tl-card .tl-tags span {
+      padding: 4px 14px;
+      border-radius: 2px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+    .tl-card .tl-tags span.gold-tag {
+      background: rgba(227, 183, 63, 0.12);
+      border-color: rgba(227, 183, 63, 0.2);
+      color: var(--signal-bright);
+    }
+    .tl-card .tl-tags span.gold-tag:hover {
+      background: rgba(227, 183, 63, 0.2);
+    }
+    .tl-card .tl-tags span:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── Per-item connector lines are removed.
+       The single .timeline-modern::before spine is already continuous
+       from top:0 to bottom:0 — no need for per-item segments. ── */
+
+    /* ── Timeline responsive ── */
+    @media (max-width: 768px) {
+      .timeline-modern {
+        --tl-axis : 16px;
+        --tl-node : 14px;
+        --tl-gap  : 16px;
+      }
+      .timeline-item-modern { padding-bottom: 36px; }
+      .timeline-item-modern::before { top: 6px; }
+      .timeline-item-modern .tl-card { padding: 20px 20px 22px; }
+      .tl-card .tl-title { font-size: 1.05rem; }
+      .tl-card .tl-desc { font-size: 0.88rem; }
+      .timeline-section { background-attachment: scroll; padding: 80px 0 90px; }
+    }
+    @media (max-width: 480px) {
+      .timeline-modern {
+        --tl-axis : 14px;
+        --tl-node : 12px;
+        --tl-gap  : 14px;
+      }
+      .timeline-item-modern { padding-bottom: 28px; }
+      .timeline-item-modern::before { top: 5px; }
+      .timeline-item-modern .tl-card { padding: 16px 16px 18px; }
+      .tl-card .tl-title { font-size: 0.95rem; }
+      .tl-card .tl-desc { font-size: 0.82rem; }
+      .tl-card .tl-tags span { font-size: 0.55rem; padding: 3px 10px; }
+      .timeline-section { padding: 60px 0 70px; }
+    }
+
+    /* ── CTA ── */
+    .cta-join { background: var(--void); color: #fff; padding: 100px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-join::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 56px 56px; }
+    .cta-join .container { position: relative; z-index: 1; }
+
+    /* ── Footer ── */
+    .footer { background: var(--void); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+    .footer .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+    .footer .footer-brand .logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+    .footer .footer-brand .logo span { color: var(--logo-orange); }
+    .footer .footer-brand p { margin-top: 14px; font-size: 0.88rem; line-height: 1.75; max-width: 300px; font-weight: 300; }
+    .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .footer ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer ul a { color: var(--steel); text-decoration: none; font-size: 0.88rem; transition: color var(--ease); }
+    .footer ul a:hover { color: var(--signal-bright); }
+    .footer .social-links { display: flex; gap: 10px; margin-top: 20px; }
+    .footer .social-links a { width: 38px; height: 38px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel); transition: all var(--ease); text-decoration: none; }
+    .footer .social-links a:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .footer .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; }
+
+    /* ─── Theme Toggle ── */
+    .theme-toggle { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 46px; height: 46px; border-radius: 0; background: var(--void); color: #fff; border: 1px solid var(--hairline); font-size: 1.1rem; cursor: pointer; transition: all var(--ease); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
+    .theme-toggle:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+
+    /* ─── Toast ── */
+    .toast { position: fixed; bottom: 90px; right: 30px; z-index: 3000; padding: 16px 26px; border-radius: 0; background: var(--void); color: #fff; box-shadow: var(--shadow-premium); border: 1px solid var(--hairline); border-left: 2px solid var(--signal-bright); transform: translateY(20px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; font-family: var(--font-body); font-size: 0.88rem; max-width: 380px; }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .toast .toast-icon { color: var(--signal-bright); margin-right: 12px; }
+
+    /* ─── LIGHT THEME ── */
+    body.light { background: var(--paper); color: var(--ink); }
+    body.light .navbar.scrolled { background: rgba(246, 244, 238, 0.92); border-bottom: 1px solid var(--line-dark); }
+    body.light .navbar .nav-links a { color: var(--ink-soft); }
+    body.light .navbar .nav-links a:hover, body.light .navbar .nav-links a.active { color: var(--ink); }
+    body.light .navbar .nav-logo { color: var(--ink); }
+    body.light .theme-toggle { background: var(--paper); color: var(--ink); border-color: var(--line-dark); }
+    body.light .theme-toggle:hover { border-color: var(--signal); }
+    body.light .toast { background: #fff; color: var(--ink); border-color: var(--line-dark); border-left: 2px solid var(--signal); }
+    body.light .achievements-hero { background: var(--paper); }
+    body.light .achievements-hero h1 { color: var(--ink); }
+    body.light .achievements-hero p { color: var(--ink-soft); }
+    body.light .achievements-hero .hero-stats { border-top: 1px solid var(--line-dark); }
+    body.light .achievements-hero .hero-stats .stat-number { color: var(--ink); }
+    body.light .achievements-hero .hero-stats .stat-label { color: var(--ink-faint); }
+    body.light .achievements-hero .hero-stats .stat-item:not(:last-child)::after { background: var(--line-dark); }
+    body.light .achievements-hero::before { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); }
+
+    body.light .timeline-section::before {
+      background: rgba(246, 244, 238, 0.88);
+    }
+    body.light .timeline-section .timeline-header h2 {
+      color: var(--ink);
+      text-shadow: none;
+    }
+    body.light .timeline-section .timeline-header h2 .text-gradient {
+      color: var(--signal);
+      text-shadow: none;
+    }
+    body.light .timeline-section .timeline-header p {
+      color: var(--ink-soft);
+    }
+    body.light .timeline-item-modern .tl-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    body.light .timeline-item-modern:hover .tl-card {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(184, 134, 11, 0.25);
+    }
+    body.light .tl-card .tl-title {
+      color: var(--ink);
+    }
+    body.light .tl-card .tl-title .highlight {
+      color: var(--signal);
+    }
+    body.light .tl-card .tl-desc {
+      color: var(--ink-soft);
+    }
+    body.light .tl-card .tl-tags span {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.06);
+      color: var(--ink-faint);
+    }
+    body.light .tl-card .tl-tags span.gold-tag {
+      background: rgba(184, 134, 11, 0.08);
+      border-color: rgba(184, 134, 11, 0.15);
+      color: var(--signal);
+    }
+    body.light .tl-card .tl-tags span:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--ink);
+    }
+    body.light .timeline-item-modern::before {
+      border-color: var(--paper);
+      box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.2);
+    }
+    body.light .timeline-item-modern:hover::before {
+      box-shadow: 0 0 0 6px rgba(184, 134, 11, 0.3);
+    }
+    body.light .timeline-modern::before {
+      background: linear-gradient(to bottom, var(--signal), rgba(184, 134, 11, 0.1));
+    }
+    body.light .tl-card .tl-year {
+      color: var(--signal);
+    }
+    body.light .tl-card .tl-year .year-line {
+      background: rgba(184, 134, 11, 0.2);
+    }
+    body.light .cta-join { background: var(--carbon); }
+    body.light .footer { background: var(--carbon); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .footer .footer-grid { grid-template-columns: 1fr 1fr; }
+      .timeline-section { background-attachment: scroll; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; flex-direction: column; align-items: flex-start; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(0,0,0,0.98); padding: 24px; gap: 4px; border-bottom: 1px solid var(--hairline); }
+      .nav-links.open { display: flex; }
+      .nav-links a { width: 100%; padding: 12px 6px; }
+      .mobile-toggle { display: block; }
+      .logo-mark { height: 36px; }
+      .nav-logo { font-size: 1.2rem; gap: 8px; }
+      .nav-subtitle { font-size: 0.55rem; }
+      .achievements-hero { min-height: 46vh; padding-top: 100px; }
+      .section-padding { padding: 64px 0; }
+      .achievement-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .footer .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .footer .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .toolbar-row { flex-direction: column; align-items: stretch; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .achievement-grid { grid-template-columns: 1fr; }
+      .achievements-hero .hero-stats { flex-direction: column; gap: 12px; }
+      .achievements-hero .hero-stats .stat-item:not(:last-child)::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast">
+    <i class="fas fa-trophy toast-icon"></i>
+    <span id="toast-message">Celebrating our achievements</span>
+  </div>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+        <div class="nav-logo-wrapper">
+          <span>Ashwa<span>Riders</span></span>
+          <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="car.html">Car</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="achievements.html" class="active">Achievements</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+      </ul>
+      <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="mobile-nav-brand">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+        <span>Ashwa Riders</span>
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link active" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+    </nav>
+    <div class="mobile-nav-footer">
+      <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+    </div>
+  </aside>
+
+  <!-- ─── THEME TOGGLE ─── -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  ACHIEVEMENTS HERO                                -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="achievements-hero">
+    <div class="hero-slideshow" id="heroSlideshow">
+      <div class="slide active" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483846/SAVE_20260111_173616.jpg_1_srifam.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483829/1768116510403.jpg_1_ibfo5t.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483764/2026011201302668.jpg_1_vlfcsb.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483702/WhatsApp_Image_2026-06-14_at_12.13.28_AM_h0tl39.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483677/IMG-20260227-WA0016.jpg_n48hsu.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483679/WhatsApp_Image_2026-06-14_at_12.16.57_AM_1_ohzzaa.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784483675/WhatsApp_Image_2026-06-14_at_12.16.57_AM_dzrwqz.jpg');"></div>
+      <div class="slide" style="background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784445596/WhatsApp_Image_2026-07-19_at_11.46.38_AM_1_b6kp8z.jpg');"></div>
+    </div>
+    <div class="hero-scrim"></div>
+    <div class="hero-glow g1"></div>
+    <div class="hero-glow g2"></div>
+    <div class="container hero-content">
+      <div class="reveal">
+        <span class="eyebrow on-dark"><i class="fas fa-trophy"></i> Achievements</span>
+        <h1>Our <span class="text-gradient">Legacy</span> Of Excellence</h1>
+        <p>
+          From our founding in 2015 to becoming central India's first Formula Student
+          Electric team, every result on this page reflects work our members put in
+          at Formula Bharat and beyond.
+        </p>
+        <span class="hero-photo-tag"><i class="fas fa-camera"></i> Team Ashwa Riders, on and off the track</span>
+      </div>
+      <div class="hero-stats reveal" id="heroStats">
+        <div class="stat-item"><div class="stat-number" data-count="2015" id="statAwards">0</div><div class="stat-label">Team Founded</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="5" id="statCompetitions">0</div><div class="stat-label">Formula Bharat Appearances</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="2" id="statRecords">0</div><div class="stat-label">Electric Vehicles Built</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="8" id="statCertificates">0</div><div class="stat-label">Best Overall Rank — AIR 8 (2024)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  FILTER, ADD BUTTON & ACHIEVEMENTS GRID           -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" id="achievementsSection" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal">
+        <span class="eyebrow" id="achEyebrow"><i class="fas fa-medal"></i> Our Achievements</span>
+        <h2 class="section-title" id="achHeading">Milestones That <span class="text-gradient">Define Us</span></h2>
+        <p class="section-subtitle" id="achSubtitle">From our first Formula Bharat entry to building central India's first electric race car — every achievement tells a story.</p>
+      </div>
+
+      <!-- Toolbar: Filter + Add -->
+      <div class="toolbar-row">
+        <div class="filter-bar" id="filterBar">
+          <button class="filter-btn active" data-filter="all">All <span class="count">(15)</span></button>
+          <button class="filter-btn" data-filter="competition">Competitions <span class="count">(5)</span></button>
+          <button class="filter-btn" data-filter="award">Awards <span class="count">(3)</span></button>
+          <button class="filter-btn" data-filter="record">Milestones <span class="count">(4)</span></button>
+          <button class="filter-btn" data-filter="certificate">Recognition <span class="count">(3)</span></button>
+        </div>
+        <button class="add-achievement-btn" id="openAddModal">
+          <i class="fas fa-plus"></i> Add Achievement
+        </button>
+      </div>
+
+      <!-- Achievements Grid -->
+      <div class="achievement-grid" id="achievementGrid">
+
+        <!-- Competition 1 -->
+        <div class="achievement-card reveal-scale" data-category="competition">
+          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483846/SAVE_20260111_173616.jpg_1_srifam.jpg" alt="Formula Ashwariders at Formula Bharat 2024" /></div>
+          <div class="card-year">2024</div>
+          <h3>Formula Bharat — AIR 8 Overall</h3>
+          <p>Formula Ashwariders, our combustion team, secured an overall All India Rank of 8 at Formula Bharat 2024, its best national result to date.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
+            <span class="result">AIR 8</span>
+          </div>
+        </div>
+
+        <!-- Competition 2 -->
+        <div class="achievement-card reveal-scale" data-category="competition">
+          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483829/1768116510403.jpg_1_ibfo5t.jpg" alt="E-Formula Ashwariders team at Formula Bharat" /></div>
+          <div class="card-year">2024</div>
+          <h3>Formula Bharat — AIR 19 (Electric)</h3>
+          <p>E-Formula Ashwariders finished AIR 19 overall out of 45 electric teams nationwide, clearing technical inspection with an in-house manufactured accumulator container.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
+            <span class="result cyan">AIR 19</span>
+          </div>
+        </div>
+
+        <!-- Competition 3 -->
+        <div class="achievement-card reveal-scale" data-category="competition">
+          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483764/2026011201302668.jpg_1_vlfcsb.jpg" alt="E-Formula Ashwa Riders at Kari Motor Speedway" /></div>
+          <div class="card-year">2023</div>
+          <h3>Formula Bharat — First On-Site Podium Push</h3>
+          <p>In its first on-site competition, E-Formula Ashwa Riders finished 10th out of 37 electric teams at Kari Motor Speedway, Coimbatore.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Coimbatore, India</span>
+            <span class="result cyan">AIR 10</span>
+          </div>
+        </div>
+
+        <!-- Competition 4 -->
+        <div class="achievement-card reveal-scale" data-category="competition">
+          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
+          <div class="card-icon"><i class="fas fa-flag-checkered"></i></div>
+          <div class="card-year">2023</div>
+          <h3>Formula Bharat — Combustion Category</h3>
+          <p>Formula Ashwa Riders, our combustion team, finished 14th out of 49 registered teams at Formula Bharat 2023, held at Kari Motor Speedway.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Coimbatore, India</span>
+            <span class="result">AIR 14</span>
+          </div>
+        </div>
+
+        <!-- Competition 5 -->
+        <div class="achievement-card reveal-scale" data-category="competition">
+          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
+          <div class="card-icon"><i class="fas fa-desktop"></i></div>
+          <div class="card-year">2022</div>
+          <h3>Formula Bharat (Virtual) — Vehicle ZEUS</h3>
+          <p>In the virtual edition of Formula Bharat, the team competed with vehicle ZEUS, finishing 11th of 13 teams overall and reaching the semi-finals of the Endurance Event.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Virtual Event</span>
+            <span class="result silver">AIR 11</span>
+          </div>
+        </div>
+
+        <!-- Award 1 -->
+        <div class="achievement-card reveal-scale" data-category="award">
+          <span class="card-badge award"><i class="fas fa-star"></i> Award</span>
+          <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="card-year">2023</div>
+          <h3>MathWorks Modelling Award</h3>
+          <p>E-Formula Ashwa Riders ranked 5th nationally out of 86 registered teams in the MathWorks Modelling special award category at Formula Bharat 2023.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
+            <span class="result">Rank 5 of 86</span>
+          </div>
+        </div>
+
+        <!-- Award 2 -->
+        <div class="achievement-card reveal-scale" data-category="award">
+          <span class="card-badge award"><i class="fas fa-star"></i> Award</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483677/IMG-20260227-WA0016.jpg_n48hsu.jpg" alt="Ashwa Riders team feature" /></div>
+          <div class="card-year">2023</div>
+          <h3>Featured in Autocar India</h3>
+          <p>The team's electric Formula Student journey was featured in Autocar India's March 2023 issue, covering the debut of central India's first electric race car.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
+            <span class="result">Media Feature</span>
+          </div>
+        </div>
+
+        <!-- Award 3 -->
+        <div class="achievement-card reveal-scale" data-category="award">
+          <span class="card-badge award"><i class="fas fa-star"></i> Award</span>
+          <div class="card-icon"><i class="fas fa-drafting-compass"></i></div>
+          <div class="card-year">2023</div>
+          <h3>Engineering Design — 10th of 37</h3>
+          <p>E-Formula Ashwa Riders placed 10th nationally in the Engineering Design Presentation at Formula Bharat 2023, competing against 37 electric teams.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
+            <span class="result">10th of 37</span>
+          </div>
+        </div>
+
+        <!-- Milestone 1 -->
+        <div class="achievement-card reveal-scale" data-category="record">
+          <span class="card-badge record"><i class="fas fa-flag"></i> Milestone</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483679/WhatsApp_Image_2026-06-14_at_12.16.57_AM_1_ohzzaa.jpg" alt="Formula Ashwa Riders founding team" /></div>
+          <div class="card-year">2015</div>
+          <h3>Formula Ashwa Riders Founded</h3>
+          <p>Founded by Captain Nilay Akre and Vice Captain Akshay Deotale with a vision to build a motorsport culture and engineering talent across central India.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
+            <span class="result cyan">Founded</span>
+          </div>
+        </div>
+
+        <!-- Milestone 2 -->
+        <div class="achievement-card reveal-scale" data-category="record">
+          <span class="card-badge record"><i class="fas fa-bolt"></i> Milestone</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483675/WhatsApp_Image_2026-06-14_at_12.16.57_AM_dzrwqz.jpg" alt="E-Formula Ashwa Riders electric team" /></div>
+          <div class="card-year">2020</div>
+          <h3>E-Formula Ashwa Riders Founded</h3>
+          <p>The team's electric wing was established, making it the first Formula Student Electric team from central India.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
+            <span class="result cyan">First in Region</span>
+          </div>
+        </div>
+
+        <!-- Milestone 3 -->
+        <div class="achievement-card reveal-scale" data-category="record">
+          <span class="card-badge record"><i class="fas fa-car-side"></i> Milestone</span>
+          <div class="card-icon"><i class="fas fa-car-battery"></i></div>
+          <div class="card-year">2023</div>
+          <h3>Central India's First Electric FS Car</h3>
+          <p>The team designed and manufactured central India's first electric Formula Student race car ahead of its 2023 Formula Bharat debut.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
+            <span class="result cyan">First EV</span>
+          </div>
+        </div>
+
+        <!-- Milestone 4 -->
+        <div class="achievement-card reveal-scale" data-category="record">
+          <span class="card-badge record"><i class="fas fa-car-side"></i> Milestone</span>
+          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784445596/WhatsApp_Image_2026-07-19_at_11.46.38_AM_1_b6kp8z.jpg" alt="Tarkshya electric race car unveiling" /></div>
+          <div class="card-year">2023-24</div>
+          <h3>Tarkshya Unveiled</h3>
+          <p>The team unveiled its second-generation electric race car, Tarkshya, for the 2023-24 competition season.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
+            <span class="result cyan">2nd Generation</span>
+          </div>
+        </div>
+
+        <!-- Recognition 1 -->
+        <div class="achievement-card reveal-scale" data-category="certificate">
+          <span class="card-badge certificate"><i class="fas fa-handshake"></i> Recognition</span>
+          <div class="card-icon"><i class="fas fa-people-group"></i></div>
+          <div class="card-year">2023</div>
+          <h3>Formula Bharat Roadshow Host</h3>
+          <p>The team co-hosted a Formula Bharat roadshow session at GEC Barton Hill, Trivandrum, helping new and aspiring teams understand the competition.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Trivandrum, Kerala</span>
+            <span class="result">Roadshow Host</span>
+          </div>
+        </div>
+
+        <!-- Recognition 2 -->
+        <div class="achievement-card reveal-scale" data-category="certificate">
+          <span class="card-badge certificate"><i class="fas fa-clipboard-check"></i> Recognition</span>
+          <div class="card-icon"><i class="fas fa-battery-full"></i></div>
+          <div class="card-year">2024</div>
+          <h3>Technical Inspection Cleared</h3>
+          <p>E-Formula Ashwariders passed the demanding technical inspection at Formula Bharat 2024 with its in-house manufactured accumulator container.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
+            <span class="result">Inspection Passed</span>
+          </div>
+        </div>
+
+        <!-- Recognition 3 -->
+        <div class="achievement-card reveal-scale" data-category="certificate">
+          <span class="card-badge certificate"><i class="fas fa-award"></i> Recognition</span>
+          <div class="card-icon"><i class="fas fa-bolt"></i></div>
+          <div class="card-year">Ongoing</div>
+          <h3>Central India's First Electric FS Team</h3>
+          <p>The team continues to be recognised as the pioneering Formula Student Electric programme from central India.</p>
+          <div class="card-footer">
+            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
+            <span class="result">Pioneer Status</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty state -->
+      <div id="emptyState" style="display: none; text-align: center; padding: 60px 20px;">
+        <div style="font-size: 2.6rem; opacity: 0.15; margin-bottom: 16px; color: var(--ink-faint);"><i class="fas fa-trophy"></i></div>
+        <h3 style="font-size: 1.3rem; color: var(--ink-faint); text-transform: uppercase;">No achievements found</h3>
+        <p style="color: var(--ink-faint); margin-top: 6px;">Try selecting a different category, or add a new one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  ADD ACHIEVEMENT MODAL                            -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add Achievement</h3>
+        <button class="modal-close" id="closeAddModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="achievementForm">
+          <div class="form-row">
+            <label for="fCategory">Category</label>
+            <select id="fCategory" required>
+              <option value="competition">Competition</option>
+              <option value="award">Award</option>
+              <option value="record">Milestone</option>
+              <option value="certificate">Recognition</option>
+            </select>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="fTitle">Title</label>
+              <input type="text" id="fTitle" placeholder="e.g. Formula Bharat — Overall Rank" required />
+            </div>
+            <div class="form-row">
+              <label for="fYear">Year</label>
+              <input type="number" id="fYear" placeholder="2026" min="2000" max="2100" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="fDesc">Description</label>
+            <textarea id="fDesc" placeholder="Short description of the achievement" required></textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="fLocation">Location</label>
+              <input type="text" id="fLocation" placeholder="e.g. India" />
+            </div>
+            <div class="form-row">
+              <label for="fResult">Result Label</label>
+              <input type="text" id="fResult" placeholder="e.g. AIR 5" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="fPhoto">Photo (optional)</label>
+            <div class="photo-drop" id="photoDrop">
+              <i class="fas fa-camera"></i>
+              <span>Click to upload a photo</span>
+              <input type="file" id="fPhoto" accept="image/*" />
+            </div>
+            <div class="photo-preview" id="photoPreview">
+              <img id="photoPreviewImg" src="" alt="Preview" />
+            </div>
+            <div class="form-hint">JPG or PNG. Stored only in this browser.</div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" id="cancelAddModal">Cancel</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Achievement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  REDESIGNED TIMELINE SECTION — with background image -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="timeline-section" id="timelineSection">
+    <div class="container">
+      <div class="timeline-header reveal">
+        <span class="eyebrow on-dark" id="tlEyebrow"><i class="fas fa-history"></i> Our Journey</span>
+        <h2 id="tlHeading">Our <span class="text-gradient">Timeline</span></h2>
+        <p id="tlSubtitle">Every year brought new challenges, learnings, and results — here's how we got here.</p>
+      </div>
+
+      <div class="timeline-modern" id="timelineModern">
+        <!-- 2015 -->
+        <div class="timeline-item-modern" data-delay="0">
+          <div class="tl-card">
+            <div class="tl-year"><span class="year-line"></span> 2015</div>
+            <div class="tl-title">The <span class="highlight">Beginning</span></div>
+            <div class="tl-desc">Formula Ashwa Riders was founded by Captain Nilay Akre and Vice Captain Akshay Deotale to promote motorsport engineering in central India.</div>
+            <div class="tl-tags">
+              <span>Foundation</span>
+              <span>Combustion Team</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2020 -->
+        <div class="timeline-item-modern" data-delay="100">
+          <div class="tl-card">
+            <div class="tl-year"><span class="year-line"></span> 2020</div>
+            <div class="tl-title">The <span class="highlight">Electric Wing</span> Begins</div>
+            <div class="tl-desc">E-Formula Ashwa Riders was established, becoming the first Formula Student Electric team from central India.</div>
+            <div class="tl-tags">
+              <span class="gold-tag">First in Region</span>
+              <span>Electric Team</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2022 -->
+        <div class="timeline-item-modern" data-delay="200">
+          <div class="tl-card">
+            <div class="tl-year"><span class="year-line"></span> 2022</div>
+            <div class="tl-title">First <span class="highlight">Formula Bharat</span> Entry</div>
+            <div class="tl-desc">Competed with vehicle ZEUS in the virtual edition of Formula Bharat, finishing 11th of 13 teams and reaching the Endurance Event semi-finals.</div>
+            <div class="tl-tags">
+              <span>Virtual Event</span>
+              <span class="gold-tag">AIR 11</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2023 -->
+        <div class="timeline-item-modern" data-delay="300">
+          <div class="tl-card">
+            <div class="tl-year"><span class="year-line"></span> 2023</div>
+            <div class="tl-title">First On-Site Competition &amp; <span class="highlight">First EV</span></div>
+            <div class="tl-desc">Manufactured central India's first electric Formula Student car and competed on-site at Kari Motor Speedway, Coimbatore, finishing AIR 10 of 37 electric teams. Also ranked 5th of 86 teams for the MathWorks Modelling Award and was featured in Autocar India.</div>
+            <div class="tl-tags">
+              <span class="gold-tag">AIR 10</span>
+              <span class="gold-tag">MathWorks Award — Rank 5</span>
+              <span>Autocar India Feature</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2023-24 -->
+        <div class="timeline-item-modern" data-delay="400">
+          <div class="tl-card">
+            <div class="tl-year"><span class="year-line"></span> 2023-24</div>
+            <div class="tl-title"><span class="highlight">Tarkshya</span> Takes Shape</div>
+            <div class="tl-desc">Unveiled Tarkshya, the team's second-generation electric race car, ahead of the new competition season.</div>
+            <div class="tl-tags">
+              <span>2nd Generation Vehicle</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2024 -->
+        <div class="timeline-item-modern" data-delay="500">
+          <div class="tl-card">
+            <div class="tl-year"><span class="year-line"></span> 2024</div>
+            <div class="tl-title">Best Results <span class="highlight">Yet</span></div>
+            <div class="tl-desc">Formula Ashwariders secured overall AIR 8 with the combustion car, while E-Formula Ashwariders finished AIR 19 out of 45 electric teams nationwide.</div>
+            <div class="tl-tags">
+              <span class="gold-tag">AIR 8 — Combustion</span>
+              <span class="gold-tag">AIR 19 — Electric</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Future -->
+        <div class="timeline-item-modern" data-delay="600">
+          <div class="tl-card" style="border-color: rgba(227, 183, 63, 0.25);">
+            <div class="tl-year"><span class="year-line"></span> 2025 &amp; Beyond</div>
+            <div class="tl-title">The <span class="highlight">Next Chapter</span></div>
+            <div class="tl-desc">With two generations of electric vehicles, a growing alumni network, and a proven track record, the team is pushing for podium finishes and engineering excellence at Formula Bharat and beyond.</div>
+            <div class="tl-tags">
+              <span class="gold-tag">⚡ Future Ready</span>
+              <span>Podium Push</span>
+              <span>Innovation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  CTA - JOIN US                                   -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="cta-join">
+    <div class="container reveal">
+      <span class="eyebrow on-dark" style="display:block;">Join The Team</span>
+      <h2 style="font-size: clamp(2rem, 4vw, 3rem); text-transform:uppercase; margin: 6px 0 16px; color:#fff;">Be Part Of Our <span class="text-gradient">Next</span> Achievement</h2>
+      <p style="color: rgba(255,255,255,0.55); font-weight:300; max-width: 500px; margin: 0 auto 30px;">
+        Join our team and help us write the next chapter of engineering excellence.
+      </p>
+      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join the Team</a>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">Ashwa<span>Riders</span></div>
+          <p>Building central India's Formula Student race cars since 2015 — combustion and electric. Driven by excellence, fueled by passion.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-x-twitter"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>Team</h4>
+          <ul>
+            <li><a href="team.html">Members</a></li>
+            <li><a href="index.html#recruitment">Join Us</a></li>
+            <li><a href="car.html">Our Car</a></li>
+            <li><a href="achievements.html">Achievements</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#">Press Kit</a></li>
+            <li><a href="#">Brochure</a></li>
+            <li><a href="#">Donate</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="contact.html">Get in Touch</a></li>
+            <li><a href="sponsors.html">Sponsor Us</a></li>
+            <li><a href="#">Merchandise</a></li>
+            <li><a href="#">Newsletter</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 Ashwa Riders. All rights reserved.</span>
+        <span>Built by the Ashwa Riders Team</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                         -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <script>
+    // ─── Toast ──────────────────────────────────────────
+    function showToast(msg, icon = 'fa-check-circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      toast.querySelector('.toast-icon').className = 'toast-icon fas ' + icon;
+      toast.classList.add('show');
+      clearTimeout(toast._hide);
+      toast._hide = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    // ─── Navbar ──────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    if (navbar) {
+      window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 60);
+      });
+    }
+
+    // ─── Mobile Toggle ──────────────────────────────────
+    const mobileToggle = document.getElementById('mobileToggle') || document.getElementById('mobile-nav-toggle');
+    const navLinks = document.getElementById('navLinks');
+    if (mobileToggle && navLinks) {
+      mobileToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+        const icon = mobileToggle.querySelector('i');
+        if (icon) {
+          icon.className = navLinks.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+        }
+      });
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('open');
+          const icon = mobileToggle.querySelector('i');
+          if (icon) icon.className = 'fas fa-bars';
+        });
+      });
+    }
+
+    // ─── Theme Toggle ──────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      let isDark = true;
+      themeToggle.addEventListener('click', () => {
+        isDark = !isDark;
+        document.body.classList.toggle('light', !isDark);
+        themeToggle.innerHTML = isDark ?
+          '<i class="fas fa-moon"></i>' :
+          '<i class="fas fa-sun"></i>';
+        showToast(isDark ? 'Dark theme activated' : 'Light theme activated');
+      });
+    }
+
+    // ─── Hero Photo Slideshow ──────────────────────────
+    (function initHeroSlideshow() {
+      const slides = document.querySelectorAll('#heroSlideshow .slide');
+      if (!slides.length) return;
+      let current = 0;
+      setInterval(() => {
+        slides[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+      }, 4500);
+    })();
+
+    // ─── Scroll Reveal ──────────────────────────────────
+    function initReveal() {
+      const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-scale');
+      function checkReveals() {
+        const trigger = window.innerHeight * 0.92;
+        reveals.forEach(el => {
+          if (el.getBoundingClientRect().top < trigger) el.classList.add('visible');
+        });
+      }
+      window.addEventListener('scroll', checkReveals);
+      window.addEventListener('resize', checkReveals);
+      checkReveals();
+      setTimeout(checkReveals, 400);
+      setTimeout(checkReveals, 1200);
+    }
+    initReveal();
+
+    // ─── Number Counters ──────────────────────────────────
+    function animateCounter(el, target) {
+      const duration = 1600;
+      const start = performance.now();
+      function update(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(update);
+    }
+    (function initCounters() {
+      const counters = document.querySelectorAll('.stat-number[data-count]');
+      let animated = false;
+      function trigger() {
+        if (animated) return;
+        const vh = window.innerHeight * 0.85;
+        let go = false;
+        counters.forEach(el => { if (el.getBoundingClientRect().top < vh) go = true; });
+        if (!go) return;
+        animated = true;
+        counters.forEach(el => animateCounter(el, parseInt(el.getAttribute('data-count'))));
+      }
+      window.addEventListener('scroll', trigger);
+      window.addEventListener('load', () => setTimeout(trigger, 500));
+      setTimeout(trigger, 600);
+    })();
+
+    // ─── Timeline: staggered reveal with delay ──────────
+    (function initTimelineReveal() {
+      const items = document.querySelectorAll('.timeline-item-modern');
+      if (!items.length) return;
+
+      const makeVisible = (el, delay = 0) => {
+        setTimeout(() => {
+          el.classList.add('visible');
+        }, delay);
+      };
+
+      if (!('IntersectionObserver' in window)) {
+        items.forEach((item, idx) => makeVisible(item, idx * 80));
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const delay = parseInt(el.dataset.delay) || 0;
+            makeVisible(el, delay);
+            observer.unobserve(el);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '60px' });
+
+      items.forEach(item => observer.observe(item));
+
+      // Failsafe: ensure timeline cards always become visible even if scroll is missed
+      setTimeout(() => {
+        items.forEach((item, idx) => makeVisible(item, idx * 50));
+      }, 700);
+    })();
+
+    // ══════════════════════════════════════════════════
+    //  ACHIEVEMENTS PAGE CMS DYNAMIC HYDRATION ENGINE
+    // ══════════════════════════════════════════════════
+    (function () {
+      window._ashwaAchievementsLoaded = true;
+      const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+
+      // ─── Preview Mode Indicator ───
+      if (isPreview) {
+        const previewBanner = document.createElement('div');
+        previewBanner.style.cssText = 'position:fixed; top:0; left:0; right:0; z-index:99999; background:#F25912; color:#10141c; font-weight:800; font-size:0.8rem; text-align:center; padding:7px 16px; letter-spacing:0.06em; text-transform:uppercase; box-shadow:0 4px 20px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; gap:10px;';
+        previewBanner.innerHTML = '<i class="fas fa-eye"></i> CMS PREVIEW MODE — Viewing Draft Changes <a href="/admin/achievements" style="color:#10141c; text-decoration:underline; margin-left:8px; font-weight:900;">Return to CMS</a>';
+        document.body.prepend(previewBanner);
+        document.body.style.paddingTop = '32px';
+      }
+
+      const grid = document.getElementById('achievementGrid');
+      const emptyState = document.getElementById('emptyState');
+      const filterBar = document.getElementById('filterBar');
+      const timelineModern = document.getElementById('timelineModern');
+      const timelineSection = document.getElementById('timelineSection');
+      const achievementsSection = document.getElementById('achievementsSection');
+
+      const categoryMeta = {
+        competition: { label: 'Competition', icon: 'fas fa-flag-checkered' },
+        award:       { label: 'Award',       icon: 'fas fa-star' },
+        record:      { label: 'Milestone',   icon: 'fas fa-flag' },
+        certificate: { label: 'Recognition', icon: 'fas fa-award' },
+      };
+
+      let currentAchievements = [];
+
+      async function fetchAchievementsContent() {
+        try {
+          const url = `/api/v1/achievements/page${isPreview ? '?preview=true' : ''}`;
+          const res = await fetch(url, { credentials: 'include' });
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          const data = await res.json();
+          if (data && data.success && data.data) {
+            applyCmsData(data.data);
+          }
+        } catch (err) {
+          console.warn('[Achievements CMS] Notice: Using fallback page markup.', err.message);
+        }
+      }
+
+      function applyCmsData(data) {
+        // 01 Settings / Meta
+        if (data.settings) {
+          if (data.settings.seoTitle) document.title = data.settings.seoTitle;
+        }
+
+        // 02 Our Achievements Section Settings
+        const achSec = data.achievementsSection;
+        if (achSec) {
+          if (achSec.visible === false && achievementsSection) {
+            achievementsSection.style.display = 'none';
+          }
+
+          const achEyebrow = document.getElementById('achEyebrow');
+          if (achEyebrow && achSec.eyebrow) {
+            const icon = achSec.eyebrowIcon || 'fas fa-medal';
+            achEyebrow.innerHTML = `<i class="${icon}"></i> ${achSec.eyebrow}`;
+          }
+
+          const achHeading = document.getElementById('achHeading');
+          if (achHeading && achSec.heading) {
+            const highlight = achSec.headingHighlight || '';
+            if (highlight && achSec.heading.includes(highlight)) {
+              achHeading.innerHTML = achSec.heading.replace(
+                highlight,
+                `<span class="text-gradient">${highlight}</span>`
+              );
+            } else {
+              achHeading.textContent = achSec.heading;
+            }
+          }
+
+          const achSubtitle = document.getElementById('achSubtitle');
+          if (achSubtitle && achSec.description) {
+            achSubtitle.textContent = achSec.description;
+          }
+
+          // Categories & Filter Bar with Dynamic Real-Time Counts
+          const categories = achSec.categories || [];
+          currentAchievements = achSec.achievements || [];
+
+          renderCategoriesToolbar(categories, achSec.allCount || currentAchievements.length);
+          renderAchievementsGrid(currentAchievements);
+        }
+
+        // 03 Our Journey Timeline Section
+        const tlSec = data.timelineSection;
+        if (tlSec) {
+          if (tlSec.visible === false && timelineSection) {
+            timelineSection.style.display = 'none';
+          }
+
+          const tlEyebrow = document.getElementById('tlEyebrow');
+          if (tlEyebrow && tlSec.eyebrow) {
+            const icon = tlSec.eyebrowIcon || 'fas fa-history';
+            tlEyebrow.innerHTML = `<i class="${icon}"></i> ${tlSec.eyebrow}`;
+          }
+
+          const tlHeading = document.getElementById('tlHeading');
+          if (tlHeading && tlSec.heading) {
+            const highlight = tlSec.headingHighlight || '';
+            if (highlight && tlSec.heading.includes(highlight)) {
+              tlHeading.innerHTML = tlSec.heading.replace(
+                highlight,
+                `<span class="text-gradient">${highlight}</span>`
+              );
+            } else {
+              tlHeading.textContent = tlSec.heading;
+            }
+          }
+
+          const tlSubtitle = document.getElementById('tlSubtitle');
+          if (tlSubtitle && tlSec.description) {
+            tlSubtitle.textContent = tlSec.description;
+          }
+
+          if (tlSec.bgImageUrl && timelineSection) {
+            timelineSection.style.backgroundImage = `url('${tlSec.bgImageUrl}')`;
+          }
+
+          renderTimelineEvents(tlSec.events || []);
+        }
+      }
+
+      function renderCategoriesToolbar(categories, allCount) {
+        if (!filterBar) return;
+        filterBar.innerHTML = '';
+
+        // "ALL" button
+        const allBtn = document.createElement('button');
+        allBtn.className = 'filter-btn active';
+        allBtn.dataset.filter = 'all';
+        allBtn.innerHTML = `All <span class="count">(${allCount})</span>`;
+        filterBar.appendChild(allBtn);
+
+        // Dynamic categories
+        categories.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'filter-btn';
+          btn.dataset.filter = (cat.slug || '').toLowerCase();
+          btn.innerHTML = `${cat.name} <span class="count">(${cat.count !== undefined ? cat.count : 0})</span>`;
+          filterBar.appendChild(btn);
+        });
+
+        // Bind filter clicks
+        filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterCards(btn.dataset.filter);
+          });
+        });
+      }
+
+      function filterCards(filter) {
+        const cards = grid.querySelectorAll('.achievement-card');
+        let visibleCount = 0;
+        cards.forEach(card => {
+          const cat = (card.dataset.category || '').toLowerCase();
+          const matches = filter === 'all' || cat === filter;
+          card.style.display = matches ? 'block' : 'none';
+          if (matches) visibleCount++;
+        });
+
+        if (emptyState) {
+          emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+      }
+
+      function renderAchievementsGrid(items) {
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'achievement-card reveal-scale visible';
+          const catSlug = (item.category || 'competition').toLowerCase();
+          card.dataset.category = catSlug;
+
+          const meta = categoryMeta[catSlug] || { label: item.category, icon: 'fas fa-trophy' };
+          const mediaHtml = item.imageUrl
+            ? `<div class="card-media"><img src="${item.imageUrl}" alt="${item.imageAlt || item.title}" loading="lazy" /></div>`
+            : `<div class="card-icon"><i class="${meta.icon}"></i></div>`;
+
+          card.innerHTML = `
+            <span class="card-badge ${catSlug}"><i class="${meta.icon}"></i> ${meta.label}</span>
+            ${mediaHtml}
+            <div class="card-year">${item.year || ''}</div>
+            <h3>${item.title || ''}</h3>
+            <p>${item.description || ''}</p>
+            <div class="card-footer">
+              <span class="location"><i class="fas fa-map-marker-alt"></i> ${item.location || 'India'}</span>
+              <span class="result">${item.rank || ''}</span>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+      }
+
+      function renderTimelineEvents(events) {
+        if (!timelineModern) return;
+        timelineModern.innerHTML = '';
+
+        events.forEach((ev, idx) => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'timeline-item-modern visible';
+          itemEl.dataset.delay = (idx * 100).toString();
+
+          const tags = Array.isArray(ev.tags) ? ev.tags : [];
+          const tagsHtml = tags.map(t => {
+            const isHighlight = t.includes('⚡') || t.includes('AIR') || t.includes('First') || t.includes('Rank');
+            return `<span class="${isHighlight ? 'gold-tag' : ''}">${t}</span>`;
+          }).join('');
+
+          itemEl.innerHTML = `
+            <div class="tl-card">
+              <div class="tl-year"><span class="year-line"></span> ${ev.year}</div>
+              <div class="tl-title">${ev.title}</div>
+              <div class="tl-desc">${ev.description || ''}</div>
+              ${tags.length ? `<div class="tl-tags">${tagsHtml}</div>` : ''}
+            </div>
+          `;
+
+          timelineModern.appendChild(itemEl);
+        });
+      }
+
+      // Check user role for add button visibility
+      const openAddBtn = document.getElementById('openAddModal');
+      if (openAddBtn) {
+        try {
+          const userRaw = localStorage.getItem('ar_user');
+          const user = userRaw ? JSON.parse(userRaw) : null;
+          if (user && user.role === 'admin') {
+            openAddBtn.style.display = 'inline-flex';
+            openAddBtn.onclick = () => { window.location.href = '/admin/achievements'; };
+          } else {
+            openAddBtn.style.display = 'none';
+          }
+        } catch {
+          openAddBtn.style.display = 'none';
+        }
+      }
+
+      // Initialize API fetch on load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fetchAchievementsContent);
+      } else {
+        fetchAchievementsContent();
+      }
+    })();
+  </script>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/mobile-nav.js"></script>
+  <script src="/achievements-cms.js"></script>
+  <script src="/join-cms.js"></script>
+  <script src="/sponsor-cms.js"></script>
+</body>
+</html>

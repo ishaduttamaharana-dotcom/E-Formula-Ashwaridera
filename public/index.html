@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashwa Riders — Home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="mobile.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       ASHWA RIDERS — DESIGN SYSTEM v3
+       Base: racing BLACK (not blue) + warm paper
+       Signal: TEAL #029386
+       Font: Inter stack (clean, modern, technical automotive)
+    ══════════════════════════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #000000;
+      --carbon: #080808;
+      --carbon-2: #121212;
+      --muted-accent: #715A5A;
+      --steel: #9FA7A6;
+      --steel-light: #D3DAD9;
+      --hairline: rgba(211, 218, 217, 0.15);
+      --hairline-soft: rgba(211, 218, 217, 0.08);
+
+      --paper: #E8ECEB;
+      --paper-2: #D3DAD9;
+      --ink: #222126;
+      --ink-soft: rgba(34, 33, 38, 0.65);
+      --ink-faint: rgba(34, 33, 38, 0.45);
+      --line-dark: rgba(34, 33, 38, 0.12);
+
+      /* Refined Color System */
+      --logo-orange: #ff751f; /* Protected Logo Color */
+
+      --signal: #F25912; /* Primary Accent Orange for Navbar & Buttons */
+      --signal-bright: #FF6A26;
+      --signal-glow: rgba(242, 89, 18, 0.28);
+
+      --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: var(--font-stack-inter);
+      --font-body: var(--font-stack-inter);
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-premium: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); overflow-x: hidden; line-height: 1.6; font-weight: 400; }
+    ::selection { background: var(--signal-bright); color: #10141c; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--paper); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 0; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--signal); }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+
+    .text-gradient { color: var(--signal); font-style: normal; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 34px; border-radius: 2px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      transition: all var(--ease); cursor: pointer; border: 1px solid transparent;
+      text-decoration: none; position: relative;
+    }
+    .btn-primary {
+      background: var(--signal); color: #10141c;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    }
+    .btn-primary:hover { background: var(--signal-bright); }
+    .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); }
+    .btn-secondary:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+    .btn-outline:hover { background: var(--ink); color: var(--paper); }
+    .btn-ghost { background: transparent; color: rgba(255, 255, 255, 0.6); border: 1px solid transparent; }
+    .btn-ghost:hover { color: #fff; border-color: var(--hairline); }
+    .btn-sm { padding: 8px 20px; font-size: 0.7rem; }
+
+    .section-padding { padding: 100px 0; }
+
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--signal);
+      margin-bottom: 14px; display: inline-block;
+    }
+    .eyebrow::before { content: '// '; opacity: 0.6; }
+    .eyebrow.on-dark { color: var(--signal-bright); }
+
+    .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.06; margin-bottom: 16px; text-transform: uppercase; }
+    .section-subtitle { font-size: 1.02rem; color: var(--ink-soft); max-width: 560px; line-height: 1.75; font-weight: 300; }
+    .section-title-light { color: #fff; }
+    .section-subtitle-light { color: rgba(255, 255, 255, 0.55); }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-scale { opacity: 0; transform: translateY(18px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-scale.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Navigation ── */
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 22px 0; z-index: 1000; transition: all var(--ease); border-bottom: 1px solid transparent; }
+    .navbar.scrolled { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--hairline); padding: 14px 0; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+
+    /* NEW LOGO LAYOUT */
+    .nav-logo { 
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: 0.02em; 
+      color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; text-transform: uppercase; 
+    }
+    .nav-logo-wrapper {
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .nav-logo span span { color: var(--logo-orange); }
+    
+    .logo-mark {
+      height: 48px; width: auto; flex-shrink: 0; 
+      object-fit: contain; /* Makes sure the wing logo stays inside bounds */
+      transition: all var(--ease);
+    }
+    .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 6px var(--signal-bright)); }
+    body.light .nav-logo { color: var(--ink); }
+
+    /* NEW SUBTITLE */
+    .nav-subtitle {
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 400; 
+      letter-spacing: 0.15em; color: var(--steel); text-transform: uppercase;
+      margin-top: -2px; text-align: left;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.6); text-decoration: none; font-family: var(--font-mono);
+      font-size: 0.74rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--ease);
+      padding: 8px 14px; display: inline-flex; align-items: center; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 2px; left: 14px; right: 14px; height: 1px;
+      background: var(--signal-bright); transform: scaleX(0); transform-origin: left;
+      transition: transform var(--ease);
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a.active { color: #fff; }
+
+    .nav-cta {
+      padding: 9px 22px !important; background: var(--signal); color: #fff !important; font-weight: 700;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); margin-left: 10px;
+    }
+    .nav-cta:hover { background: var(--signal-bright); }
+    .nav-cta::after { display: none !important; content: none !important; }
+
+    .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+    /* ─── HERO — cinematic ──────────────────────────────── */
+    .hero { position: relative; min-height: 100vh; display: flex; align-items: center; background: var(--void); overflow: hidden; border-bottom: 1px solid var(--hairline); }
+
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 75%);
+    }
+
+    .hero-video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.45; filter: grayscale(0.15) contrast(1.05); pointer-events: none; }
+    .hero-video-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(35, 34, 40, 0.92) 26%, rgba(35, 34, 40, 0.50) 100%); }
+
+    .hero-glow { position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.22; z-index: 1; background: var(--signal); }
+    .hero-glow.g1 { width: 560px; height: 560px; top: -220px; right: -160px; }
+    .hero-glow.g2 { width: 420px; height: 420px; bottom: -220px; left: -140px; opacity: 0.12; }
+
+    .speed-lines { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+    .speed-lines .line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(113, 90, 90, 0.45), transparent); animation: speed-line 4s linear infinite; }
+    @keyframes speed-line { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
+
+    #particles-canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+    .hero-content { position: relative; z-index: 2; width: 100%; padding: 130px 0 60px; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 12px; padding: 7px 18px 7px 8px;
+      background: transparent; border: 1px solid var(--hairline); margin-bottom: 34px;
+      font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.7);
+      font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .hero-badge .dot { width: 7px; height: 7px; background: var(--signal-bright); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.7); } }
+
+    .hero h1 { font-size: clamp(2.6rem, 6.4vw, 5rem); line-height: 1; color: #fff; margin-bottom: 4px; font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; overflow: hidden; }
+    .hero h1 .line { display: block; overflow: hidden; }
+    .hero h1 .word { display: inline-block; transform: translateY(110%); opacity: 0; transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease; }
+    .hero h1.kinetic-in .word { transform: translateY(0); opacity: 1; }
+
+    .hero h2.tagline {
+      font-family: var(--font-display); font-weight: 300; text-transform: uppercase;
+      font-size: clamp(1.1rem, 2vw, 1.6rem); color: var(--steel-light); letter-spacing: 0.03em;
+      margin: 18px 0 30px; line-height: 1.5;
+      opacity: 0; transform: translateY(14px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1) 0.55s;
+    }
+    .hero h2.tagline.in { opacity: 1; transform: translateY(0); }
+    .hero h2.tagline span { display: block; color: rgba(255,255,255,0.75); }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 64px; opacity: 0; transform: translateY(14px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1) 0.85s; }
+    .hero-actions.in { opacity: 1; transform: translateY(0); }
+
+    .hero-stats { display: flex; gap: 0; border-top: 1px solid var(--hairline); padding-top: 30px; flex-wrap: wrap; row-gap: 24px; opacity: 0; transform: translateY(14px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1) 1s; }
+    .hero-stats.in { opacity: 1; transform: translateY(0); }
+    .hero-stats .stat-item { flex: 1 1 15%; min-width: 120px; padding-right: 20px; position: relative; }
+    .hero-stats .stat-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background: var(--hairline); }
+    .hero-stats .stat-number { font-family: var(--font-mono); font-size: clamp(1.5rem, 2.2vw, 2.1rem); font-weight: 700; color: #fff; }
+    .hero-stats .stat-label { font-family: var(--font-mono); font-size: 0.64rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 6px; }
+
+    .scroll-indicator { position: absolute; bottom: 36px; left: 24px; z-index: 2; display: flex; align-items: center; gap: 10px; color: rgba(255, 255, 255, 0.3); font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .scroll-indicator .mouse { width: 20px; height: 32px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; position: relative; }
+    .scroll-indicator .mouse .wheel { width: 2px; height: 7px; background: var(--signal-bright); position: absolute; top: 6px; left: 50%; transform: translateX(-50%); animation: scroll-wheel 2s infinite; }
+    @keyframes scroll-wheel { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(14px); } }
+
+    /* ─── Section header ── */
+    .section-header { margin-bottom: 44px; }
+    .section-header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+    .view-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal); text-decoration: none; transition: gap var(--ease); }
+    .view-all.on-dark { color: var(--signal-bright); }
+    .view-all:hover { gap: 12px; }
+
+    /* ═══ ANIMATED STATISTICS STRIP ═══ */
+    .stats-strip { background: var(--void); color: #fff; padding: 70px 0; border-bottom: 1px solid var(--hairline); }
+    .stats-strip-grid { display: grid; grid-template-columns: repeat(6, 1fr); }
+    .stats-strip-item { text-align: center; padding: 0 12px; border-left: 1px solid var(--hairline); }
+    .stats-strip-item:first-child { border-left: none; }
+    .stats-strip-item .stat-number { font-family: var(--font-mono); font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 700; color: var(--paper-2); }
+    .stats-strip-item .stat-label { font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 8px; }
+
+    /* ═══ TIMELINE with F1 CAR ═══ */
+    .timeline-wrap { position: relative; padding-top: 20px; }
+    .timeline-track { display: grid; grid-template-columns: repeat(6, 1fr); position: relative; }
+    .timeline-line { position: absolute; top: 17px; left: 0; right: 0; height: 2px; background: var(--line-dark); }
+    .f1-car { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; }
+    .timeline-car { width: 160px; height: auto; display: block; }
+
+    .timeline-node { text-align: center; position: relative; padding-top: 46px; }
+    .timeline-node .dot {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 36px; border-radius: 50%; background: var(--paper); border: 2px solid var(--line-dark);
+      display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.75rem;
+      font-weight: 700; color: var(--ink-faint); transition: all var(--ease); z-index: 2;
+    }
+    .timeline-node.active .dot { border-color: var(--signal); color: var(--signal); background: #fff; box-shadow: 0 0 0 6px var(--signal-glow); }
+    .timeline-node h4 { font-size: 0.95rem; text-transform: uppercase; margin-bottom: 4px; }
+    .timeline-node p { font-size: 0.78rem; color: var(--ink-faint); font-family: var(--font-mono); }
+
+    /* ═══ MEET OUR CAR ═══ */
+    .car-showcase { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; align-items: center; }
+    .car-render { aspect-ratio: 4/3; background: linear-gradient(155deg, var(--carbon-2), var(--carbon)); border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .car-render::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 40px 40px; }
+    .car-render i { font-size: 6rem; color: var(--paper-2); opacity: 0.85; position: relative; z-index: 1; }
+    .car-render .render-tag { position: absolute; bottom: 18px; left: 18px; font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; text-transform: uppercase; z-index: 1; }
+    .spec-list { display: flex; flex-direction: column; }
+    .spec-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--line-dark); }
+    .spec-row .spec-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+    .spec-row .spec-value { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; color: var(--ink); }
+    .car-actions { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+
+    /* ═══ DEPARTMENT CARDS ═══ */
+    .dept-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+    .dept-card { background: var(--carbon); padding: 34px 24px; text-decoration: none; color: inherit; transition: all var(--ease); position: relative; overflow: hidden; }
+    .dept-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, var(--signal) 0%, transparent 60%); opacity: 0; transition: opacity var(--ease); }
+    .dept-card:hover::before { opacity: 0.15; }
+    .dept-card i { font-size: 1.7rem; color: var(--paper-2); position: relative; z-index: 1; }
+    .dept-card h5 { color: #fff; font-size: 1rem; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.02em; position: relative; z-index: 1; }
+    .dept-card p { font-family: var(--font-mono); font-size: 0.72rem; color: var(--steel); position: relative; z-index: 1; }
+    .dept-card .go { position: absolute; bottom: 20px; right: 20px; color: var(--steel); opacity: 0; transform: translateX(-6px); transition: all var(--ease); z-index: 1; }
+    .dept-card:hover .go { opacity: 1; transform: translateX(0); color: var(--signal-bright); }
+
+    /* ═══ WHY ASHWA RIDERS — value cards ═══ */
+    .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-dark); border: 1px solid var(--line-dark); }
+    .value-card { background: var(--paper); padding: 36px 28px; transition: all var(--ease); }
+    .value-card:hover { background: #fff; }
+    .value-card i { font-size: 1.6rem; color: var(--signal); }
+    .value-card h4 { font-size: 1.05rem; margin: 18px 0 8px; text-transform: uppercase; }
+    .value-card p { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.7; font-weight: 300; }
+
+    /* ═══ NEWS carousel ═══ */
+    .news-carousel { position: relative; }
+    .news-track { display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px; }
+    .news-track::-webkit-scrollbar { display: none; }
+    .news-card { flex: 0 0 320px; scroll-snap-align: start; background: var(--paper); overflow: hidden; transition: all var(--ease); text-decoration: none; color: inherit; border: 1px solid var(--line-dark); }
+    .news-card:hover { background: #fff; border-color: var(--signal); transform: translateY(-4px); }
+    .news-card .news-image { height: 170px; background: var(--carbon); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .news-card .news-image::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; }
+    .news-card .news-image .icon { font-size: 1.8rem; opacity: 0.9; color: var(--paper-2); position: relative; z-index: 1; }
+    .news-card .news-image .tag { position: absolute; top: 14px; left: 14px; padding: 5px 12px; font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(113, 90, 90, 0.16); border: 1px solid rgba(113, 90, 90, 0.4); color: var(--signal-bright); z-index: 2; }
+    .news-card .news-body { padding: 20px 22px 24px; }
+    .news-card .news-body .meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint); margin-bottom: 10px; }
+    .news-card .news-body h4 { font-size: 1rem; margin-bottom: 8px; line-height: 1.35; text-transform: none; letter-spacing: 0; }
+    .news-card .news-body p { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.6; font-weight: 300; }
+    .carousel-controls { display: flex; align-items: center; gap: 18px; margin-top: 26px; }
+    .carousel-btn { width: 44px; height: 44px; border: 1px solid var(--line-dark); background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--ease); }
+    .carousel-btn:hover { border-color: var(--signal); color: var(--signal); }
+    .carousel-counter { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-faint); letter-spacing: 0.04em; }
+    .carousel-counter b { color: var(--ink); font-weight: 700; }
+
+    /* ═══ SPONSORS — tiered marquees ═══ */
+    .sponsor-tier { margin-bottom: 18px; width: 100%; overflow: hidden; }
+    .sponsor-tier-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--steel); padding: 0 24px; margin-bottom: 10px; display: block; }
+    .marquee { position: relative; overflow: hidden; border-top: 1px solid var(--hairline-soft); padding: 22px 0; width: 100%; }
+    .marquee.on-paper { border-top: 1px solid var(--line-dark); }
+    .marquee-track { display: flex; gap: 40px; width: max-content; animation: marquee 35s linear infinite; align-items: center; will-change: transform; }
+    .marquee.reverse .marquee-track { animation: marquee-reverse 35s linear infinite; }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes marquee-reverse { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+    .sponsor-item { display: flex; align-items: center; gap: 14px; font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem; color: rgba(255,255,255,0.85); letter-spacing: 0.02em; white-space: nowrap; transition: all var(--ease); text-decoration: none; padding: 8px 18px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; }
+    .sponsor-item.gold { font-size: 1.1rem; color: #fff; border-color: rgba(242, 89, 18, 0.3); background: rgba(242, 89, 18, 0.06); }
+    .sponsor-item.silver { font-size: 0.95rem; color: #E2E2E8; border-color: rgba(255, 255, 255, 0.12); }
+    .sponsor-item.bronze { font-size: 0.88rem; color: #D1D5DB; border-color: rgba(255, 255, 255, 0.06); }
+    .sponsor-item:hover { color: #fff; border-color: var(--signal-bright); background: rgba(255,255,255,0.12); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+    .sponsor-logo-img { height: 36px; max-width: 130px; object-fit: contain; filter: brightness(0.95) contrast(1.05); transition: transform 0.2s; }
+    .sponsor-item:hover .sponsor-logo-img { filter: brightness(1.15) contrast(1.1); transform: scale(1.06); }
+    .sponsor-item .logo { font-size: 1.3rem; color: var(--signal-bright); opacity: 0.9; }
+
+    /* ═══ CTA — sponsor ═══ */
+    .cta-sponsor { background: var(--void); color: #fff; padding: 100px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-sponsor::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 56px 56px; }
+    .cta-sponsor .container { position: relative; z-index: 1; }
+    .cta-sponsor .eyebrow { color: var(--signal-bright); }
+    .cta-sponsor .btn-primary { background: var(--signal); color: #fff; }
+    .cta-sponsor .btn-primary:hover { background: var(--signal-bright); }
+
+    /* ─── Footer ── */
+    .footer { background: var(--void); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+    .footer .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+    .footer .footer-brand .logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+    .footer .footer-brand .logo span { color: var(--logo-orange); }
+    .footer .footer-brand p { margin-top: 14px; font-size: 0.88rem; line-height: 1.75; max-width: 300px; font-weight: 300; }
+    .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .footer ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer ul a { color: var(--steel); text-decoration: none; font-size: 0.88rem; transition: color var(--ease); }
+    .footer ul a:hover { color: var(--signal-bright); }
+    .footer .social-links { display: flex; gap: 10px; margin-top: 20px; }
+    .footer .social-links a { width: 38px; height: 38px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel); transition: all var(--ease); text-decoration: none; }
+    .footer .social-links a:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .footer .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; }
+
+    /* ─── Theme Toggle ── */
+    .theme-toggle { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 46px; height: 46px; border-radius: 0; background: var(--void); color: #fff; border: 1px solid var(--hairline); font-size: 1.1rem; cursor: pointer; transition: all var(--ease); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
+    .theme-toggle:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+
+    /* ─── Toast ── */
+    .toast { position: fixed; bottom: 90px; right: 30px; z-index: 3000; padding: 16px 26px; border-radius: 0; background: var(--void); color: #fff; box-shadow: var(--shadow-premium); border: 1px solid var(--hairline); border-left: 2px solid var(--signal-bright); transform: translateY(20px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; font-family: var(--font-body); font-size: 0.88rem; max-width: 380px; }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .toast .toast-icon { color: var(--signal-bright); margin-right: 12px; }
+
+    /* ─── LIGHT THEME OVERRIDES ───────────────────────── */
+    body.light { background: var(--paper); color: var(--ink); }
+    body.light .navbar.scrolled { background: rgba(246, 244, 238, 0.92); border-bottom: 1px solid var(--line-dark); }
+    body.light .navbar .nav-links a { color: var(--ink-soft); }
+    body.light .navbar .nav-links a:hover, body.light .navbar .nav-links a.active { color: var(--ink); }
+    body.light .navbar .nav-logo { color: var(--ink); }
+    body.light .nav-subtitle { color: var(--ink-faint); }
+    body.light .theme-toggle { background: var(--paper); color: var(--ink); border-color: var(--line-dark); }
+    body.light .theme-toggle:hover { border-color: var(--signal); }
+    body.light .toast { background: #fff; color: var(--ink); border-color: var(--line-dark); border-left: 2px solid var(--signal); }
+
+    body.light .hero { background: var(--paper); }
+    body.light .hero::before { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); }
+    body.light .hero-video-overlay { background: linear-gradient(100deg, rgba(246, 244, 238, 0.9) 26%, rgba(246, 244, 238, 0.5) 100%); }
+    body.light .hero h1 { color: var(--ink); }
+    body.light .hero h2.tagline span { color: var(--ink-soft); }
+    body.light .hero .hero-badge { border-color: var(--line-dark); color: var(--ink-faint); }
+    body.light .hero-stats .stat-number { color: var(--ink); }
+    body.light .hero-stats .stat-label { color: var(--ink-faint); }
+    body.light .hero-stats .stat-item:not(:last-child)::after { background: var(--line-dark); }
+    body.light .hero .btn-secondary { color: var(--ink); border-color: var(--line-dark); }
+    body.light .hero .btn-secondary:hover { border-color: var(--signal); color: var(--signal); }
+    body.light .hero .btn-ghost { color: var(--ink-soft); }
+    body.light .hero .btn-ghost:hover { color: var(--ink); border-color: var(--line-dark); }
+    body.light .scroll-indicator { color: var(--ink-faint); }
+    body.light .scroll-indicator .mouse { border-color: var(--line-dark); }
+    body.light .scroll-indicator .mouse .wheel { background: var(--signal); }
+
+    body.light .car-showcase .car-render { background: var(--paper); border-color: var(--line-dark); }
+    body.light .car-showcase .car-render i { color: var(--signal); }
+    body.light .car-showcase .spec-row { border-color: var(--line-dark); }
+    body.light .car-showcase .spec-row .spec-label { color: var(--ink-faint); }
+    body.light .car-showcase .spec-row .spec-value { color: var(--ink); }
+    body.light .car-showcase .render-tag { color: var(--ink-faint); }
+
+    body.light .dept-grid { background: var(--line-dark); border-color: var(--line-dark); }
+    body.light .dept-card { background: var(--paper); }
+    body.light .dept-card h5 { color: var(--ink); }
+    body.light .dept-card p { color: var(--ink-soft); }
+    body.light .dept-card .go { color: var(--ink-faint); }
+    body.light .dept-card:hover .go { color: var(--signal); }
+
+    body.light .value-grid { background: var(--line-dark); border-color: var(--line-dark); }
+    body.light .value-card { background: var(--paper); }
+    body.light .value-card:hover { background: #fff; }
+
+    body.light .news-card { background: var(--paper); border-color: var(--line-dark); }
+    body.light .news-card:hover { background: #fff; border-color: var(--signal); }
+    body.light .news-card .news-body .meta { color: var(--ink-faint); }
+    body.light .news-card .news-body p { color: var(--ink-soft); }
+
+    body.light .cta-sponsor { background: var(--paper); }
+    body.light .cta-sponsor h2 { color: var(--ink); }
+    body.light .cta-sponsor p { color: var(--ink-soft); }
+    body.light .cta-sponsor .btn-secondary { color: var(--ink); border-color: var(--line-dark); }
+    body.light .cta-sponsor .btn-secondary:hover { border-color: var(--signal); color: var(--signal); }
+
+    body.light .sponsor-item { color: var(--ink-faint); }
+    body.light .sponsor-item:hover { color: var(--ink); }
+    body.light .sponsor-item.gold { color: var(--signal); }
+    body.light .sponsor-tier-label { color: var(--ink-faint); }
+    body.light .marquee { border-top: 1px solid var(--line-dark); }
+
+    body.light .footer { background: var(--paper); border-top: 1px solid var(--line-dark); }
+    body.light .footer .footer-brand .logo { color: var(--ink); }
+    body.light .footer h4 { color: var(--ink); }
+    body.light .footer ul a { color: var(--ink-soft); }
+    body.light .footer ul a:hover { color: var(--signal); }
+    body.light .footer .social-links a { border-color: var(--line-dark); color: var(--ink-faint); }
+    body.light .footer .social-links a:hover { border-color: var(--signal); color: var(--signal); }
+    body.light .footer .footer-bottom { border-color: var(--line-dark); }
+
+    /* ─── Responsive ── */
+    @media (max-width: 1024px) {
+      .footer .footer-grid { grid-template-columns: 1fr 1fr; }
+      .car-showcase { grid-template-columns: 1fr; }
+      .dept-grid { grid-template-columns: repeat(2, 1fr); }
+      .value-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-strip-grid { grid-template-columns: repeat(3, 1fr); row-gap: 24px; }
+      .stats-strip-item:nth-child(4) { border-left: none; }
+      .timeline-track { grid-template-columns: repeat(3, 1fr); row-gap: 40px; }
+      .timeline-line { display: none; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; flex-direction: column; align-items: flex-start; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(0,0,0,0.98); padding: 24px; gap: 4px; border-bottom: 1px solid var(--hairline); }
+      .nav-links.open { display: flex; }
+      .nav-links a { width: 100%; padding: 12px 6px; }
+      .mobile-toggle { display: block; }
+      .logo-mark { height: 36px; } /* Slightly smaller logo on mobile */
+      .nav-logo { font-size: 1.2rem; gap: 8px; }
+      .nav-subtitle { font-size: 0.55rem; }
+      .hero h1 { font-size: clamp(2.1rem, 9vw, 3.2rem); }
+      .section-padding { padding: 64px 0; }
+      .news-card { flex-basis: 270px; }
+      .dept-grid { grid-template-columns: 1fr 1fr; }
+      .value-grid { grid-template-columns: 1fr; }
+      .stats-strip-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-strip-item:nth-child(odd) { border-left: none; }
+      .timeline-track { grid-template-columns: repeat(2, 1fr); }
+      .footer .footer-grid { grid-template-columns: 1fr; gap: 34px; }
+      .footer .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; width: 100%; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+      .car-actions { flex-direction: column; width: 100%; }
+      .car-actions .btn { width: 100%; justify-content: center; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       GARAGE TO GRID — Scroll-Driven 3D Card Burst Experience
+    ══════════════════════════════════════════════════════════ */
+
+    /* Per-stage accent colors */
+    :root {
+      --g2g-c0: #F25912;   /* orange  — Concept    */
+      --g2g-c1: #0EA5E9;   /* sky     — Design/CAD */
+      --g2g-c2: #22C55E;   /* green   — Fabrication*/
+      --g2g-c3: #A855F7;   /* violet  — Testing    */
+      --g2g-c4: #EF4444;   /* red     — Grid       */
+    }
+
+    /* Outer section — tall so scroll has room */
+    .g2g-outer {
+      position: relative;
+      background: #F0F0F0;
+      height: 550vh;
+    }
+
+    /* Sticky scene that pins for the full scroll */
+    .g2g-scene {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      background: #F0F0F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1100px;
+      perspective-origin: 50% 48%;
+    }
+
+    /* Animated background gradient that sweeps colour on scroll */
+    .g2g-bg-wash {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: background 0.6s ease, opacity 0.55s ease;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Section label top-left */
+    .g2g-section-label {
+      position: absolute;
+      top: 28px;
+      left: 32px;
+      z-index: 30;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(30,30,30,0.45);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .g2g-section-label::before {
+      content: '';
+      width: 22px;
+      height: 1px;
+      background: currentColor;
+      display: block;
+    }
+
+    /* Progress dots top-right */
+    .g2g-dots {
+      position: absolute;
+      top: 50%;
+      right: 28px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 30;
+    }
+    .g2g-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(30,30,30,0.18);
+      transition: background 0.4s ease, transform 0.4s ease;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      padding: 0;
+    }
+    .g2g-dot.active {
+      transform: scale(1.5);
+    }
+
+    /* CMS hook — hidden */
+    .timeline-rail-wrap { display: none; }
+
+    /* ── Car image ─────────────────────────────────────────── */
+    .g2g-car-wrap {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      pointer-events: none;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.12s linear;
+    }
+    .g2g-car-img {
+      width: clamp(380px, 58vw, 860px);
+      height: auto;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 30px 60px rgba(0,0,0,0.18));
+      will-change: filter;
+      transition: filter 0.5s ease;
+    }
+
+    /* ── Stage cards ───────────────────────────────────────── */
+    .g2g-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transform-style: preserve-3d;
+    }
+
+    /* The card itself — starts far away, flies in */
+    .g2g-card {
+      position: absolute;
+      width: clamp(280px, 36vw, 420px);
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 30px 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 32px 80px rgba(0,0,0,0.10);
+      /* initial state — deep behind / off-screen */
+      opacity: 0;
+      transform: translateZ(-600px) scale(0.6);
+      transition:
+        opacity      0.5s cubic-bezier(0.16,1,0.3,1),
+        transform    0.5s cubic-bezier(0.16,1,0.3,1),
+        box-shadow   0.4s ease;
+      will-change: transform, opacity;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    /* Accent top border — colour set per stage via inline style */
+    .g2g-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--card-accent, var(--signal));
+      border-radius: 16px 16px 0 0;
+    }
+    /* Active = fully in frame */
+    .g2g-card.visible {
+      opacity: 1;
+      transform: translateZ(0) scale(1);
+      pointer-events: auto;
+    }
+    /* Exiting = flies toward viewer and fades */
+    .g2g-card.exiting {
+      opacity: 0;
+      transform: translateZ(220px) scale(1.06);
+      transition-duration: 0.38s;
+    }
+
+    /* Card positions — spread around the car */
+    .g2g-pos-tl  { top: 12%; left:  4vw; }
+    .g2g-pos-tr  { top: 12%; right: 4vw; }
+    .g2g-pos-bl  { bottom: 13%; left:  4vw; }
+    .g2g-pos-br  { bottom: 13%; right: 4vw; }
+    .g2g-pos-tc  { top: 8%;  left: 50%; transform: translateX(-50%) translateZ(-600px) scale(0.6); }
+    .g2g-pos-tc.visible  { transform: translateX(-50%) translateZ(0) scale(1); }
+    .g2g-pos-tc.exiting  { transform: translateX(-50%) translateZ(220px) scale(1.06); }
+
+    /* Card typography */
+    .g2g-card-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--card-accent, var(--signal));
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .g2g-card-step {
+      background: var(--card-accent, var(--signal));
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+    }
+    .g2g-card-title {
+      font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #111;
+      margin-bottom: 10px;
+    }
+    .g2g-card-title em {
+      font-style: normal;
+      color: var(--card-accent, var(--signal));
+    }
+    .g2g-card-desc {
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: #555;
+      font-weight: 400;
+      margin-bottom: 18px;
+    }
+    /* Stat pills inside card */
+    .g2g-card-stats {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      padding-top: 14px;
+      flex-wrap: wrap;
+    }
+    .g2g-card-stat {
+      flex: 1;
+      min-width: 70px;
+      padding-right: 14px;
+    }
+    .g2g-card-stat:not(:last-child) {
+      border-right: 1px solid rgba(0,0,0,0.07);
+      margin-right: 14px;
+    }
+    .g2g-card-stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #111;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .g2g-card-stat-val sup {
+      font-size: 0.6em;
+      color: var(--card-accent, var(--signal));
+    }
+    .g2g-card-stat-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.57rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    /* CTA buttons in last card */
+    .g2g-card-cta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .g2g-card-cta .btn {
+      font-size: 0.78rem;
+      padding: 9px 16px;
+    }
+
+    /* Stage counter bottom center */
+    .g2g-counter {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .g2g-counter-num {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: rgba(30,30,30,0.4);
+      transition: color 0.4s ease;
+    }
+    .g2g-counter-bar {
+      width: 120px;
+      height: 2px;
+      background: rgba(30,30,30,0.12);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .g2g-counter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.3s ease, background 0.5s ease;
+    }
+    .g2g-scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      right: 32px;
+      z-index: 30;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(30,30,30,0.35);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: g2g-hint-fade 2.5s ease-in-out infinite;
+    }
+    @keyframes g2g-hint-fade {
+      0%,100% { opacity:1; } 50% { opacity:0.3; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .g2g-outer { height: 220vh; }
+      .g2g-scene { height: 100dvh; height: 100vh; }
+    }
+    @media (max-width: 900px) {
+      .g2g-pos-tl, .g2g-pos-bl { left: 2vw; }
+      .g2g-pos-tr, .g2g-pos-br { right: 2vw; }
+      .g2g-card { width: clamp(220px, 42vw, 340px); padding: 20px 22px 18px; }
+      .g2g-car-img { width: clamp(280px, 72vw, 540px); }
+    }
+    @media (max-width: 640px) {
+      .g2g-pos-tl, .g2g-pos-tr, .g2g-pos-bl, .g2g-pos-br, .g2g-pos-tc {
+        top: auto !important;
+        bottom: 80px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+      }
+      .g2g-pos-tc { transform: none !important; }
+      .g2g-pos-tc.visible { transform: none !important; }
+      .g2g-pos-tc.exiting { transform: translateZ(220px) scale(1.06) !important; }
+      .g2g-car-img { width: clamp(240px, 88vw, 420px); }
+      .g2g-dots { display: none; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DEPARTMENTS — flip-card pit board (v4)
+    ══════════════════════════════════════════════════════════ */
+    .departments-section { position: relative; }
+    .dept-feature { grid-column: span 2; grid-row: span 2; position: relative; overflow: hidden; min-height: 320px; background: var(--carbon); text-decoration: none; color: inherit; display: block; }
+    .dept-feature-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: grayscale(0.25) contrast(1.05); opacity: 0.85; transform: scale(1.08); transition: transform 6s cubic-bezier(0.16,1,0.3,1); }
+    .dept-feature.in-view .dept-feature-img { transform: scale(1); }
+    .dept-feature:hover .dept-feature-img { transform: scale(1.06); transition-duration: 0.8s; }
+    .dept-feature::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,10,10,0.94) 20%, rgba(10,10,10,0.15) 65%, transparent 100%); }
+    .dept-feature::before { content: ''; position: absolute; inset: 0; z-index: 3; background: linear-gradient(115deg, transparent 40%, rgba(255,117,31,0.28) 50%, transparent 60%); background-size: 250% 250%; background-position: 120% 0; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+    .dept-feature:hover::before { opacity: 1; animation: sweep-shine 1.1s ease forwards; }
+    @keyframes sweep-shine { from { background-position: 120% 0; } to { background-position: -20% 0; } }
+    .dept-feature-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 26px 24px; z-index: 2; }
+    .dept-feature-tag { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal-bright); display: block; margin-bottom: 8px; }
+    .dept-feature-body h4 { color: #fff; font-size: 1.3rem; text-transform: uppercase; margin-bottom: 8px; }
+    .dept-feature-body p { color: rgba(255,255,255,0.6); font-size: 0.86rem; line-height: 1.6; font-weight: 300; max-width: 320px; }
+
+    .dept-flip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); perspective: 1400px; }
+    .dept-flip-card { position: relative; min-height: 158px; background: transparent; opacity: 0; transform: translateY(24px) scale(0.94); transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .dept-flip-grid.in-view .dept-flip-card { opacity: 1; transform: translateY(0) scale(1); }
+    .dept-flip-inner { position: relative; width: 100%; height: 100%; min-height: 158px; transition: transform 0.65s cubic-bezier(0.4,0.2,0.2,1); transform-style: preserve-3d; }
+    .dept-flip-card:hover .dept-flip-inner, .dept-flip-card.flipped .dept-flip-inner { transform: rotateY(180deg); }
+    .dept-flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; padding: 24px 20px; display: flex; flex-direction: column; text-decoration: none; }
+    .dept-flip-front { background: var(--void); color: #fff; }
+    .dept-flip-back { background: linear-gradient(160deg, var(--signal-bright), var(--signal) 70%); color: #10141c; transform: rotateY(180deg); justify-content: center; }
+    .dept-flip-code { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; color: var(--signal-bright); opacity: 0.8; }
+    .dept-flip-front i { font-size: 1.4rem; color: var(--signal-bright); margin: 10px 0 12px; }
+    .dept-flip-front h5 { font-size: 0.9rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.02em; }
+    .dept-flip-front p { font-family: var(--font-mono); font-size: 0.68rem; color: var(--steel); line-height: 1.5; }
+    .dept-flip-back p { font-size: 0.82rem; line-height: 1.55; font-weight: 600; }
+    .dept-flip-back .go-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .dept-photo-strip { position: relative; margin-top: 1px; overflow: hidden; }
+    .dept-photo-strip img { width: 100%; height: 260px; object-fit: cover; display: block; filter: grayscale(0.2) contrast(1.05); transform: scale(1); transition: transform 5s cubic-bezier(0.16,1,0.3,1); }
+    .dept-photo-strip.in-view img { transform: scale(1.05); }
+    .dept-photo-caption { position: absolute; left: 0; bottom: 0; right: 0; padding: 16px 24px; background: linear-gradient(0deg, rgba(10,10,10,0.85), transparent); font-family: var(--font-mono); font-size: 0.74rem; color: rgba(255,255,255,0.75); letter-spacing: 0.02em; }
+    .dept-photo-caption i { color: var(--signal-bright); margin-right: 8px; }
+
+    @media (max-width: 1024px) {
+      .dept-flip-grid { grid-template-columns: repeat(2, 1fr); }
+      .dept-feature { grid-column: span 2; grid-row: span 1; min-height: 260px; }
+    }
+    @media (max-width: 768px) {
+      .dept-flip-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .dept-flip-grid { grid-template-columns: 1fr; }
+      .dept-feature { grid-column: span 1; }
+      .dept-flip-card { min-height: 138px; }
+      .dept-flip-inner { min-height: 138px; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BOOT SCREEN & WEBSITE REVEAL (Loading Animation)
+    ══════════════════════════════════════════════════════════ */
+    #boot-screen {
+      display: none !important;
+    }
+
+    .boot-scanlines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.025) 0px,
+          rgba(255,255,255,0.025) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+      opacity: 0.45;
+      animation: scanMove 8s linear infinite;
+    }
+
+    .boot-line {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 1px;
+      background: rgba(255,150,0,0.10);
+      opacity: 0.4;
+    }
+
+    .boot-logo-wrap {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: logoEnter 1.4s cubic-bezier(.16,1,.3,1) forwards;
+    }
+
+    .boot-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      filter:
+        drop-shadow(0 0 4px rgba(255, 150, 0, 0.35))
+        drop-shadow(0 0 12px rgba(255, 120, 0, 0.12));
+      animation: logoReveal 1.5s ease forwards;
+    }
+
+    .logo-glow {
+      position: absolute;
+      width: 45%;
+      height: 45%;
+      border-radius: 50%;
+      background: rgba(255, 130, 0, 0.025);
+      filter: blur(45px);
+      z-index: -1;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+
+    .boot-noise {
+      position: absolute;
+      inset: -50%;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+      animation: noiseMove .15s steps(2) infinite;
+    }
+
+    .boot-info {
+      position: absolute;
+      left: 50%;
+      bottom: 6vh;
+      width: 380px;
+      max-width: 70vw;
+      transform: translateX(-50%);
+    }
+
+    .boot-status {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+      font-family: "Courier New", monospace;
+      font-size: 7px;
+      letter-spacing: 1px;
+      color: #765322;
+    }
+
+    .boot-status > div {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .boot-status .label { color: #3e3222; }
+    .boot-status .value { color: #a87931; }
+
+    .boot-progress {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,150,0,0.08);
+      overflow: hidden;
+    }
+
+    #boot-progress-bar {
+      width: 0%;
+      height: 100%;
+      background: rgba(255,130,0,0.55);
+      box-shadow: 0 0 5px rgba(255,120,0,0.25);
+      transition: width .08s linear;
+    }
+
+    #website {
+      min-height: 100vh;
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #website.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    @keyframes logoReveal {
+      0% {
+        opacity: 0;
+        transform: scale(.65);
+        filter: blur(10px) brightness(1.8);
+      }
+      45% { opacity: 1; }
+      70% { transform: scale(1.03); }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: drop-shadow(0 0 4px rgba(255,150,0,.30)) drop-shadow(0 0 12px rgba(255,120,0,.10));
+      }
+    }
+
+    @keyframes logoEnter {
+      0% { transform: translateY(20px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { transform: scale(.85); opacity: .3; }
+      50% { transform: scale(1.1); opacity: .55; }
+    }
+
+    @keyframes scanMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(20px); }
+    }
+
+    @keyframes noiseMove {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(3%,-2%); }
+      50% { transform: translate(-2%,3%); }
+      75% { transform: translate(2%,2%); }
+      100% { transform: translate(-3%,-2%); }
+    }
+
+    @media (max-width: 600px) {
+      .boot-logo-wrap { width: 230px; height: 230px; }
+      .boot-info { width: 75vw; bottom: 7vh; }
+    }
+  </style>
+  <script>
+    if (sessionStorage.getItem('hasBooted')) {
+      document.write('<style>#boot-screen{display:none !important;}#website{opacity:1 !important;transform:none !important;transition:none !important;}</style>');
+    }
+  </script>
+</head>
+<body>
+
+  <!-- =====================================================
+       BOOT SCREEN (Loading Animation)
+  ===================================================== -->
+  <div id="boot-screen">
+    <!-- Scanlines -->
+    <div class="boot-scanlines"></div>
+
+    <!-- Noise -->
+    <div class="boot-noise"></div>
+
+    <!-- Horizontal line -->
+    <div class="boot-line"></div>
+
+    <!-- LOGO -->
+    <div class="boot-logo-wrap">
+      <div class="logo-glow"></div>
+
+      <!-- LOGO -->
+      <img
+        src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png"
+        alt="Ashwa Riders Logo"
+        class="boot-logo"
+      >
+    </div>
+
+    <!-- STATUS -->
+    <div class="boot-info">
+      <div class="boot-status">
+        <div>
+          <span class="label">SYS</span>
+          <span class="value" id="sys-status">INIT</span>
+        </div>
+
+        <div>
+          <span class="label">LOAD</span>
+          <span class="value"><span id="load-percent">0</span>%</span>
+        </div>
+
+        <div>
+          <span class="label">STATUS</span>
+          <span class="value" id="boot-status-text">LOADING</span>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="boot-progress">
+        <div id="boot-progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MAIN WEBSITE CONTENT
+  ===================================================== -->
+  <div id="website">
+
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <span id="toast-message">Welcome to Ashwa Riders!</span>
+  </div>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <!-- NEW WING LOGO -->
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+        
+        <!-- LOGO TEXT + NEW SUBTITLE -->
+        <div class="nav-logo-wrapper">
+          <span>Ashwa<span>Riders</span></span>
+          <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+        </div>
+      </a>
+      
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="car.html">Car</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+      </ul>
+      <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="mobile-nav-brand">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+        <span>Ashwa Riders</span>
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+    </nav>
+    <div class="mobile-nav-footer">
+      <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+    </div>
+  </aside>
+
+  <!-- ─── THEME TOGGLE ─── -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  HERO — cinematic video background                 -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="hero" id="home">
+    <video class="hero-video" autoplay loop muted playsinline>
+      <source src="https://res.cloudinary.com/frjck4sc/video/upload/v1784445874/vidssave.com_This_is_FORMULA_1_1080P_ex9dby.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="hero-video-overlay"></div>
+    <div class="hero-glow g1"></div>
+    <div class="hero-glow g2"></div>
+    <div class="speed-lines" id="speedLines"></div>
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="container hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Ashwa Riders — 2026 Season
+      </div>
+      <h1 id="kineticHeadline">
+        <span class="line"><span class="word">ASHWA</span> <span class="word">RIDERS</span></span>
+      </h1>
+      <h2 class="tagline" id="heroTagline">
+        <span>Engineering Speed.</span>
+        <span>Building Innovation.</span>
+        <span>Racing the Future.</span>
+      </h2>
+      <div class="hero-actions" id="heroActions">
+        <a href="car.html" class="btn btn-primary"><i class="fas fa-car"></i> Explore Our Car</a>
+        <a href="sponsors.html" class="btn btn-secondary"><i class="fas fa-handshake"></i> Become a Sponsor</a>
+      </div>
+      <div class="hero-stats" id="heroStats">
+        <div class="stat-item"><div class="stat-number" data-count="25">0</div><div class="stat-label">Team Members</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="4">0</div><div class="stat-label">Departments</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="5000">0</div><div class="stat-label">Eng. Hours</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="1">0</div><div class="stat-label">FB Car</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="20">0</div><div class="stat-label">Sponsors</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="8">0</div><div class="stat-label">Awards</div></div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse"><div class="wheel"></div></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  GARAGE TO GRID — Scroll-Driven 3D Card Burst       -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="g2g-outer" id="buildTimelineSection">
+
+    <!-- CMS admin hook preserved -->
+    <div class="timeline-rail-wrap" id="timelineRailWrap"></div>
+
+    <!-- The sticky 3D scene -->
+    <div class="g2g-scene" id="g2gScene">
+
+      <!-- Colour wash background -->
+      <div class="g2g-bg-wash" id="g2gBgWash"></div>
+
+      <!-- Section label -->
+      <div class="g2g-section-label">Garage To Grid · 2026 Season</div>
+
+      <!-- Side progress dots -->
+      <div class="g2g-dots" id="g2gDots">
+        <button class="g2g-dot active" data-g2g-jump="0"></button>
+        <button class="g2g-dot" data-g2g-jump="1"></button>
+        <button class="g2g-dot" data-g2g-jump="2"></button>
+        <button class="g2g-dot" data-g2g-jump="3"></button>
+        <button class="g2g-dot" data-g2g-jump="4"></button>
+      </div>
+
+      <!-- Car image — tilts with scroll -->
+      <div class="g2g-car-wrap" id="g2gCarWrap">
+        <img class="g2g-car-img" id="g2gCarImg"
+          src="https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png"
+          alt="Ashwa Riders Formula Student Car 2026">
+      </div>
+
+      <!-- ─── Stage 0 — Concept & Targets ─── -->
+      <div class="g2g-stage" id="g2gStageEl0">
+        <div class="g2g-card g2g-pos-tl visible" style="--card-accent: var(--g2g-c0)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">01</span>
+            Concept &amp; Targets
+          </div>
+          <h2 class="g2g-card-title">The <em>Idea</em><br>Takes Shape.</h2>
+          <p class="g2g-card-desc">Season begins with a blank whiteboard — lap-time targets, weight budget, and powertrain philosophy set before a single weld is struck.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">120<sup>KG</sup></div>
+              <div class="g2g-card-stat-lbl">Target Weight</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">EV</div>
+              <div class="g2g-card-stat-lbl">Powertrain</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">4.2<sup>S</sup></div>
+              <div class="g2g-card-stat-lbl">0–100 km/h</div>
+            </div>
+          </div>
+        </div>
+        <div class="g2g-card g2g-pos-br visible" style="--card-accent: var(--g2g-c0)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">AIR 8</span>
+            Formula Bharat 2026
+          </div>
+          <h2 class="g2g-card-title">Our <em>Mission.</em></h2>
+          <p class="g2g-card-desc">Every engineering decision traces back to one goal — a top finish at the national stage of Formula Bharat.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">5k+</div>
+              <div class="g2g-card-stat-lbl">Eng. Hours</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">100<sup>%</sup></div>
+              <div class="g2g-card-stat-lbl">Student Built</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Stage 1 — CAD / FEA / CFD ─── -->
+      <div class="g2g-stage" id="g2gStageEl1">
+        <div class="g2g-card g2g-pos-tr" style="--card-accent: var(--g2g-c1)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">02</span>
+            CAD &amp; Simulation
+          </div>
+          <h2 class="g2g-card-title">CAD. <em>FEA.</em><br>CFD. Repeat.</h2>
+          <p class="g2g-card-desc">Chassis, powertrain, and aero designed in CAD, stress-tested with FEA, and flow-optimised with CFD — before a single part is cut.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">3,200+</div>
+              <div class="g2g-card-stat-lbl">Components</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">1<sup>st</sup></div>
+              <div class="g2g-card-stat-lbl">Altair Sim '25</div>
+            </div>
+          </div>
+        </div>
+        <div class="g2g-card g2g-pos-bl" style="--card-accent: var(--g2g-c1)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">Struct.</span>
+            Spaceframe
+          </div>
+          <h2 class="g2g-card-title">Triangulated <em>Steel.</em></h2>
+          <p class="g2g-card-desc">High-tensile spaceframe built for maximum torsional rigidity and FIA driver cell compliance. 45,000 NM/° stiffness — 28 KG frame mass.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">45k<sup>NM/°</sup></div>
+              <div class="g2g-card-stat-lbl">Stiffness</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">28<sup>KG</sup></div>
+              <div class="g2g-card-stat-lbl">Frame Mass</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Stage 2 — Fabrication ─── -->
+      <div class="g2g-stage" id="g2gStageEl2">
+        <div class="g2g-card g2g-pos-tl" style="--card-accent: var(--g2g-c2)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">03</span>
+            Fabrication
+          </div>
+          <h2 class="g2g-card-title">Metal Meets<br><em>Blueprint.</em></h2>
+          <p class="g2g-card-desc">Tubes are cut, bent, and TIG-welded to CAD tolerance. Carbon composite panels are hand-laid and vacuum-bagged. Every part is measured twice.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">5k+</div>
+              <div class="g2g-card-stat-lbl">Build Hours</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">FIA</div>
+              <div class="g2g-card-stat-lbl">Safety Spec</div>
+            </div>
+          </div>
+        </div>
+        <div class="g2g-card g2g-pos-br" style="--card-accent: var(--g2g-c2)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">Aero</span>
+            Composites
+          </div>
+          <h2 class="g2g-card-title">Sculpted for <em>Downforce.</em></h2>
+          <p class="g2g-card-desc">Carbon fibre aero package — front wing, side pods, and rear diffuser — all hand-laminated and vacuum-cured in-house.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">Carbon</div>
+              <div class="g2g-card-stat-lbl">Layup</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">0.68</div>
+              <div class="g2g-card-stat-lbl">Drag Coeff</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Stage 3 — Testing ─── -->
+      <div class="g2g-stage" id="g2gStageEl3">
+        <div class="g2g-card g2g-pos-tc" style="--card-accent: var(--g2g-c3)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">04</span>
+            Validation &amp; Tuning
+          </div>
+          <h2 class="g2g-card-title">First Laps.<br><em>Real Data.</em></h2>
+          <p class="g2g-card-desc">Shakedown runs capture suspension travel, motor temperature, and braking forces across 40+ telemetry channels. Engineers iterate until every system converges.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">40+</div>
+              <div class="g2g-card-stat-lbl">Data Channels</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">2.5<sup>G</sup></div>
+              <div class="g2g-card-stat-lbl">Lateral Load</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">600<sup>V</sup></div>
+              <div class="g2g-card-stat-lbl">EV Architecture</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Stage 4 — Formula Bharat / The Grid ─── -->
+      <div class="g2g-stage" id="g2gStageEl4">
+        <div class="g2g-card g2g-pos-tl" style="--card-accent: var(--g2g-c4)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">05</span>
+            Formula Bharat 2026
+          </div>
+          <h2 class="g2g-card-title">Lights Out.<br><em>AIR 8.</em></h2>
+          <p class="g2g-card-desc">India's premier student motorsport. Ashwa Riders: AIR 8 Overall, AIR 10 Business Plan, AIR 12 Engineering Design, AIR 14 Cost &amp; Manufacturing.</p>
+          <div class="g2g-card-stats">
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">8</div>
+              <div class="g2g-card-stat-lbl">AIR Overall</div>
+            </div>
+            <div class="g2g-card-stat">
+              <div class="g2g-card-stat-val">Top<sup>10</sup></div>
+              <div class="g2g-card-stat-lbl">Nationally</div>
+            </div>
+          </div>
+        </div>
+        <div class="g2g-card g2g-pos-br" style="--card-accent: var(--g2g-c4)">
+          <div class="g2g-card-eyebrow">
+            <span class="g2g-card-step">Next</span>
+            Join the Team
+          </div>
+          <h2 class="g2g-card-title">Your Turn to<br><em>Engineer.</em></h2>
+          <p class="g2g-card-desc">The next generation of Ashwa Riders engineers starts now. Explore the full car specs or apply to join the team.</p>
+          <div class="g2g-card-cta">
+            <a href="car.html" class="btn btn-primary"><i class="fas fa-microchip"></i> Full Specs</a>
+            <a href="#recruitment" class="btn btn-outline"><i class="fas fa-user-plus"></i> Join</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom progress bar -->
+      <div class="g2g-counter">
+        <span class="g2g-counter-num" id="g2gCounterNum">01 / 05</span>
+        <div class="g2g-counter-bar">
+          <div class="g2g-counter-fill" id="g2gCounterFill"></div>
+        </div>
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="g2g-scroll-hint">
+        <i class="fas fa-arrow-down"></i>
+        Scroll to explore
+      </div>
+
+    </div><!-- /g2g-scene -->
+  </section>
+
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  DEPARTMENTS — flip-card pit board                   -->
+  <!-- ════════════════════════════════════════════════════ -->
+  
+
+  
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  LATEST NEWS — horizontal carousel                -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="section-header section-header-row reveal">
+        <div>
+          <span class="eyebrow">Latest News</span>
+          <h2 class="section-title">What's <span class="text-gradient">Happening</span></h2>
+          <p class="section-subtitle">Stay updated with the latest from Ashwa Riders.</p>
+        </div>
+        <a href="blog.html" class="view-all">View All News <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="news-carousel reveal-scale">
+        <div class="news-track" id="newsTrack">
+          <a href="blog.html" class="news-card">
+            <div class="news-image"><span class="icon"><i class="fas fa-trophy"></i></span><span class="tag">AIR 8</span></div>
+            <div class="news-body"><div class="meta">FEB 2026</div><h4>Formula Bharat 2026: Overall AIR 8</h4><p>Highest overall standing: AIR 8. Sub-category: AIR 10 Business Plan, AIR 12 Engineering Design, AIR 14 Cost & Manufacturing.</p></div>
+          </a>
+          <a href="blog.html" class="news-card">
+            <div class="news-image"><span class="icon"><i class="fas fa-microchip"></i></span><span class="tag">Winner</span></div>
+            <div class="news-body"><div class="meta">DEC 2025</div><h4>Altair Simulation Challenge 2025</h4><p>Official winning team with cash prizes for outstanding engineering design optimization using Altair Inspire software.</p></div>
+          </a>
+          <a href="blog.html" class="news-card">
+            <div class="news-image"><span class="icon"><i class="fas fa-flag-checkered"></i></span><span class="tag">AIR 19</span></div>
+            <div class="news-body"><div class="meta">FEB 2024</div><h4>Formula Bharat 2024: Tarkshya Debut</h4><p>Second legacy EV vehicle (Tarkshya) debuts at AIR 19 out of 45 teams after intense safety and technical inspections.</p></div>
+          </a>
+          <a href="blog.html" class="news-card">
+            <div class="news-image"><span class="icon"><i class="fas fa-flag"></i></span><span class="tag">AIR 10</span></div>
+            <div class="news-body"><div class="meta">FEB 2023</div><h4>Formula Bharat 2023: AIR 10 Overall</h4><p>AIR 10 Overall out of 37 registered electric teams in our debut onsite competition appearance.</p></div>
+          </a>
+          <a href="blog.html" class="news-card">
+            <div class="news-image"><span class="icon"><i class="fas fa-calculator"></i></span><span class="tag">5th</span></div>
+            <div class="news-body"><div class="meta">JAN 2023</div><h4>MathWorks Modelling Award</h4><p>Ranked 5th Nationally out of 86 registered collegiate teams for software configuration and predictive automotive math models.</p></div>
+          </a>
+          <a href="blog.html" class="news-card">
+            <div class="news-image"><span class="icon"><i class="fas fa-wrench"></i></span><span class="tag">Workshop</span></div>
+            <div class="news-body"><div class="meta">MAY 10, 2026</div><h4>Workshop Updates: New Fabrication Bay</h4><p>A look inside our expanded workshop ahead of the build season.</p></div>
+          </a>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn" id="newsPrev" aria-label="Previous"><i class="fas fa-arrow-left"></i></button>
+          <button class="carousel-btn" id="newsNext" aria-label="Next"><i class="fas fa-arrow-right"></i></button>
+          <span class="carousel-counter"><b id="newsCounterCurrent">01</b> / <span id="newsCounterTotal">06</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SPONSORS — tiered marquees                       -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" style="background: var(--void); color: #fff; padding-bottom: 70px;">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="eyebrow on-dark">Sponsors &amp; Partners</span>
+        <h2 class="section-title section-title-light">Backed By The <span class="text-gradient">Best</span></h2>
+        <p class="section-subtitle section-subtitle-light">Every tier of support that makes the car possible.</p>
+        <a href="sponsors.html" class="view-all on-dark">View All Sponsors <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="sponsor-tier reveal-scale">
+      <span class="sponsor-tier-label container">Gold Tier</span>
+      <div class="marquee">
+        <div class="marquee-track">
+          <!-- First Half (18 items) -->
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <!-- Second Half (Identical duplicate for seamless 0 to -50% loop) -->
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> TechCorp</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> EnergySys</span>
+          <span class="sponsor-item gold"><i class="fas fa-crown logo"></i> VoltAge</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sponsor-tier reveal-scale">
+      <span class="sponsor-tier-label container">Silver Tier</span>
+      <div class="marquee reverse">
+        <div class="marquee-track">
+          <!-- First Half (18 items) -->
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <!-- Second Half (Identical duplicate for seamless -50% to 0 loop) -->
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+          <span class="sponsor-item"><i class="fas fa-wind logo"></i> AeroDyn</span>
+          <span class="sponsor-item"><i class="fas fa-brain logo"></i> NeuralWorks</span>
+          <span class="sponsor-item"><i class="fas fa-satellite-dish logo"></i> DataLink</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sponsor-tier reveal-scale">
+      <span class="sponsor-tier-label container">Bronze Tier</span>
+      <div class="marquee">
+        <div class="marquee-track">
+          <!-- First Half (18 items) -->
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <!-- Second Half (Identical duplicate) -->
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+          <span class="sponsor-item"><i class="fas fa-industry logo"></i> MotoParts</span>
+          <span class="sponsor-item"><i class="fas fa-leaf logo"></i> EcoDrive</span>
+          <span class="sponsor-item"><i class="fas fa-tools logo"></i> GripWorks</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sponsor-tier reveal-scale">
+      <span class="sponsor-tier-label container">Technical Partners</span>
+      <div class="marquee reverse">
+        <div class="marquee-track">
+          <!-- First Half (18 items) -->
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <!-- Second Half (Identical duplicate) -->
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+          <span class="sponsor-item"><i class="fas fa-cogs logo"></i> Bosch</span>
+          <span class="sponsor-item"><i class="fas fa-microchip logo"></i> Zuken</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sponsor-tier reveal-scale">
+      <span class="sponsor-tier-label container">Education Partners</span>
+      <div class="marquee">
+        <div class="marquee-track">
+          <!-- First Half (18 items) -->
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <!-- Second Half (Identical duplicate) -->
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+          <span class="sponsor-item"><i class="fas fa-university logo"></i> IIT Bombay</span>
+          <span class="sponsor-item"><i class="fas fa-school logo"></i> BMS College</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sponsor-tier reveal-scale">
+      <span class="sponsor-tier-label container">Media Partners</span>
+      <div class="marquee reverse">
+        <div class="marquee-track">
+          <!-- First Half (18 items) -->
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <!-- Second Half (Identical duplicate) -->
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+          <span class="sponsor-item"><i class="fas fa-newspaper logo"></i> EV Reporter</span>
+          <span class="sponsor-item"><i class="fas fa-video logo"></i> Sportskeeda</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  CTA - BECOME OUR SPONSOR                        -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="cta-sponsor">
+    <div class="container reveal">
+      <span class="eyebrow on-dark" style="display:block;">Partner With Us</span>
+      <h2 style="font-size: clamp(2rem, 4vw, 3.2rem); text-transform:uppercase; margin: 6px 0 16px; color:#fff;">Become Our <span class="text-gradient">Sponsor</span></h2>
+      <p style="color: rgba(255,255,255,0.55); font-weight:300; max-width: 480px; margin: 0 auto 34px;">
+        Put your brand on a race car engineered by 25+ student engineers competing at Formula Bharat.
+      </p>
+      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="sponsors.html" class="btn btn-primary"><i class="fas fa-handshake"></i> Become Our Sponsor</a>
+        <a href="/assets/docs/ashwa-riders-sponsorship-brochure.pdf" class="btn btn-secondary" download><i class="fas fa-file-download"></i> Download Sponsorship Brochure</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">Ashwa<span>Riders</span></div>
+          <p>Building India's most advanced Formula Student race car. Driven by excellence, fueled by passion.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-x-twitter"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>Team</h4>
+          <ul>
+            <li><a href="team.html">Members</a></li>
+            <li><a href="index.html#recruitment">Join Us</a></li>
+            <li><a href="car.html">Our Car</a></li>
+            <li><a href="achievements.html">Achievements</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#">Press Kit</a></li>
+            <li><a href="/assets/docs/ashwa-riders-sponsorship-brochure.pdf">Brochure</a></li>
+            <li><a href="#">Donate</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="contact.html">Get in Touch</a></li>
+            <li><a href="sponsors.html">Sponsor Us</a></li>
+            <li><a href="#">Merchandise</a></li>
+            <li><a href="#">Newsletter</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Ashwa Riders. All rights reserved.</span>
+        <span>Built by the Ashwa Riders Team</span>
+      </div>
+    </div>
+  </footer>
+  </div><!-- /#website -->
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <script>
+    // ─── Toast ──────────────────────────────────────────
+    function showToast(msg, icon = 'fa-check-circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      toast.querySelector('.toast-icon').className = 'toast-icon fas ' + icon;
+      toast.classList.add('show');
+      clearTimeout(toast._hide);
+      toast._hide = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    // ─── Navbar ──────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ─── Mobile Toggle ──────────────────────────────────
+    const mobileToggle = document.getElementById('mobileToggle') || document.getElementById('mobile-nav-toggle');
+    const navLinks = document.getElementById('navLinks');
+    if (mobileToggle && navLinks) {
+      mobileToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+        mobileToggle.innerHTML = navLinks.classList.contains('open') ?
+          '<i class="fas fa-times"></i>' :
+          '<i class="fas fa-bars"></i>';
+      });
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('open');
+          mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        });
+      });
+    }
+
+    // ─── Theme Toggle ──────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    let isDark = true;
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        isDark = !isDark;
+        document.body.classList.toggle('light', !isDark);
+        themeToggle.innerHTML = isDark ?
+          '<i class="fas fa-moon"></i>' :
+          '<i class="fas fa-sun"></i>';
+        showToast(isDark ? 'Dark theme activated' : 'Light theme activated');
+      });
+    }
+
+    // ─── Scroll Reveal ──────────────────────────────────
+    (function initReveal() {
+      const reveals = document.querySelectorAll('.reveal, .reveal-scale');
+      function checkReveals() {
+        const trigger = window.innerHeight * 0.88;
+        reveals.forEach(el => { if (el.getBoundingClientRect().top < trigger) el.classList.add('visible'); });
+      }
+      window.addEventListener('scroll', checkReveals);
+      window.addEventListener('resize', checkReveals);
+      checkReveals();
+    })();
+
+    // ─── Speed Lines ──────────────────────────────────
+    (function createSpeedLines() {
+      const container = document.getElementById('speedLines');
+      for (let i = 0; i < 16; i++) {
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.style.top = (Math.random() * 100) + '%';
+        line.style.width = (30 + Math.random() * 100) + 'px';
+        line.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+        line.style.animationDelay = (Math.random() * 4) + 's';
+        line.style.opacity = 0.05 + Math.random() * 0.15;
+        container.appendChild(line);
+      }
+    })();
+
+    // ─── Particles ─────────────────────────────────────
+    (function initParticles() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+      const particles = [];
+      const COUNT = 60;
+      function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+      class Particle {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * w; this.y = Math.random() * h;
+          this.size = 1 + Math.random() * 2;
+          this.speedX = (Math.random() - 0.5) * 0.25; this.speedY = (Math.random() - 0.5) * 0.25;
+          this.opacity = 0.15 + Math.random() * 0.35;
+        }
+        update() { this.x += this.speedX; this.y += this.speedY; if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset(); }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(255,255,255,${this.opacity * 0.3})`; ctx.fill(); }
+      }
+      for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+      function animateParticles() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => { p.update(); p.draw(); });
+        ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 0.5;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+          }
+        }
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+    })();
+
+    // ─── Number Counters ──────────────────────────────
+    (function initCounters() {
+      const counters = document.querySelectorAll('.stat-number[data-count]');
+      const done = new Set();
+      function animateCounters() {
+        const trigger = window.innerHeight * 0.9;
+        counters.forEach(el => {
+          if (done.has(el)) return;
+          if (el.getBoundingClientRect().top < trigger) {
+            done.add(el);
+            const target = parseInt(el.getAttribute('data-count'));
+            const duration = 1800; const start = performance.now();
+            function update(now) {
+              const progress = Math.min((now - start) / duration, 1);
+              const eased = 1 - Math.pow(1 - progress, 3);
+              el.textContent = Math.round(eased * target).toLocaleString();
+              if (progress < 1) requestAnimationFrame(update); else el.textContent = target.toLocaleString();
+            }
+            requestAnimationFrame(update);
+          }
+        });
+      }
+      window.addEventListener('scroll', animateCounters);
+      window.addEventListener('load', () => setTimeout(animateCounters, 400));
+    })();
+
+    // ─── Boot Animation (Runs only once on initial site visit) ───
+    document.addEventListener("DOMContentLoaded", function () {
+      const bootScreen = document.getElementById("boot-screen");
+      const website = document.getElementById("website");
+      const progressBar = document.getElementById("boot-progress-bar");
+      const percent = document.getElementById("load-percent");
+      const systemStatus = document.getElementById("sys-status");
+      const statusText = document.getElementById("boot-status-text");
+
+      // Check if user has already seen boot animation in this session, or if boot-screen is disabled
+      const hasBooted = sessionStorage.getItem("hasBooted");
+      const isBootHidden = !bootScreen || window.getComputedStyle(bootScreen).display === 'none';
+
+      if (hasBooted || isBootHidden) {
+        if (bootScreen) bootScreen.remove();
+        if (website) {
+          website.style.transition = "none";
+          website.classList.add("visible");
+        }
+
+        const kineticHeadline = document.getElementById('kineticHeadline');
+        const heroTagline = document.getElementById('heroTagline');
+        const heroActions = document.getElementById('heroActions');
+        const heroStats = document.getElementById('heroStats');
+        if (kineticHeadline) kineticHeadline.classList.add('kinetic-in');
+        if (heroTagline) heroTagline.classList.add('in');
+        if (heroActions) heroActions.classList.add('in');
+        if (heroStats) heroStats.classList.add('in');
+
+        return;
+      }
+
+      // Mark session as booted
+      sessionStorage.setItem("hasBooted", "true");
+
+      const duration = 3500;
+      let progress = 0;
+      const startTime = performance.now();
+
+      function animateBoot(currentTime) {
+        const elapsed = currentTime - startTime;
+        progress = Math.min(elapsed / duration, 1);
+
+        const eased = 1 - Math.pow(1 - progress, 2);
+        const percentage = Math.floor(eased * 100);
+
+        if (percent) percent.textContent = percentage;
+        if (progressBar) progressBar.style.width = percentage + "%";
+
+        if (systemStatus && statusText) {
+          if (percentage < 15) {
+            systemStatus.textContent = "INIT";
+            statusText.textContent = "BOOTING";
+          } else if (percentage < 35) {
+            systemStatus.textContent = "SCAN";
+            statusText.textContent = "CHECKING";
+          } else if (percentage < 60) {
+            systemStatus.textContent = "LOAD";
+            statusText.textContent = "LOADING";
+          } else if (percentage < 80) {
+            systemStatus.textContent = "SYNC";
+            statusText.textContent = "SYNCING";
+          } else if (percentage < 100) {
+            systemStatus.textContent = "DATA";
+            statusText.textContent = "FINALIZING";
+          } else {
+            systemStatus.textContent = "OK";
+            statusText.textContent = "READY";
+          }
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animateBoot);
+        } else {
+          finishBoot();
+        }
+      }
+
+      function finishBoot() {
+        setTimeout(function () {
+          if (bootScreen) {
+            bootScreen.style.opacity = "0";
+            bootScreen.style.visibility = "hidden";
+          }
+          if (website) {
+            website.classList.add("visible");
+          }
+
+          const kineticHeadline = document.getElementById('kineticHeadline');
+          const heroTagline = document.getElementById('heroTagline');
+          const heroActions = document.getElementById('heroActions');
+          const heroStats = document.getElementById('heroStats');
+          if (kineticHeadline) kineticHeadline.classList.add('kinetic-in');
+          if (heroTagline) heroTagline.classList.add('in');
+          if (heroActions) heroActions.classList.add('in');
+          if (heroStats) heroStats.classList.add('in');
+
+          setTimeout(function () {
+            if (bootScreen) bootScreen.remove();
+          }, 1200);
+        }, 450);
+      }
+
+      requestAnimationFrame(animateBoot);
+    });
+
+    // ─── Kinetic hero headline fallback ──────────────────
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const kineticHeadline = document.getElementById('kineticHeadline');
+        const heroTagline = document.getElementById('heroTagline');
+        const heroActions = document.getElementById('heroActions');
+        const heroStats = document.getElementById('heroStats');
+        if (kineticHeadline) kineticHeadline.classList.add('kinetic-in');
+        if (heroTagline) heroTagline.classList.add('in');
+        if (heroActions) heroActions.classList.add('in');
+        if (heroStats) heroStats.classList.add('in');
+      }, sessionStorage.getItem("hasBooted") ? 100 : 3800);
+    });
+
+    // ══════════════════════════════════════════════════════════
+    //  GARAGE TO GRID — Chapter scroll-in animation
+    // ══════════════════════════════════════════════════════════
+    (function initBuildChapters() {
+      const chapters = document.querySelectorAll('[data-build-chapter]');
+      if (!chapters.length) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      chapters.forEach((chapter) => observer.observe(chapter));
+    })();
+
+    // ─── Department flip-cards — staggered entrance + tap-to-flip ──
+    (function initDeptFlipGrid() {
+      const grid = document.getElementById('deptFlipGrid');
+      const feature = document.querySelector('.dept-feature');
+      const photoStrip = document.querySelector('.dept-photo-strip');
+      if (!grid) return;
+
+      const cards = grid.querySelectorAll('.dept-flip-card');
+      cards.forEach((card, i) => {
+        card.style.transitionDelay = (i * 0.06) + 's';
+      });
+
+      function checkInView() {
+        const trigger = window.innerHeight * 0.85;
+        if (grid.getBoundingClientRect().top < trigger) grid.classList.add('in-view');
+        if (feature && feature.getBoundingClientRect().top < trigger) feature.classList.add('in-view');
+        if (photoStrip && photoStrip.getBoundingClientRect().top < trigger) photoStrip.classList.add('in-view');
+      }
+      window.addEventListener('scroll', checkInView, { passive: true });
+      window.addEventListener('resize', checkInView);
+      checkInView();
+
+      // Touch devices: tap flips the card instead of relying on hover
+      cards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (!('ontouchstart' in window)) return;
+          if (!card.classList.contains('flipped')) {
+            e.preventDefault();
+            cards.forEach(c => { if (c !== card) c.classList.remove('flipped'); });
+            card.classList.add('flipped');
+          }
+        });
+      });
+    })();
+
+    // ─── News horizontal carousel controls ───────────────
+    (function initCarousel() {
+      const track = document.getElementById('newsTrack');
+      const prev = document.getElementById('newsPrev');
+      const next = document.getElementById('newsNext');
+      const curEl = document.getElementById('newsCounterCurrent');
+      const totalEl = document.getElementById('newsCounterTotal');
+      if (!track) return;
+      const cards = track.querySelectorAll('.news-card');
+      totalEl.textContent = String(cards.length).padStart(2, '0');
+      function cardStep() {
+        const c = cards[0];
+        const style = getComputedStyle(track);
+        const gap = parseFloat(style.columnGap || style.gap || 24);
+        return c.offsetWidth + gap;
+      }
+      function updateCounter() {
+        const idx = Math.round(track.scrollLeft / cardStep());
+        curEl.textContent = String(Math.min(idx + 1, cards.length)).padStart(2, '0');
+      }
+      prev.addEventListener('click', () => track.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
+      next.addEventListener('click', () => track.scrollBy({ left: cardStep(), behavior: 'smooth' }));
+      track.addEventListener('scroll', () => { clearTimeout(track._t); track._t = setTimeout(updateCounter, 80); });
+    })();
+
+    // ══════════════════════════════════════════════════════════
+    //  GARAGE TO GRID — Scroll-Driven 3D Experience
+    // ══════════════════════════════════════════════════════════
+    (function initG2G() {
+      const outer      = document.getElementById('buildTimelineSection');
+      const carWrap    = document.getElementById('g2gCarWrap');
+      const bgWash     = document.getElementById('g2gBgWash');
+      const counterNum = document.getElementById('g2gCounterNum');
+      const counterFill= document.getElementById('g2gCounterFill');
+      const dots       = document.querySelectorAll('.g2g-dot');
+      if (!outer) return;
+
+      // All stage containers (each holds the cards for that stage)
+      const stages = [
+        document.getElementById('g2gStageEl0'),
+        document.getElementById('g2gStageEl1'),
+        document.getElementById('g2gStageEl2'),
+        document.getElementById('g2gStageEl3'),
+        document.getElementById('g2gStageEl4')
+      ];
+
+      // Stage accent colours (match CSS vars)
+      const stageColors = ['#F25912','#0EA5E9','#22C55E','#A855F7','#EF4444'];
+      const stageColorsBg = [
+        'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(242,89,18,0.09), transparent 70%)',
+        'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(14,165,233,0.09), transparent 70%)',
+        'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.09), transparent 70%)',
+        'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(168,85,247,0.09), transparent 70%)',
+        'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(239,68,68,0.09), transparent 70%)'
+      ];
+
+      // Car tilt angles per stage (rotateY, rotateX)
+      const carAngles = [
+        { y:  0, x: 0 },
+        { y: -8, x: 1 },
+        { y:  8, x:-1 },
+        { y:-14, x: 2 },
+        { y: 14, x:-2 }
+      ];
+
+      let currentStage = -1;
+      let rafId = null;
+
+      function getScrollFraction() {
+        const rect = outer.getBoundingClientRect();
+        const totalScroll = outer.offsetHeight - window.innerHeight;
+        if (totalScroll <= 0) return 0;
+        const scrolled = -rect.top;
+        return Math.max(0, Math.min(1, scrolled / totalScroll));
+      }
+
+      function setStage(newIdx) {
+        if (newIdx === currentStage) return;
+        const oldIdx = currentStage;
+        currentStage = newIdx;
+
+        // Cards in the outgoing stage get .exiting, then none
+        const oldCards = stages[oldIdx] ? stages[oldIdx].querySelectorAll('.g2g-card') : [];
+        oldCards.forEach(c => { c.classList.remove('visible'); c.classList.add('exiting'); });
+        setTimeout(() => {
+          oldCards.forEach(c => c.classList.remove('exiting'));
+        }, 420);
+
+        // Cards in incoming stage get .visible
+        const newCards = stages[newIdx] ? stages[newIdx].querySelectorAll('.g2g-card') : [];
+        newCards.forEach((c, i) => {
+          setTimeout(() => c.classList.add('visible'), i * 80);
+        });
+
+        // Update dot nav
+        dots.forEach((d, i) => {
+          d.classList.toggle('active', i === newIdx);
+          d.style.background = i === newIdx ? stageColors[newIdx] : '';
+        });
+
+        // Tilt car
+        const a = carAngles[newIdx] || { y: 0, x: 0 };
+        if (carWrap) {
+          carWrap.style.transform = `rotateY(${a.y}deg) rotateX(${a.x}deg)`;
+        }
+
+        // Background wash colour
+        if (bgWash) {
+          bgWash.style.background = stageColorsBg[newIdx];
+          bgWash.style.opacity = '1';
+        }
+
+        // Counter
+        if (counterNum) counterNum.textContent = `0${newIdx+1} / 05`;
+        if (counterFill) {
+          counterFill.style.width = ((newIdx / 4) * 100) + '%';
+          counterFill.style.background = stageColors[newIdx];
+        }
+      }
+
+      function onScroll() {
+        const frac = getScrollFraction();
+        const idx = Math.min(4, Math.floor(frac * 5));
+        setStage(idx);
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      onScroll(); // init
+
+      // Dot click — jump scroll to that stage's position
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          const totalScroll = outer.offsetHeight - window.innerHeight;
+          const targetFrac  = (i / 5) + 0.01;
+          const scrollTo    = outer.offsetTop + targetFrac * totalScroll;
+          window.scrollTo({ top: scrollTo, behavior: 'smooth' });
+        });
+      });
+    })();
+
+    // ─── Welcome toast ──────────────────────────────────
+    setTimeout(() => { showToast('Welcome to Ashwa Riders!', 'fa-flag-checkered'); }, 800);
+  </script>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/mobile-nav.js"></script>
+  <script src="/home-cms.js"></script>
+  <script src="/join-cms.js"></script>
+  <script src="/sponsor-cms.js"></script>
+</body>
+</html>

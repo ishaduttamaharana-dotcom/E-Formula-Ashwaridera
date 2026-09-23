@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashwa Riders — Contact / Race Control</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="mobile.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       ASHWA RIDERS — CONTACT / "RACE CONTROL"
+       Shares the site design system (void black + teal signal)
+       Font: Inter stack (clean, modern, technical automotive)
+    ══════════════════════════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #000000;
+      --carbon: #080808;
+      --carbon-2: #121212;
+      --muted-accent: #715A5A;
+      --steel: #9FA7A6;
+      --steel-light: #D3DAD9;
+      --hairline: rgba(211, 218, 217, 0.15);
+      --hairline-soft: rgba(211, 218, 217, 0.08);
+
+      --paper: #E8ECEB;
+      --paper-2: #D3DAD9;
+      --ink: #222126;
+      --ink-soft: rgba(34, 33, 38, 0.65);
+      --ink-faint: rgba(34, 33, 38, 0.45);
+      --line-dark: rgba(34, 33, 38, 0.12);
+
+      /* Refined Color System */
+      --logo-orange: #ff751f; /* Protected Logo Color */
+
+      --signal: #F25912; /* Primary Accent Orange */
+      --signal-bright: #FF6A26;
+      --signal-glow: rgba(242, 89, 18, 0.28);
+      --live: #F25912;
+
+      --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: var(--font-stack-inter);
+      --font-body: var(--font-stack-inter);
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-premium: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); overflow-x: hidden; line-height: 1.6; font-weight: 400; }
+    ::selection { background: var(--signal-bright); color: #10141c; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--paper); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 0; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--signal); }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+    .text-gradient { color: var(--signal); font-style: normal; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 34px; border-radius: 2px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      transition: all var(--ease); cursor: pointer; border: 1px solid transparent;
+      text-decoration: none; position: relative;
+    }
+    .btn-primary { background: var(--signal); color: #10141c; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .btn-primary:hover { background: var(--signal-bright); }
+    .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); }
+    .btn-secondary:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+    .btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+    .section-padding { padding: 100px 0; }
+
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--signal);
+      margin-bottom: 14px; display: inline-block;
+    }
+    .eyebrow::before { content: '// '; opacity: 0.6; }
+    .eyebrow.on-dark { color: var(--signal-bright); }
+
+    .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.06; margin-bottom: 16px; text-transform: uppercase; }
+    .section-subtitle { font-size: 1.02rem; color: var(--ink-soft); max-width: 560px; line-height: 1.75; font-weight: 300; }
+    .section-title-light { color: #fff; }
+    .section-subtitle-light { color: rgba(255, 255, 255, 0.55); }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-scale { opacity: 0; transform: translateY(18px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-scale.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Navigation (shared) ── */
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 22px 0; z-index: 1000; transition: all var(--ease); border-bottom: 1px solid transparent; }
+    .navbar.scrolled { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--hairline); padding: 14px 0; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+
+    /* NEW LOGO LAYOUT (matching home, about, team, gallery) */
+    .nav-logo { 
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: 0.02em; 
+      color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; text-transform: uppercase; 
+    }
+    .nav-logo-wrapper {
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .nav-logo span span { color: var(--logo-orange); }
+    .logo-mark {
+      height: 48px; width: auto; flex-shrink: 0; 
+      object-fit: contain;
+      transition: all var(--ease);
+    }
+    .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 6px var(--signal-bright)); }
+    body.light .nav-logo { color: var(--ink); }
+
+    .nav-subtitle {
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 400; 
+      letter-spacing: 0.15em; color: var(--steel); text-transform: uppercase;
+      margin-top: -2px; text-align: left;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.6); text-decoration: none; font-family: var(--font-mono);
+      font-size: 0.74rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--ease);
+      padding: 8px 14px; display: inline-flex; align-items: center; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 2px; left: 14px; right: 14px; height: 1px;
+      background: var(--signal-bright); transform: scaleX(0); transform-origin: left;
+      transition: transform var(--ease);
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a.active { color: #fff; }
+
+    .nav-cta {
+      padding: 9px 22px !important; background: var(--signal); color: #10141c !important; font-weight: 700;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); margin-left: 10px;
+    }
+    .nav-cta:hover { background: var(--signal-bright); }
+    .nav-cta::after { display: none !important; content: none !important; }
+
+    .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+    /* ─── CONTACT HERO — "Race Control" ─────────────────── */
+    .contact-hero {
+      position: relative;
+      min-height: 62vh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      border-bottom: 1px solid var(--hairline);
+      padding-top: 130px;
+      background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784491291/IMG_0234_1_csal4p.jpg');
+      background-size: cover;
+      background-position: center 50%;
+      background-repeat: no-repeat;
+    }
+    .contact-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: var(--hero-overlay, rgba(0, 0, 0, 0.72));
+      pointer-events: none;
+    }
+    .contact-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 80%);
+      pointer-events: none;
+    }
+    .contact-hero .hero-glow { position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.18; z-index: 1; background: var(--signal); pointer-events: none; }
+    .contact-hero .hero-glow.g1 { width: 520px; height: 520px; top: -220px; right: -140px; }
+    .contact-hero .hero-glow.g2 { width: 380px; height: 380px; bottom: -220px; left: -140px; opacity: 0.08; }
+
+    .contact-hero .hero-content { position: relative; z-index: 2; width: 100%; padding-bottom: 56px; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 12px; padding: 7px 18px 7px 8px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid var(--hairline);
+      margin-bottom: 30px;
+      font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.7);
+      font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .hero-badge .dot { width: 7px; height: 7px; background: var(--live); border-radius: 50%; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.7); } }
+
+    .contact-hero h1 {
+      font-size: clamp(2.4rem, 5.6vw, 4.4rem);
+      line-height: 1;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+    }
+    .contact-hero h1 .text-gradient {
+      color: var(--signal-bright);
+      text-shadow: 0 0 60px rgba(227, 183, 63, 0.2);
+    }
+    .contact-hero p.lede {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.65);
+      max-width: 560px;
+      line-height: 1.8;
+      font-weight: 300;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-telemetry {
+      display: flex; gap: 0; border-top: 1px solid var(--hairline); margin-top: 46px; padding-top: 26px; flex-wrap: wrap; row-gap: 20px;
+    }
+    .hero-telemetry .t-item { flex: 1 1 20%; min-width: 130px; padding-right: 20px; position: relative; }
+    .hero-telemetry .t-item:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background: var(--hairline); }
+    .hero-telemetry .t-num { font-family: var(--font-mono); font-size: clamp(1.2rem, 1.8vw, 1.6rem); font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .hero-telemetry .t-num .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); }
+    .hero-telemetry .t-label { font-family: var(--font-mono); font-size: 0.64rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 6px; }
+
+    /* ─── OPEN CHANNELS — contact info as radio channels ─── */
+    .channel-list { display: flex; flex-direction: column; border-top: 1px solid var(--line-dark); }
+    .channel-row {
+      display: grid; grid-template-columns: 90px 46px 1fr auto; align-items: center; gap: 22px;
+      padding: 22px 4px; border-bottom: 1px solid var(--line-dark); transition: all var(--ease); text-decoration: none; color: inherit;
+    }
+    .channel-row:hover { background: rgba(184, 134, 11, 0.05); padding-left: 14px; }
+    .channel-row .ch-id { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-faint); letter-spacing: 0.06em; }
+    .channel-row .ch-id b { color: var(--signal); display: block; font-size: 0.95rem; font-weight: 700; }
+    .channel-row .ch-icon {
+      width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-dark);
+      display: flex; align-items: center; justify-content: center; color: var(--signal); font-size: 1rem; transition: all var(--ease);
+    }
+    .channel-row:hover .ch-icon { background: var(--signal); color: #fff; border-color: var(--signal); }
+    .channel-row .ch-body h4 { font-size: 1.02rem; text-transform: none; letter-spacing: 0; margin-bottom: 3px; }
+    .channel-row .ch-body p { font-size: 0.85rem; color: var(--ink-soft); font-weight: 300; }
+    .channel-row .ch-status { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.66rem; color: var(--ink-faint); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+    .channel-row .ch-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+
+    .contact-side-note {
+      font-family: var(--font-mono); font-size: 0.76rem; color: var(--ink-faint); margin-top: 26px;
+      display: flex; align-items: center; gap: 10px; letter-spacing: 0.02em;
+    }
+    .contact-side-note i { color: var(--signal); }
+
+    .broadcast-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+    .broadcast-grid a {
+      width: 48px; height: 48px; border: 1px solid var(--line-dark); display: flex; align-items: center; justify-content: center;
+      color: var(--ink-faint); text-decoration: none; transition: all var(--ease); font-size: 1.05rem;
+    }
+    .broadcast-grid a:hover { border-color: var(--signal); color: var(--signal); transform: translateY(-3px); }
+
+    /* ─── TRANSMIT CONSOLE — the contact form, reskinned ─── */
+    .console {
+      background: var(--void); color: #fff; border: 1px solid var(--hairline);
+      position: relative; overflow: hidden;
+    }
+    .console::before {
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .console-head {
+      position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;
+      padding: 22px 30px; border-bottom: 1px solid var(--hairline);
+    }
+    .console-head .ch-title { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 10px; }
+    .console-head .ch-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal-bright); animation: pulse-dot 2s infinite; }
+    .console-head .freq { font-family: var(--font-mono); font-size: 0.76rem; color: var(--signal-bright); letter-spacing: 0.04em; }
+
+    .waveform { position: relative; z-index: 1; display: flex; align-items: flex-end; gap: 3px; height: 34px; padding: 0 30px; margin-top: 20px; }
+    .waveform span { flex: 1; background: var(--hairline); border-radius: 1px; transition: background var(--ease); }
+    .waveform.active span { background: var(--signal-bright); animation: wave-bounce 1.1s ease-in-out infinite; }
+    .waveform span:nth-child(odd) { animation-delay: 0.15s; }
+    .waveform span:nth-child(3n) { animation-delay: 0.3s; }
+    @keyframes wave-bounce { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+
+    .console-body { position: relative; z-index: 1; padding: 28px 30px 34px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.68rem;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;
+    }
+    .form-group label::before { content: '›'; color: var(--signal-bright); }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 14px 16px; border-radius: 0; border: 1px solid var(--hairline);
+      font-family: var(--font-body); font-size: 0.92rem; transition: all var(--ease);
+      background: rgba(255,255,255,0.03); color: #fff; outline: none;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--signal-bright); background: rgba(6, 194, 172, 0.05);
+    }
+    .form-group select option { background: var(--carbon); color: #fff; }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+
+    .transmit-btn {
+      width: 100%; padding: 17px; border: none; cursor: pointer;
+      background: var(--signal); color: #10141c; font-family: var(--font-display); font-weight: 700;
+      font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      display: flex; align-items: center; justify-content: center; gap: 10px; transition: all var(--ease);
+    }
+    .transmit-btn:hover { background: var(--signal-bright); }
+    .transmit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .console-footnote { font-family: var(--font-mono); font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-top: 16px; letter-spacing: 0.03em; text-align: center; }
+
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+
+    /* ─── PIT LANE — location ─────────────────────────── */
+    .pitlane-wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+    .pitlane-map { position: relative; min-height: 380px; background: var(--carbon); }
+    .pitlane-map iframe { width: 100%; height: 100%; min-height: 380px; border: none; filter: grayscale(0.35) invert(0.92) contrast(0.88); position: absolute; inset: 0; }
+    .pitlane-map .map-tag {
+      position: absolute; top: 18px; left: 18px; z-index: 2; padding: 6px 14px;
+      font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase;
+      background: rgba(10,10,10,0.75); border: 1px solid var(--hairline); color: var(--signal-bright); backdrop-filter: blur(6px);
+    }
+    .pitlane-data { background: var(--void); color: #fff; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+    .pitlane-data h3 { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 18px; }
+    .pitlane-readout { font-family: var(--font-mono); font-size: 0.86rem; color: rgba(255,255,255,0.55); line-height: 2.1; }
+    .pitlane-readout b { color: var(--signal-bright); font-weight: 600; }
+    .pitlane-readout .row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--hairline); padding: 10px 0; gap: 16px; }
+    .pitlane-readout .row span { flex-shrink: 0; }
+    .pitlane-readout .row b { text-align: right; }
+    .pitlane-note { font-size: 0.86rem; color: rgba(255,255,255,0.4); font-weight: 300; margin-top: 22px; line-height: 1.7; }
+
+    /* ─── Footer (shared) ── */
+    .footer { background: var(--void); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+    .footer .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+    .footer .footer-brand .logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+    .footer .footer-brand .logo span { color: var(--logo-orange); }
+    .footer .footer-brand p { margin-top: 14px; font-size: 0.88rem; line-height: 1.75; max-width: 300px; font-weight: 300; }
+    .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .footer ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer ul a { color: var(--steel); text-decoration: none; font-size: 0.88rem; transition: color var(--ease); }
+    .footer ul a:hover { color: var(--signal-bright); }
+    .footer .social-links { display: flex; gap: 10px; margin-top: 20px; }
+    .footer .social-links a { width: 38px; height: 38px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel); transition: all var(--ease); text-decoration: none; }
+    .footer .social-links a:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .footer .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; }
+
+    /* ─── Theme Toggle / Toast (shared) ── */
+    .theme-toggle { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 46px; height: 46px; border-radius: 0; background: var(--void); color: #fff; border: 1px solid var(--hairline); font-size: 1.1rem; cursor: pointer; transition: all var(--ease); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
+    .theme-toggle:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .toast { position: fixed; bottom: 90px; right: 30px; z-index: 3000; padding: 16px 26px; border-radius: 0; background: var(--void); color: #fff; box-shadow: var(--shadow-premium); border: 1px solid var(--hairline); border-left: 2px solid var(--signal-bright); transform: translateY(20px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; font-family: var(--font-body); font-size: 0.88rem; max-width: 380px; }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .toast .toast-icon { color: var(--signal-bright); margin-right: 12px; }
+
+    /* ─── LIGHT THEME OVERRIDES ───────────────────────── */
+    body.light { background: var(--paper); color: var(--ink); }
+    body.light .navbar.scrolled { background: rgba(246, 244, 238, 0.92); border-bottom: 1px solid var(--line-dark); }
+    body.light .navbar .nav-links a { color: var(--ink-soft); }
+    body.light .navbar .nav-links a:hover, body.light .navbar .nav-links a.active { color: var(--ink); }
+    body.light .navbar .nav-logo { color: var(--ink); }
+    body.light .theme-toggle { background: var(--paper); color: var(--ink); border-color: var(--line-dark); }
+    body.light .theme-toggle:hover { border-color: var(--signal); }
+    body.light .toast { background: #fff; color: var(--ink); border-color: var(--line-dark); border-left: 2px solid var(--signal); }
+
+    body.light .contact-hero { background: var(--paper); }
+    body.light .contact-hero::before { background: rgba(246, 244, 238, 0.92); }
+    body.light .contact-hero::after { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); }
+    body.light .contact-hero h1 { color: var(--ink); text-shadow: none; }
+    body.light .contact-hero h1 .text-gradient { text-shadow: none; }
+    body.light .contact-hero p.lede { color: var(--ink-soft); text-shadow: none; }
+    body.light .contact-hero .hero-badge { background: rgba(246, 244, 238, 0.85); border-color: var(--line-dark); color: var(--ink-faint); backdrop-filter: blur(4px); }
+    body.light .hero-telemetry { border-color: var(--line-dark); }
+    body.light .hero-telemetry .t-item:not(:last-child)::after { background: var(--line-dark); }
+    body.light .hero-telemetry .t-num { color: var(--ink); }
+    body.light .hero-telemetry .t-label { color: var(--ink-faint); }
+
+    body.light .footer { background: var(--paper); border-top: 1px solid var(--line-dark); }
+    body.light .footer .footer-brand .logo { color: var(--ink); }
+    body.light .footer h4 { color: var(--ink); }
+    body.light .footer ul a { color: var(--ink-soft); }
+    body.light .footer ul a:hover { color: var(--signal); }
+    body.light .footer .social-links a { border-color: var(--line-dark); color: var(--ink-faint); }
+    body.light .footer .social-links a:hover { border-color: var(--signal); color: var(--signal); }
+    body.light .footer .footer-bottom { border-color: var(--line-dark); }
+
+    /* ─── Responsive ── */
+    @media (max-width: 1024px) {
+      .contact-grid { grid-template-columns: 1fr; gap: 44px; }
+      .pitlane-wrap { grid-template-columns: 1fr; }
+      .footer .footer-grid { grid-template-columns: 1fr 1fr; }
+      .contact-hero { background-position: center 40%; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; flex-direction: column; align-items: flex-start; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(0,0,0,0.98); padding: 24px; gap: 4px; border-bottom: 1px solid var(--hairline); }
+      .nav-links.open { display: flex; }
+      .nav-links a { width: 100%; padding: 12px 6px; }
+      .mobile-toggle { display: block; }
+      .logo-mark { height: 36px; }
+      .nav-logo { font-size: 1.2rem; gap: 8px; }
+      .nav-subtitle { font-size: 0.55rem; }
+      .contact-hero { min-height: auto; padding-top: 110px; background-position: center 35%; }
+      .contact-hero h1 { font-size: clamp(2rem, 9vw, 3rem); }
+      .hero-telemetry .t-item { flex: 1 1 45%; }
+      .hero-telemetry .t-item:nth-child(2n)::after { display: none; }
+      .section-padding { padding: 64px 0; }
+      .channel-row { grid-template-columns: 60px 40px 1fr; }
+      .channel-row .ch-status { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer .footer-grid { grid-template-columns: 1fr; gap: 34px; }
+      .footer .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .contact-hero { background-position: center 30%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <span id="toast-message">Welcome to Ashwa Riders!</span>
+  </div>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+        <div class="nav-logo-wrapper">
+          <span>Ashwa<span>Riders</span></span>
+          <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="car.html">Car</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+        <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+      </ul>
+      <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="mobile-nav-brand">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+        <span>Ashwa Riders</span>
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link active" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+    </nav>
+    <div class="mobile-nav-footer">
+      <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+    </div>
+  </aside>
+
+  <!-- ─── THEME TOGGLE ─── -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  RACE CONTROL — hero with background image         -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="contact-hero" id="contactHeroSection">
+    <div class="hero-glow g1"></div>
+    <div class="hero-glow g2"></div>
+
+    <div class="container hero-content">
+      <div class="reveal visible">
+        <div class="hero-badge" id="contactHeroBadge"><span class="dot"></span> <span id="contactHeroBadgeText">Race Control — Open Frequency</span></div>
+        <h1 id="contactHeroTitle">Talk To <span class="text-gradient">Ashwa Riders</span></h1>
+        <p class="lede" id="contactHeroDesc">Sponsorship, recruitment, media, or just a question about the car — pick a channel below or send a transmission straight to the pit box.</p>
+
+        <div class="hero-telemetry" id="contactHeroTelemetry">
+          <div class="t-item"><div class="t-num"><span class="live-dot"></span> &lt; 24H</div><div class="t-label">Avg. Reply Time</div></div>
+          <div class="t-item"><div class="t-num">04</div><div class="t-label">Open Channels</div></div>
+          <div class="t-item"><div class="t-num">Nagpur</div><div class="t-label">Home Workshop</div></div>
+          <div class="t-item"><div class="t-num">Mon–Sat</div><div class="t-label">On Duty</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  OPEN CHANNELS + TRANSMIT CONSOLE                 -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- Left: Open Channels -->
+        <div class="reveal">
+          <span class="eyebrow" id="channelsEyebrowEl">Open Channels</span>
+          <h2 class="section-title" id="channelsTitleEl">Pick A <span class="text-gradient">Frequency</span></h2>
+          <p class="section-subtitle" id="channelsDescEl">Every channel is monitored by the team. Choose whichever gets to the right people fastest.</p>
+
+          <div class="channel-list" id="contactChannelList">
+            <a href="mailto:eformulaashwariders@gmail.com" class="channel-row">
+              <div class="ch-id">CH 01<b>EMAIL</b></div>
+              <div class="ch-icon"><i class="fas fa-envelope"></i></div>
+              <div class="ch-body">
+                <h4>eformulaashwariders@gmail.com</h4>
+                <p>Best for sponsorship, press, and detailed queries</p>
+              </div>
+              <div class="ch-status"><span class="dot"></span> Monitored</div>
+            </a>
+
+            <a href="tel:+919096110224" class="channel-row">
+              <div class="ch-id">CH 02<b>VOICE</b></div>
+              <div class="ch-icon"><i class="fas fa-phone"></i></div>
+              <div class="ch-body">
+                <h4>+91 90961 10224 &nbsp;/&nbsp; +91 93259 66459</h4>
+                <p>Mon–Sat, 10 AM – 6 PM IST</p>
+              </div>
+              <div class="ch-status"><span class="dot"></span> On Duty</div>
+            </a>
+
+            <a href="https://wa.me/919096110224" target="_blank" class="channel-row">
+              <div class="ch-id">CH 03<b>RADIO</b></div>
+              <div class="ch-icon"><i class="fab fa-whatsapp"></i></div>
+              <div class="ch-body">
+                <h4>WhatsApp — +91 90961 10224</h4>
+                <p>Fastest for quick questions</p>
+              </div>
+              <div class="ch-status"><span class="dot"></span> Live</div>
+            </a>
+
+            <a href="#pitlane" class="channel-row">
+              <div class="ch-id">CH 04<b>PIT</b></div>
+              <div class="ch-icon"><i class="fas fa-map-marker-alt"></i></div>
+              <div class="ch-body">
+                <h4>SVPCET Workshop, Nagpur</h4>
+                <p>Visits welcome by appointment</p>
+              </div>
+              <div class="ch-status"><span class="dot"></span> By Appt.</div>
+            </a>
+          </div>
+
+          <p class="contact-side-note"><i class="fas fa-circle-info"></i> Message us through any channel — everything routes to the same pit box.</p>
+
+          <div class="social-section">
+            <span class="eyebrow" style="margin-top: 36px;">Broadcast Channels</span>
+            <div class="broadcast-grid">
+              <a href="https://www.instagram.com/eformula_ashwariders/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              <a href="https://www.linkedin.com/company/e-formula-ashwa-riders" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+              <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+              <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+              <a href="https://wa.me/919096110224" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Transmit Console -->
+        <div class="reveal-scale">
+          <div class="console">
+            <div class="console-head">
+              <span class="ch-title" id="consoleFormTitle"><span class="dot"></span> Transmit Message</span>
+              <span class="freq" id="consoleFormFreq">FREQ 88.6 MHz</span>
+            </div>
+
+            <div class="waveform" id="waveform"></div>
+
+            <div class="console-body">
+              <form id="contactForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Callsign (Name)</label>
+                    <input type="text" id="formName" placeholder="Your full name" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Return Frequency (Email)</label>
+                    <input type="email" id="formEmail" placeholder="you@example.com" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Channel</label>
+                  <select id="formSubject" required>
+                    <option value="">Select a subject...</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="sponsorship">Sponsorship / Partnership</option>
+                    <option value="recruitment">Recruitment / Join Team</option>
+                    <option value="media">Media / Press</option>
+                    <option value="event">Event Collaboration</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Message</label>
+                  <textarea id="formMessage" placeholder="Tell us how we can help..." required></textarea>
+                </div>
+                <button type="submit" class="transmit-btn" id="formSubmit">
+                  <i class="fas fa-tower-broadcast"></i> <span id="formSubmitText">Transmit Message</span>
+                </button>
+              </form>
+              <p class="console-footnote">All transmissions received within 24 hours, Mon–Sat</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  PIT LANE — location                              -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" style="background: var(--paper-2);" id="pitlane">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="eyebrow" id="pitlaneEyebrowEl">Find Us</span>
+        <h2 class="section-title" id="pitlaneTitleEl">The <span class="text-gradient">Pit Lane</span></h2>
+        <p class="section-subtitle" id="pitlaneSubtitleEl">Our workshop at St. Vincent Pallotti College of Engineering &amp; Technology, Nagpur, where our electric Formula car gets built, tested, and race-prepped.</p>
+      </div>
+
+      <div class="pitlane-wrap reveal-scale">
+        <div class="pitlane-map">
+          <span class="map-tag"><i class="fas fa-satellite-dish"></i> Live Map</span>
+          <iframe
+            id="pitlaneMapIframe"
+            src="https://www.google.com/maps?q=St.+Vincent+Pallotti+College+of+Engineering+and+Technology,+Gavsi+Manapur,+Wardha+Road,+Nagpur,+Maharashtra+441108&output=embed"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+        <div class="pitlane-data">
+          <h3 id="workshopNameEl">E-Formula Ashwa Riders Workshop</h3>
+          <div class="pitlane-readout">
+            <div class="row"><span>LOCATION</span><b id="workshopLocationEl">SVPCET, Gavsi Manapur, Wardha Road, Nagpur, Maharashtra 441108</b></div>
+            <div class="row"><span>LAT / LONG</span><b id="coordReadout">21.0047°N / 79.0476°E</b></div>
+            <div class="row"><span>ACCESS</span><b id="workshopAccessEl">By Appointment</b></div>
+            <div class="row"><span>HOURS</span><b id="workshopHoursEl">Mon–Sat, 10AM–6PM</b></div>
+          </div>
+          <p class="pitlane-note" id="workshopNoteEl">Coming to visit? Reach out on Channel 01 or 03 first so the team can walk you through the garage.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  CTA - JOIN US                                   -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" style="background: var(--void); text-align: center;">
+    <div class="container reveal">
+      <span class="eyebrow on-dark" style="display:block;">One More Channel</span>
+      <h2 class="section-title section-title-light">Ready To <span class="text-gradient">Race</span> With Us?</h2>
+      <p class="section-subtitle section-subtitle-light" style="margin: 0 auto 30px;">Join the Ashwa Riders team and be part of something extraordinary.</p>
+      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join The Team</a>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">Ashwa<span>Riders</span></div>
+          <p>Building Central India's first Formula Student Electric race car. Driven by excellence, fueled by passion.</p>
+          <div class="social-links">
+            <a href="https://www.instagram.com/eformula_ashwariders/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.linkedin.com/company/e-formula-ashwa-riders" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-x-twitter"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>Team</h4>
+          <ul>
+            <li><a href="team.html">Members</a></li>
+            <li><a href="index.html#recruitment">Join Us</a></li>
+            <li><a href="car.html">Our Car</a></li>
+            <li><a href="achievements.html">Achievements</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#">Press Kit</a></li>
+            <li><a href="/assets/docs/ashwa-riders-sponsorship-brochure.pdf">Brochure</a></li>
+            <li><a href="#">Donate</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="contact.html">Get in Touch</a></li>
+            <li><a href="sponsors.html">Sponsor Us</a></li>
+            <li><a href="#">Merchandise</a></li>
+            <li><a href="#">Newsletter</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 Ashwa Riders. All rights reserved.</span>
+        <span>Built by the Ashwa Riders Team</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                         -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <script>
+    // ─── Toast ──────────────────────────────────────────
+    function showToast(msg, icon = 'fa-check-circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      toast.querySelector('.toast-icon').className = 'toast-icon fas ' + icon;
+      toast.classList.add('show');
+      clearTimeout(toast._hide);
+      toast._hide = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ─── Navbar ──────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ─── Mobile Toggle ──────────────────────────────────
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      mobileToggle.innerHTML = navLinks.classList.contains('open') ?
+        '<i class="fas fa-times"></i>' :
+        '<i class="fas fa-bars"></i>';
+    });
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+
+    // ─── Theme Toggle ──────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    let isDark = true;
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+      document.body.classList.toggle('light', !isDark);
+      themeToggle.innerHTML = isDark ?
+        '<i class="fas fa-moon"></i>' :
+        '<i class="fas fa-sun"></i>';
+      showToast(isDark ? 'Dark theme activated' : 'Light theme activated');
+    });
+
+    // ─── Scroll Reveal ──────────────────────────────────
+    (function initReveal() {
+      const reveals = document.querySelectorAll('.reveal, .reveal-scale');
+      function checkReveals() {
+        const trigger = window.innerHeight * 0.88;
+        reveals.forEach(el => { if (el.getBoundingClientRect().top < trigger) el.classList.add('visible'); });
+      }
+      window.addEventListener('scroll', checkReveals);
+      window.addEventListener('resize', checkReveals);
+      checkReveals();
+    })();
+
+    // ─── Waveform bars (idle + active states) ───────────
+    (function initWaveform() {
+      const wf = document.getElementById('waveform');
+      const BARS = 48;
+      for (let i = 0; i < BARS; i++) {
+        const bar = document.createElement('span');
+        bar.style.height = (20 + Math.random() * 80) + '%';
+        wf.appendChild(bar);
+      }
+    })();
+
+    // ─── Contact / Transmit Form ─────────────────────────
+    const contactForm = document.getElementById('contactForm');
+    const formSubmit = document.getElementById('formSubmit');
+    const waveform = document.getElementById('waveform');
+
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('formName').value.trim();
+      const email = document.getElementById('formEmail').value.trim();
+      const subject = document.getElementById('formSubject').value;
+      const message = document.getElementById('formMessage').value.trim();
+
+      if (!name || !email || !subject || !message) {
+        showToast('⚠️ Please fill in all fields.', 'fa-exclamation-circle');
+        return;
+      }
+      if (!email.includes('@') || !email.includes('.')) {
+        showToast('⚠️ Please enter a valid email address.', 'fa-exclamation-circle');
+        return;
+      }
+
+      formSubmit.disabled = true;
+      formSubmit.innerHTML = '<i class="fas fa-tower-broadcast fa-fade"></i> Transmitting...';
+      waveform.classList.add('active');
+
+      fetch('/api/v1/contact/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          formSubmit.disabled = false;
+          formSubmit.innerHTML = '<i class="fas fa-tower-broadcast"></i> Transmit Message';
+          waveform.classList.remove('active');
+          if (data.success) {
+            showToast('✅ Message received — pit box will reply within 24 hours.', 'fa-check-circle');
+            contactForm.reset();
+          } else {
+            showToast(`⚠️ Transmission failed: ${data.message || 'Error sending message'}`, 'fa-exclamation-circle');
+          }
+        })
+        .catch((err) => {
+          formSubmit.disabled = false;
+          formSubmit.innerHTML = '<i class="fas fa-tower-broadcast"></i> Transmit Message';
+          waveform.classList.remove('active');
+          showToast(`⚠️ Transmission failed: ${err.message}`, 'fa-exclamation-circle');
+        });
+    });
+
+    // ─── Welcome toast ──────────────────────────────────
+    setTimeout(() => {
+      showToast('📡 Channel open — say hello anytime.', 'fa-tower-broadcast');
+    }, 900);
+  </script>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/mobile-nav.js"></script>
+  <script src="/contact-cms.js"></script>
+  <script src="/join-cms.js"></script>
+  <script src="/sponsor-cms.js"></script>
+</body>
+</html>

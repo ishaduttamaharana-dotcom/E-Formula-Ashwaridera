@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashwa Riders — Team</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="mobile.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       ASHWA RIDERS — DESIGN SYSTEM v3 (Team)
+       Base: pure BLACK + warm paper
+       Signal: TEAL
+       Font: Inter stack (clean, modern, technical automotive)
+    ══════════════════════════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #000000;
+      --carbon: #080808;
+      --carbon-2: #121212;
+      --muted-accent: #715A5A;
+      --steel: #9FA7A6;
+      --steel-light: #D3DAD9;
+      --hairline: rgba(211, 218, 217, 0.15);
+      --hairline-soft: rgba(211, 218, 217, 0.08);
+
+      --paper: #E8ECEB;
+      --paper-2: #D3DAD9;
+      --ink: #222126;
+      --ink-soft: rgba(34, 33, 38, 0.65);
+      --ink-faint: rgba(34, 33, 38, 0.45);
+      --line-dark: rgba(34, 33, 38, 0.12);
+
+      /* Refined Color System */
+      --logo-orange: #ff751f; /* Protected Logo Color */
+
+      --signal: #F25912; /* Primary Accent Orange */
+      --signal-bright: #FF6A26;
+      --signal-glow: rgba(242, 89, 18, 0.28);
+
+      --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-display: var(--font-stack-inter);
+      --font-body: var(--font-stack-inter);
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-premium: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); overflow-x: hidden; line-height: 1.6; font-weight: 400; }
+    ::selection { background: var(--signal-bright); color: #10141c; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--paper); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 0; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--signal); }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+    .text-gradient { color: var(--signal); font-style: normal; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    .text-center { text-align: center; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 34px; border-radius: 2px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.09em; text-transform: uppercase; transition: all var(--ease); cursor: pointer; border: 1px solid transparent; text-decoration: none; position: relative; }
+    .btn-primary { background: var(--signal); color: #10141c; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .btn-primary:hover { background: var(--signal-bright); }
+    .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); }
+    .btn-secondary:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+
+    .section-padding { padding: 100px 0; }
+
+    .eyebrow { font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--signal); margin-bottom: 14px; display: inline-block; }
+    .eyebrow::before { content: '// '; opacity: 0.6; }
+    .eyebrow.on-dark { color: var(--signal-bright); }
+
+    .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.06; margin-bottom: 16px; text-transform: uppercase; }
+    .section-subtitle { font-size: 1.02rem; color: var(--ink-soft); max-width: 560px; line-height: 1.75; font-weight: 300; }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-scale { opacity: 0; transform: translateY(18px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal-scale.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Navigation ── */
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 22px 0; z-index: 1000; transition: all var(--ease); border-bottom: 1px solid transparent; }
+    .navbar.scrolled { background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--hairline); padding: 14px 0; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+
+    /* NEW LOGO LAYOUT (matching home & about) */
+    .nav-logo { 
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: 0.02em; 
+      color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; text-transform: uppercase; 
+    }
+    .nav-logo-wrapper {
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .nav-logo span span { color: var(--logo-orange); }
+    .logo-mark {
+      height: 48px; width: auto; flex-shrink: 0; 
+      object-fit: contain;
+      transition: all var(--ease);
+    }
+    .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 6px var(--signal-bright)); }
+    body.light .nav-logo { color: var(--ink); }
+
+    .nav-subtitle {
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 400; 
+      letter-spacing: 0.15em; color: var(--steel); text-transform: uppercase;
+      margin-top: -2px; text-align: left;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-family: var(--font-mono); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--ease); padding: 8px 14px; display: inline-flex; align-items: center; position: relative; }
+    .nav-links a::after { content: ''; position: absolute; bottom: 2px; left: 14px; right: 14px; height: 1px; background: var(--signal-bright); transform: scaleX(0); transform-origin: left; transition: transform var(--ease); }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a.active { color: #fff; }
+
+    .nav-cta { padding: 9px 22px !important; background: var(--signal); color: #10141c !important; font-weight: 700; clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); margin-left: 10px; }
+    .nav-cta:hover { background: var(--signal-bright); }
+    .nav-cta::after { display: none !important; content: none !important; }
+
+    .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+    /* ─── TEAM HERO ── */
+    .team-hero {
+      position: relative;
+      min-height: 55vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--hairline);
+      padding-top: 150px;
+      padding-bottom: 70px;
+
+      background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      background-repeat: no-repeat;
+    }
+
+    .team-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: rgba(0, 0, 0, 0.70);
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent 80%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent 80%);
+      pointer-events: none;
+    }
+
+    .team-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.60) 0%, transparent 60%, rgba(0, 0, 0, 0.40) 100%);
+      pointer-events: none;
+    }
+
+    .team-hero .hero-glow { position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.18; z-index: 1; background: var(--signal); pointer-events: none; }
+    .team-hero .hero-glow.g1 { width: 480px; height: 480px; top: -200px; right: -140px; }
+    .team-hero .hero-glow.g2 { width: 380px; height: 380px; bottom: -200px; left: -120px; opacity: 0.08; }
+
+    .team-hero .hero-content { position: relative; z-index: 2; }
+
+    .team-hero .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 18px 7px 8px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-bottom: 26px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .team-hero .hero-badge .dot { width: 7px; height: 7px; background: var(--signal-bright); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.7); } }
+    .team-hero h1 { font-size: clamp(2.4rem, 5.6vw, 4.2rem); line-height: 1.05; color: #fff; font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6); }
+    .team-hero h1 .text-gradient { color: var(--signal-bright); text-shadow: 0 0 60px rgba(227, 183, 63, 0.25); }
+    .team-hero p { font-size: 1.05rem; color: rgba(255, 255, 255, 0.65); max-width: 560px; line-height: 1.8; margin-top: 18px; font-weight: 300; text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5); }
+
+    /* ═══ FILTER BAR ═══ */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin: 40px 0 50px; }
+    .filter-btn {
+      padding: 10px 22px; border-radius: 2px; border: 1px solid var(--line-dark);
+      background: transparent; font-family: var(--font-mono); font-weight: 500;
+      font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer; transition: all var(--ease); color: var(--ink-faint);
+    }
+    .filter-btn:hover { border-color: var(--signal); color: var(--ink); }
+    .filter-btn.active { background: var(--signal); color: #10141c; border-color: var(--signal); }
+    .filter-btn.active:hover { background: var(--signal-bright); border-color: var(--signal-bright); }
+
+    /* ═══ TEAM GRID ═══ */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1px;
+      background: var(--line-dark);
+      border: 1px solid var(--line-dark);
+    }
+    .team-card { background: var(--paper); transition: all var(--ease); }
+    .team-card:hover { background: #fff; }
+    .team-card .card-image {
+      height: 210px;
+      background: var(--void);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .team-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .team-card .card-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    .team-card .card-image .placeholder-avatar {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--signal-bright);
+      opacity: 0.85;
+      position: relative;
+      z-index: 1;
+    }
+    .team-card .card-body { padding: 24px 22px 26px; }
+    .team-card .card-body h3 { font-size: 1.05rem; margin-bottom: 5px; text-transform: uppercase; }
+    .team-card .card-body .role { font-family: var(--font-mono); font-size: 0.7rem; color: var(--signal); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .team-card .card-body .bio { font-size: 0.87rem; color: var(--ink-soft); margin-top: 12px; line-height: 1.65; font-weight: 300; }
+    .team-card .card-body .skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .team-card .card-body .skills span { padding: 4px 12px; border: 1px solid var(--line-dark); font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.02em; }
+    .team-card .card-body .social-links { display: flex; gap: 14px; margin-top: 18px; }
+    .team-card .card-body .social-links a { color: var(--ink-faint); transition: color var(--ease); font-size: 1rem; text-decoration: none; }
+    .team-card .card-body .social-links a:hover { color: var(--signal); }
+
+    /* ═══ CTA ═══ */
+    .cta-rider { background: var(--void); color: #fff; padding: 90px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta-rider::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 56px 56px; }
+    .cta-rider .container { position: relative; z-index: 1; }
+    .cta-rider h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); text-transform: uppercase; }
+    .cta-rider p { color: rgba(255, 255, 255, 0.55); max-width: 500px; margin: 16px auto 32px; font-weight: 300; }
+
+    /* ─── Footer ── */
+    .footer { background: var(--void); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+    .footer .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+    .footer .footer-brand .logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+    .footer .footer-brand .logo span { color: var(--logo-orange); }
+    .footer .footer-brand p { margin-top: 14px; font-size: 0.88rem; line-height: 1.75; max-width: 300px; font-weight: 300; }
+    .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .footer ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer ul a { color: var(--steel); text-decoration: none; font-size: 0.88rem; transition: color var(--ease); }
+    .footer ul a:hover { color: var(--signal-bright); }
+    .footer .social-links { display: flex; gap: 10px; margin-top: 20px; }
+    .footer .social-links a { width: 38px; height: 38px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel); transition: all var(--ease); text-decoration: none; }
+    .footer .social-links a:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+    .footer .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; }
+
+    /* ─── Theme Toggle ── */
+    .theme-toggle { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 46px; height: 46px; border-radius: 0; background: var(--void); color: #fff; border: 1px solid var(--hairline); font-size: 1.1rem; cursor: pointer; transition: all var(--ease); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
+    .theme-toggle:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
+
+    /* ─── Toast ── */
+    .toast { position: fixed; bottom: 90px; right: 30px; z-index: 3000; padding: 16px 26px; border-radius: 0; background: var(--void); color: #fff; box-shadow: var(--shadow-premium); border: 1px solid var(--hairline); border-left: 2px solid var(--signal-bright); transform: translateY(20px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; font-family: var(--font-body); font-size: 0.88rem; max-width: 380px; }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .toast .toast-icon { color: var(--signal-bright); margin-right: 12px; }
+
+    /* ─── Light Theme ── */
+    body.light { background: var(--paper); color: var(--ink); }
+    body.light .navbar.scrolled { background: rgba(246, 244, 238, 0.92); border-bottom: 1px solid var(--line-dark); }
+    body.light .navbar .nav-links a { color: var(--ink-soft); }
+    body.light .navbar .nav-links a:hover, body.light .navbar .nav-links a.active { color: var(--ink); }
+    body.light .navbar .nav-logo { color: var(--ink); }
+    body.light .theme-toggle { background: var(--paper); color: var(--ink); border-color: var(--line-dark); }
+    body.light .theme-toggle:hover { border-color: var(--signal); }
+    body.light .toast { background: #fff; color: var(--ink); border-color: var(--line-dark); border-left: 2px solid var(--signal); }
+
+    /* ─── Responsive ── */
+    @media (max-width: 1024px) { .footer .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) {
+      .nav-links { display: none; flex-direction: column; align-items: flex-start; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(10, 10, 10, 0.98); padding: 24px; gap: 4px; border-bottom: 1px solid var(--hairline); }
+      .nav-links.open { display: flex; }
+      .nav-links a { width: 100%; padding: 12px 6px; }
+      .mobile-toggle { display: block; }
+      .logo-mark { height: 36px; }
+      .nav-logo { font-size: 1.2rem; gap: 8px; }
+      .nav-subtitle { font-size: 0.55rem; }
+      .team-hero { min-height: 36vh; padding-top: 100px; background-position: center 25%; }
+      .section-padding { padding: 64px 0; }
+      .footer .footer-grid { grid-template-columns: 1fr; gap: 34px; }
+      .footer .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .team-grid { grid-template-columns: 1fr; }
+      .filter-bar { gap: 6px; }
+      .filter-btn { padding: 7px 16px; font-size: 0.66rem; }
+      .team-hero { background-position: center 20%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── TOAST ─── -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <span id="toast-message">Welcome to Ashwa Riders!</span>
+  </div>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+        <div class="nav-logo-wrapper">
+          <span>Ashwa<span>Riders</span></span>
+          <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="team.html" class="active">Team</a></li>
+        <li><a href="car.html">Car</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+      </ul>
+      <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-header">
+      <div class="mobile-nav-brand">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+        <span>Ashwa Riders</span>
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link active" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+      <a class="mobile-nav-link" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+    </nav>
+    <div class="mobile-nav-footer">
+      <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+    </div>
+  </aside>
+
+  <!-- ─── THEME TOGGLE ─── -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  TEAM HERO                                         -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="team-hero">
+    <div class="hero-glow g1"></div>
+    <div class="hero-glow g2"></div>
+    <div class="container hero-content">
+      <div class="reveal">
+        <div class="hero-badge"><span class="dot"></span> Formula Bharat — 2026 Season</div>
+        <h1>The <span class="text-gradient">Driving Force</span><br />Behind Ashwa Riders</h1>
+        <p>A multidisciplinary team of engineers, designers, and innovators working together to build the future of motorsport.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  TEAM GRID WITH FILTERS                           -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="section-padding" style="background: var(--paper);">
+    <div class="container">
+      <div class="reveal text-center" style="margin: 0 auto;">
+        <span class="eyebrow">Filter</span>
+        <h2 class="section-title">Meet the <span class="text-gradient">Riders</span></h2>
+        <p class="section-subtitle" style="margin: 0 auto;">Click a department to view specific teams.</p>
+      </div>
+
+      <div class="filter-bar text-center" id="filterBar" style="justify-content: center;">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="leadership">Leadership</button>
+        <button class="filter-btn" data-filter="mechanical">Mechanical</button>
+        <button class="filter-btn" data-filter="electrical">Electrical</button>
+        <button class="filter-btn" data-filter="management">Management</button>
+      </div>
+
+      <!-- TEAM CARDS HYDRATED DYNAMICALLY VIA CMS -->
+      <div class="team-grid" id="teamGrid">
+        <!-- Rohan Mehta -->
+        <div class="team-card reveal-scale visible" data-department="leadership" data-id="6a6a6c9ec90a2ab471a1fe5b">
+          <div class="card-image">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png" alt="Rohan Mehta" loading="lazy" style="object-fit:cover;" />
+          </div>
+          <div class="card-body">
+            <h3>Rohan Mehta</h3>
+            <div class="role">Team Captain • Leadership</div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Final Year • Mechanical Engineering</div>
+            <p class="bio">Leading the technical and strategic development of Ashwa Riders Formula Student Electric racing vehicle.</p>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Rohan Mehta"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aarav Sharma -->
+        <div class="team-card reveal-scale visible" data-department="leadership" data-id="6a6a6c9dc90a2ab471a1fe5a">
+          <div class="card-image">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Vice_Captain_noclxg.png" alt="Aarav Sharma" loading="lazy" style="object-fit:cover;" />
+          </div>
+          <div class="card-body">
+            <h3>Aarav Sharma</h3>
+            <div class="role">Vice Captain • Leadership</div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Electrical Engineering</div>
+            <p class="bio">Overseeing powertrain integration, system telemetry, and project execution across engineering verticals.</p>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Aarav Sharma"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vedant Ghodkande -->
+        <div class="team-card reveal-scale visible" data-department="electrical" data-id="6a6a6c9ec90a2ab471a1fe5c">
+          <div class="card-image">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Vice_Captain_noclxg.png" alt="Vedant Ghodkande" loading="lazy" style="object-fit:cover;" />
+          </div>
+          <div class="card-body">
+            <h3>Vedant Ghodkande</h3>
+            <div class="role">Powertrain Lead • Electrical</div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Electrical Engineering</div>
+            <p class="bio">Design and optimization of electric powertrain, motor controller calibration, and high-voltage safety.</p>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Vedant Ghodkande"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dev Kulkarni -->
+        <div class="team-card reveal-scale visible" data-department="electrical" data-id="6ab27e8d788c381faea6d8e7">
+          <div class="card-image">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png" alt="Dev Kulkarni" loading="lazy" style="object-fit:cover;" />
+          </div>
+          <div class="card-body">
+            <h3>Dev Kulkarni</h3>
+            <div class="role">Battery Management Lead • Electrical</div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Electronics & Telecommunication</div>
+            <p class="bio">Lithium-ion battery pack architecture, BMS development, thermal management and tractive system safety.</p>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Dev Kulkarni"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aditya Verma -->
+        <div class="team-card reveal-scale visible" data-department="mechanical">
+          <div class="card-image">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png" alt="Aditya Verma" loading="lazy" style="object-fit:cover;" />
+          </div>
+          <div class="card-body">
+            <h3>Aditya Verma</h3>
+            <div class="role">Chassis & Suspension Lead • Mechanical</div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Mechanical Engineering</div>
+            <p class="bio">Chassis torsional rigidity optimization, double-wishbone suspension kinematics, and lightweight uprights design.</p>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Aditya Verma"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ananya Deshmukh -->
+        <div class="team-card reveal-scale visible" data-department="management">
+          <div class="card-image">
+            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Vice_Captain_noclxg.png" alt="Ananya Deshmukh" loading="lazy" style="object-fit:cover;" />
+          </div>
+          <div class="card-body">
+            <h3>Ananya Deshmukh</h3>
+            <div class="role">Operations & Sponsorship Lead • Management</div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Computer Science & Engineering</div>
+            <p class="bio">Corporate partnerships, budget allocation, team logistics, media outreach, and Formula Bharat statutory compliance.</p>
+            <div class="social-links">
+              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Ananya Deshmukh"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  CTA - JOIN US                                   -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <section class="cta-rider">
+    <div class="container reveal">
+      <h2>Become a <span class="text-gradient">Rider</span></h2>
+      <p>We're always looking for passionate engineers, designers, and innovators to join our family.</p>
+      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Apply Now</a>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">Ashwa<span>Riders</span></div>
+          <p>Building India's most advanced Formula Student race car. Driven by excellence, fueled by passion.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-x-twitter"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>Team</h4>
+          <ul>
+            <li><a href="team.html">Members</a></li>
+            <li><a href="index.html#recruitment">Join Us</a></li>
+            <li><a href="car.html">Our Car</a></li>
+            <li><a href="achievements.html">Achievements</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#">Press Kit</a></li>
+            <li><a href="/assets/docs/ashwa-riders-sponsorship-brochure.pdf">Brochure</a></li>
+            <li><a href="#">Donate</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="contact.html">Get in Touch</a></li>
+            <li><a href="sponsors.html">Sponsor Us</a></li>
+            <li><a href="#">Merchandise</a></li>
+            <li><a href="#">Newsletter</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 Ashwa Riders. All rights reserved.</span>
+        <span>Built by the Ashwa Riders Team</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                         -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <script>
+    // ─── Toast ──────────────────────────────────────────
+    function showToast(msg, icon = 'fa-check-circle') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      toast.querySelector('.toast-icon').className = 'toast-icon fas ' + icon;
+      toast.classList.add('show');
+      clearTimeout(toast._hide);
+      toast._hide = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    // ─── Navbar ──────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+
+    // ─── Theme Toggle ──────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    let isDark = true;
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+      document.body.classList.toggle('light', !isDark);
+      themeToggle.innerHTML = isDark ?
+        '<i class="fas fa-moon"></i>' :
+        '<i class="fas fa-sun"></i>';
+      showToast(isDark ? 'Dark theme activated' : 'Light theme activated');
+    });
+
+    // ─── Scroll Reveal ──────────────────────────────────
+    (function initReveal() {
+      const reveals = document.querySelectorAll('.reveal, .reveal-scale');
+
+      function checkReveals() {
+        const trigger = window.innerHeight * 0.88;
+        reveals.forEach(el => {
+          if (el.getBoundingClientRect().top < trigger) el.classList.add('visible');
+        });
+      }
+      window.addEventListener('scroll', checkReveals);
+      window.addEventListener('resize', checkReveals);
+      checkReveals();
+    })();
+
+    // ─── Filter Logic ──────────────────────────────────
+    const filterButtons = document.querySelectorAll('.filter-btn');
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter ? btn.dataset.filter.toLowerCase() : 'all';
+        const teamCards = document.querySelectorAll('#teamGrid .team-card, .team-card');
+
+        teamCards.forEach(card => {
+          const dept = (card.dataset.department || '').toLowerCase();
+          if (filter === 'all' || dept.includes(filter)) {
+            card.style.display = 'block';
+            card.classList.add('visible');
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // ─── Initial reveal for cards ──────────────────────
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.querySelectorAll('.team-card').forEach(card => {
+          if (card.getBoundingClientRect().top < window.innerHeight * 0.9) {
+            card.classList.add('visible');
+          }
+        });
+      }, 300);
+    });
+  </script>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/mobile-nav.js"></script>
+  <script src="/team-cms.js"></script>
+  <script src="/join-cms.js"></script>
+  <script src="/sponsor-cms.js"></script>
+</body>
+</html>

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ashwa Riders — Become A Sponsor</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="mobile.css" />
+
+    <style>
+        /* ─── RESET & BASE ─── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --void: #000000;
+            --carbon: #080808;
+            --carbon-2: #121212;
+            --muted-accent: #715A5A;
+            --steel: #9FA7A6;
+            --steel-light: #D3DAD9;
+            --hairline: rgba(211, 218, 217, 0.15);
+            --hairline-soft: rgba(211, 218, 217, 0.08);
+
+            --paper: #E8ECEB;
+            --paper-2: #D3DAD9;
+            --ink: #222126;
+            --ink-soft: rgba(34, 33, 38, 0.65);
+            --ink-faint: rgba(34, 33, 38, 0.45);
+            --line-dark: rgba(34, 33, 38, 0.12);
+
+            /* Refined Color System */
+            --logo-orange: #ff751f; /* Protected Logo Color */
+
+            --signal: #F25912; /* Primary Accent Orange */
+            --signal-bright: #FF6A26;
+            --signal-glow: rgba(242, 89, 18, 0.28);
+
+            --font-stack-inter: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-display: var(--font-stack-inter);
+            --font-body: var(--font-stack-inter);
+            --font-mono: 'JetBrains Mono', monospace;
+            --ease: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.6;
+            font-weight: 400;
+            padding-top: 76px; /* navbar height */
+        }
+        h1,h2,h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+        .text-gradient { color: var(--signal); }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        .section-padding { padding: 80px 0; }
+        .text-center { text-align: center; }
+
+        .eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--signal);
+            margin-bottom: 14px;
+            display: inline-block;
+        }
+        .eyebrow::before { content: '// '; opacity: 0.6; }
+
+        .section-title {
+            font-size: clamp(2rem, 3.6vw, 3rem);
+            line-height: 1.06;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+        .section-subtitle {
+            font-size: 1.02rem;
+            color: var(--ink-soft);
+            max-width: 560px;
+            line-height: 1.75;
+            font-weight: 300;
+        }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 15px 34px; border-radius: 2px;
+            font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+            letter-spacing: 0.09em; text-transform: uppercase;
+            transition: all var(--ease); cursor: pointer; border: 1px solid transparent;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--signal); color: #10141c;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+        }
+        .btn-primary:hover { background: var(--signal-bright); }
+        .btn-outline {
+            background: transparent; color: var(--ink);
+            border: 1px solid var(--ink);
+        }
+        .btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+        /* ─── REVEAL ─── */
+        .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ═══════════════════════════════════════════════════════════
+           NAVBAR — same style as contact page
+        ═══════════════════════════════════════════════════════════ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 22px 0;
+            z-index: 1000;
+            transition: all var(--ease);
+            border-bottom: 1px solid transparent;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .navbar.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid var(--hairline);
+            padding: 14px 0;
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* LOGO LAYOUT (matching contact page) */
+        .nav-logo { 
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+        }
+        .nav-logo-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .nav-logo span span { color: var(--logo-orange); }
+        .logo-mark {
+            height: 48px;
+            width: auto;
+            flex-shrink: 0;
+            object-fit: contain;
+            transition: all var(--ease);
+        }
+        .nav-logo:hover .logo-mark {
+            filter: drop-shadow(0 0 6px var(--signal-bright));
+        }
+        body.light .nav-logo { color: var(--ink); }
+
+        .nav-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: var(--steel, #96a3ba);
+            text-transform: uppercase;
+            margin-top: -2px;
+            text-align: left;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            transition: color var(--ease);
+            padding: 8px 14px;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 14px;
+            right: 14px;
+            height: 1px;
+            background: var(--signal-bright);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform var(--ease);
+        }
+        .nav-links a:hover { color: #fff; }
+        .nav-links a:hover::after,
+        .nav-links a.active::after { transform: scaleX(1); }
+        .nav-links a.active { color: #fff; }
+
+        .nav-cta {
+            padding: 9px 22px !important;
+            background: var(--signal);
+            color: #10141c !important;
+            font-weight: 700;
+            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+            margin-left: 10px;
+        }
+        .nav-cta:hover { background: var(--signal-bright); }
+        .nav-cta::after { display: none !important; }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ─── LIGHT THEME OVERRIDES ─── */
+        body.light .navbar { background: rgba(246, 244, 238, 0.92); border-bottom: 1px solid var(--line-dark); }
+        body.light .navbar .nav-links a { color: var(--ink-soft); }
+        body.light .navbar .nav-links a:hover,
+        body.light .navbar .nav-links a.active { color: var(--ink); }
+        body.light .navbar .nav-logo { color: var(--ink); }
+
+        /* ═══════════════════════════════════════════════════════════
+           SPONSOR HERO — with background image
+        ═══════════════════════════════════════════════════════════ */
+        .sponsor-hero {
+            position: relative;
+            padding: 80px 0 70px;
+            border-bottom: 1px solid var(--hairline);
+            overflow: hidden;
+            min-height: 65vh;
+            display: flex;
+            align-items: center;
+            background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784491291/IMG_0234_1_csal4p.jpg');
+            background-size: cover;
+            background-position: center 45%;
+            background-repeat: no-repeat;
+        }
+        .sponsor-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: rgba(0, 0, 0, 0.72);
+            pointer-events: none;
+        }
+        .sponsor-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 75%);
+            pointer-events: none;
+        }
+        .sponsor-hero .hero-glow {
+            position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.12;
+            background: var(--signal); z-index: 1;
+        }
+        .sponsor-hero .g1 { width: 500px; height: 500px; top: -200px; right: -100px; }
+        .sponsor-hero .hero-content { position: relative; z-index: 2; }
+        .sponsor-hero h1 { color: #fff; font-size: clamp(2.4rem, 5vw, 3.8rem); text-transform: uppercase; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.5); }
+        .sponsor-hero p { color: rgba(255,255,255,0.65); max-width: 520px; font-weight: 300; margin-top: 8px; text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5); }
+        .sponsor-hero .eyebrow { color: var(--signal-bright); }
+        .hero-actions { margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap; }
+
+        /* ═══════════════════════════════════════════════════════════
+           SPONSOR SCROLL – LEFT → RIGHT LOOP
+        ═══════════════════════════════════════════════════════════ */
+        .sponsor-scroll-section {
+            background: var(--paper-2);
+            border-top: 1px solid var(--line-dark);
+            border-bottom: 1px solid var(--line-dark);
+            padding: 40px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .sponsor-scroll-section .container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .sponsor-track {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            width: max-content;
+        }
+
+        .sponsor-item {
+            flex: 0 0 auto;
+            padding: 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--ink);
+            white-space: nowrap;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            height: 80px;
+            border-right: 1px solid var(--line-dark);
+        }
+        .sponsor-item:last-child { border-right: none; }
+        .sponsor-item:hover { opacity: 1; }
+
+        .sponsor-scroll-wrapper {
+            display: flex;
+            width: max-content;
+            animation: scrollLeftRight 32s linear infinite;
+        }
+        .sponsor-scroll-section:hover .sponsor-scroll-wrapper {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollLeftRight {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .sponsor-item i { margin-right: 10px; color: var(--signal); }
+
+        /* ─── SPONSORSHIP TIERS — with background image ─── */
+        .tiers-section {
+            position: relative;
+            padding: 80px 0;
+            color: #fff;
+            overflow: hidden;
+            background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg');
+            background-size: cover;
+            background-position: center 40%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .tiers-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: rgba(0, 0, 0, 0.82);
+            pointer-events: none;
+        }
+        .tiers-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 56px 56px;
+            pointer-events: none;
+        }
+        .tiers-section .container {
+            position: relative;
+            z-index: 1;
+        }
+        .tiers-section .section-title { color: #fff; }
+        .tiers-section .section-subtitle { color: rgba(255,255,255,0.55); }
+
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-top: 50px;
+        }
+        .tier-card {
+            background: rgba(17, 17, 17, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--hairline);
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            transition: all var(--ease);
+            position: relative;
+        }
+        .tier-card:hover { border-color: var(--signal); transform: translateY(-6px); }
+        .tier-card.featured { border-color: var(--signal-bright); }
+        .tier-card .tier-ribbon {
+            position: absolute; top: 16px; right: -34px; transform: rotate(45deg);
+            background: var(--signal); color: #10141c;
+            font-family: var(--font-mono); font-size: 0.6rem;
+            font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; padding: 5px 40px;
+        }
+        .tier-card .tier-name {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--signal-bright); margin-bottom: 10px;
+        }
+        .tier-card h3 { font-size: 1.3rem; margin-bottom: 6px; text-transform: uppercase; }
+        .tier-card .tier-range {
+            font-family: var(--font-mono); font-size: 0.82rem;
+            color: rgba(255,255,255,0.45); margin-bottom: 22px;
+        }
+        .tier-card ul { list-style: none; display: flex; flex-direction: column; gap: 11px; margin-bottom: 26px; flex: 1; }
+        .tier-card ul li {
+            font-size: 0.84rem; color: rgba(255,255,255,0.65);
+            display: flex; gap: 10px; align-items: flex-start; font-weight: 300;
+        }
+        .tier-card ul li i { color: var(--signal-bright); margin-top: 3px; font-size: 0.78rem; }
+        .tier-card .btn { width: 100%; justify-content: center; }
+
+        /* ─── SPONSOR FORM ─── */
+        .sponsor-form-section {
+            background: var(--paper);
+            padding: 80px 0;
+        }
+        .form-shell {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--line-dark);
+            border: 1px solid var(--line-dark);
+            margin-top: 40px;
+        }
+        .form-info {
+            background: var(--void);
+            color: #fff;
+            padding: 44px 40px;
+        }
+        .form-info h3 { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 14px; }
+        .form-info p { font-size: 0.9rem; color: rgba(255,255,255,0.55); line-height: 1.8; font-weight: 300; margin-bottom: 26px; }
+        .form-info .contact-row {
+            display: flex; align-items: center; gap: 14px;
+            font-size: 0.88rem; color: rgba(255,255,255,0.75); margin-bottom: 14px;
+        }
+        .form-info .contact-row i { color: var(--signal-bright); width: 20px; }
+        .form-panel {
+            background: #fff;
+            padding: 44px 40px;
+        }
+        .form-row { margin-bottom: 18px; }
+        .form-row label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink-faint);
+            margin-bottom: 6px;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid var(--line-dark);
+            background: var(--paper);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--ink);
+            border-radius: 2px;
+        }
+        .form-row input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: var(--signal);
+        }
+        .form-row textarea { resize: vertical; min-height: 90px; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* ─── FOOTER ─── */
+        .footer-mini {
+            background: var(--void);
+            color: var(--steel, #96a3ba);
+            padding: 40px 0 24px;
+            border-top: 1px solid var(--hairline);
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .footer-mini a { color: var(--signal-bright); text-decoration: none; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            body { padding-top: 68px; }
+            .navbar { padding: 14px 0; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                align-items: flex-start;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(0,0,0,0.98);
+                padding: 20px 24px;
+                gap: 4px;
+                border-bottom: 1px solid var(--hairline);
+            }
+            .nav-links.open { display: flex; }
+            .nav-links a { width: 100%; padding: 12px 6px; }
+            .mobile-toggle { display: block; }
+            .logo-mark { height: 36px; }
+            .nav-logo { font-size: 1.2rem; gap: 8px; }
+            .nav-subtitle { font-size: 0.55rem; }
+            .sponsor-hero { padding: 60px 0 50px; min-height: 50vh; background-position: center 35%; }
+            .tiers-section { background-attachment: scroll; }
+            .form-shell { grid-template-columns: 1fr; }
+            .form-info, .form-panel { padding: 32px 24px; }
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .sponsor-item { padding: 0 24px; font-size: 1.2rem; height: 60px; }
+            .tiers-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .sponsor-item { padding: 0 16px; font-size: 1rem; height: 50px; }
+            .tiers-grid { grid-template-columns: 1fr; }
+            .sponsor-hero { background-position: center 30%; }
+            .tiers-section { background-position: center 30%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══════════════════════════════════════════════
+         NAVBAR — same style as contact page
+    ══════════════════════════════════════════════ -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders logo" class="logo-mark" />
+                <div class="nav-logo-wrapper">
+                    <span>Ashwa<span>Riders</span></span>
+                    <span class="nav-subtitle">E-FORMULA · SVPCET</span>
+                </div>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="team.html">Team</a></li>
+                <li><a href="car.html">Car</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="sponsors.html" class="active">Sponsors</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="index.html#recruitment" class="nav-cta">Join Team</a></li>
+            </ul>
+            <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+    <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+      <div class="mobile-nav-header">
+        <div class="mobile-nav-brand">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" />
+          <span>Ashwa Riders</span>
+        </div>
+        <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close Navigation Menu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav class="mobile-nav-links">
+        <a class="mobile-nav-link" href="index.html"><span>Home</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link" href="about.html"><span>About</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link" href="car.html"><span>Car</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link" href="Team.html"><span>Team</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link" href="achievements.html"><span>Achievements</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link" href="gallery.html"><span>Gallery</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link active" href="sponsors.html"><span>Sponsors</span> <i class="fas fa-chevron-right"></i></a>
+        <a class="mobile-nav-link" href="contact.html"><span>Contact</span> <i class="fas fa-chevron-right"></i></a>
+      </nav>
+      <div class="mobile-nav-footer">
+        <a href="sponsors.html" class="mobile-nav-cta"><i class="fas fa-handshake"></i> Sponsor Us</a>
+      </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════════
+         HERO – BECOME A SPONSOR (with background image)
+    ══════════════════════════════════════════════ -->
+    <section class="sponsor-hero" id="sponsorHeroSection">
+        <div class="hero-glow g1"></div>
+        <div class="container hero-content">
+            <div class="reveal">
+                <span class="eyebrow" id="heroEyebrow"><i class="fas fa-handshake"></i> Partner With Us</span>
+                <h1 id="heroHeading">Become A <span class="text-gradient">Sponsor</span></h1>
+                <p id="heroDescription">Put your brand on Tarkshya, our electric Formula Student car. Every season we race at Formula Bharat — your support drives us forward.</p>
+                <div class="hero-actions">
+                    <a href="#sponsor-form" class="btn btn-primary" id="heroBtnPrimary"><i class="fas fa-handshake"></i> Start Here</a>
+                    <a href="#" class="btn btn-outline" id="heroBtnBrochure" style="border-color: rgba(255,255,255,0.3); color: #fff;"><i class="fas fa-file-arrow-down"></i> Brochure</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         SPONSOR SCROLL – LEFT TO RIGHT LOOP
+    ══════════════════════════════════════════════ -->
+    <section class="sponsor-scroll-section" id="sponsorRailSection">
+        <div class="container">
+            <div class="sponsor-scroll-wrapper" id="sponsorScrollWrapper">
+                <!-- dynamically rendered: two sets for infinite seamless loop -->
+                <div class="sponsor-track">
+                    <div class="sponsor-item"><i class="fas fa-bolt"></i> E-Formula Ashwa Riders</div>
+                    <div class="sponsor-item"><i class="fas fa-cog"></i> MORP</div>
+                    <div class="sponsor-item"><i class="fas fa-chart-simple"></i> MATLAB</div>
+                    <div class="sponsor-item"><i class="fas fa-leaf"></i> Carbonext</div>
+                    <div class="sponsor-item"><i class="fas fa-cube"></i> EIPRISM</div>
+                    <div class="sponsor-item"><i class="fas fa-microchip"></i> CIRCUITRONICS LLP</div>
+                    <div class="sponsor-item"><i class="fas fa-industry"></i> Maharashtra Bear &amp; Belting Co.</div>
+                    <div class="sponsor-item"><i class="fas fa-chart-line"></i> ALTAIR</div>
+                    <div class="sponsor-item"><i class="fas fa-cubes"></i> ANSYS</div>
+                    <div class="sponsor-item"><i class="fas fa-shield"></i> BENDER</div>
+                    <div class="sponsor-item"><i class="fas fa-wave-square"></i> Vashi INTEGRATE SOLUTIONS</div>
+                    <div class="sponsor-item"><i class="fas fa-star"></i> PERFECTIO</div>
+                    <div class="sponsor-item"><i class="fas fa-arrows-rotate"></i> ADAPT.IMPROVISE.OVERCOME</div>
+                </div>
+                <div class="sponsor-track">
+                    <div class="sponsor-item"><i class="fas fa-bolt"></i> E-Formula Ashwa Riders</div>
+                    <div class="sponsor-item"><i class="fas fa-cog"></i> MORP</div>
+                    <div class="sponsor-item"><i class="fas fa-chart-simple"></i> MATLAB</div>
+                    <div class="sponsor-item"><i class="fas fa-leaf"></i> Carbonext</div>
+                    <div class="sponsor-item"><i class="fas fa-cube"></i> EIPRISM</div>
+                    <div class="sponsor-item"><i class="fas fa-microchip"></i> CIRCUITRONICS LLP</div>
+                    <div class="sponsor-item"><i class="fas fa-industry"></i> Maharashtra Bear &amp; Belting Co.</div>
+                    <div class="sponsor-item"><i class="fas fa-chart-line"></i> ALTAIR</div>
+                    <div class="sponsor-item"><i class="fas fa-cubes"></i> ANSYS</div>
+                    <div class="sponsor-item"><i class="fas fa-shield"></i> BENDER</div>
+                    <div class="sponsor-item"><i class="fas fa-wave-square"></i> Vashi INTEGRATE SOLUTIONS</div>
+                    <div class="sponsor-item"><i class="fas fa-star"></i> PERFECTIO</div>
+                    <div class="sponsor-item"><i class="fas fa-arrows-rotate"></i> ADAPT.IMPROVISE.OVERCOME</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         CHOOSE YOUR LEVEL – SPONSORSHIP TIERS
+    ══════════════════════════════════════════════ -->
+    <section class="tiers-section" id="tiers">
+        <div class="container">
+            <div class="reveal text-center">
+                <span class="eyebrow" id="tiersEyebrow"><i class="fas fa-layer-group"></i> Sponsorship Tiers</span>
+                <h2 class="section-title" id="tiersTitle">Choose Your <span class="text-gradient">Level</span></h2>
+                <p class="section-subtitle" id="tiersSubtitle" style="color: rgba(255,255,255,0.55); margin: 0 auto;">A starting point for a conversation — every partnership is tailored to what you and the team need.</p>
+            </div>
+
+            <div class="tiers-grid" id="tiersGrid">
+                <div class="tier-card reveal">
+                    <div class="tier-name">Bronze</div>
+                    <h3>Associate Sponsor</h3>
+                    <div class="tier-range">Cash or in-kind support</div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Logo on team website</li>
+                        <li><i class="fas fa-check"></i> Mention in social media posts</li>
+                        <li><i class="fas fa-check"></i> Certificate of association</li>
+                    </ul>
+                    <a href="#sponsor-form" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: #fff;">Get In Touch</a>
+                </div>
+
+                <div class="tier-card reveal">
+                    <div class="tier-name">Silver</div>
+                    <h3>Technical Partner</h3>
+                    <div class="tier-range">Cash, components, or services</div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Everything in Bronze</li>
+                        <li><i class="fas fa-check"></i> Logo on car bodywork</li>
+                        <li><i class="fas fa-check"></i> Logo on team kit</li>
+                        <li><i class="fas fa-check"></i> Dedicated social media feature</li>
+                    </ul>
+                    <a href="#sponsor-form" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: #fff;">Get In Touch</a>
+                </div>
+
+                <div class="tier-card featured reveal">
+                    <div class="tier-ribbon">Popular</div>
+                    <div class="tier-name">Gold</div>
+                    <h3>Powertrain Partner</h3>
+                    <div class="tier-range">Larger cash or component sponsorship</div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Everything in Silver</li>
+                        <li><i class="fas fa-check"></i> Prominent logo placement on car</li>
+                        <li><i class="fas fa-check"></i> Invitation to workshop visits</li>
+                        <li><i class="fas fa-check"></i> Priority access to recruiting events</li>
+                        <li><i class="fas fa-check"></i> Feature in competition press kit</li>
+                    </ul>
+                    <a href="#sponsor-form" class="btn btn-primary">Get In Touch</a>
+                </div>
+
+                <div class="tier-card reveal">
+                    <div class="tier-name">Title</div>
+                    <h3>Title Sponsor</h3>
+                    <div class="tier-range">Full-season primary partnership</div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Everything in Gold</li>
+                        <li><i class="fas fa-check"></i> Primary logo position on car and livery</li>
+                        <li><i class="fas fa-check"></i> Co-branding across all team materials</li>
+                        <li><i class="fas fa-check"></i> First right of refusal next season</li>
+                        <li><i class="fas fa-check"></i> On-site presence at Formula Bharat</li>
+                    </ul>
+                    <a href="#sponsor-form" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: #fff;">Get In Touch</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         SPONSOR FORM – BECOME A SPONSOR
+    ══════════════════════════════════════════════ -->
+    <section class="sponsor-form-section" id="sponsor-form">
+        <div class="container">
+            <div class="reveal">
+                <span class="eyebrow" id="enquiryEyebrow"><i class="fas fa-paper-plane"></i> Get Started</span>
+                <h2 class="section-title" id="enquiryHeading">Become A <span class="text-gradient">Sponsor</span></h2>
+                <p class="section-subtitle" id="enquirySubtitle">Tell us about your organisation and we'll get back to you with a custom proposal.</p>
+            </div>
+
+            <div class="form-shell reveal">
+                <div class="form-info">
+                    <h3 id="contactHeading">Let's Talk</h3>
+                    <p id="contactDescription">Cash, components, services, or expertise — if it helps us build a better car, we want to hear from you. Fill out the form and our sponsorship team will follow up within a few days.</p>
+                    <div class="contact-row" id="contactEmailRow"><i class="fas fa-envelope"></i> <a href="mailto:sponsors@ashwariders.in" style="color:inherit; text-decoration:none;">sponsors@ashwariders.in</a></div>
+                    <div class="contact-row" id="contactPhoneRow"><i class="fas fa-phone"></i> +91 00000 00000</div>
+                    <div class="contact-row" id="contactAddressRow"><i class="fas fa-location-dot"></i> St. Vincent Pallotti CET, Nagpur</div>
+                    <div class="contact-row" id="contactBrochureRow"><i class="fas fa-file-arrow-down"></i> <a href="#" id="contactBrochureLink" style="color: var(--signal-bright); text-decoration: none;">Download sponsorship brochure</a></div>
+                </div>
+                <div class="form-panel">
+                    <form id="sponsorForm">
+                        <div class="form-grid-2">
+                            <div class="form-row">
+                                <label for="fName">Your Name</label>
+                                <input type="text" id="fName" placeholder="Full name" required />
+                            </div>
+                            <div class="form-row">
+                                <label for="fOrg">Organisation</label>
+                                <input type="text" id="fOrg" placeholder="Company / Organisation" required />
+                            </div>
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-row">
+                                <label for="fEmail">Email</label>
+                                <input type="email" id="fEmail" placeholder="you@company.com" required />
+                            </div>
+                            <div class="form-row">
+                                <label for="fPhone">Phone</label>
+                                <input type="text" id="fPhone" placeholder="+91 00000 00000" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="fTier">Interested Tier</label>
+                            <select id="fTier">
+                                <option value="Title Sponsor">Title Sponsor</option>
+                                <option value="Gold – Powertrain Partner" selected>Gold – Powertrain Partner</option>
+                                <option value="Silver – Technical Partner">Silver – Technical Partner</option>
+                                <option value="Bronze – Associate Sponsor">Bronze – Associate Sponsor</option>
+                                <option value="In-Kind / Not Sure Yet">In-Kind / Not Sure Yet</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="fMessage">Message</label>
+                            <textarea id="fMessage" placeholder="Tell us about your organisation and how you'd like to support the team"></textarea>
+                        </div>
+                        <button type="submit" id="sponsorSubmitBtn" class="btn btn-primary" style="width:100%; justify-content:center;">
+                            <i class="fas fa-paper-plane"></i> Send Enquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════════════ -->
+    <footer class="footer-mini">
+        <div class="container">
+            <p>© 2026 Ashwa Riders — Built by the team, driven by sponsors like you.</p>
+            <p style="margin-top: 6px; font-size: 0.75rem; opacity: 0.6;">
+                <a href="#"><i class="fab fa-instagram"></i></a> &nbsp;
+                <a href="#"><i class="fab fa-linkedin-in"></i></a> &nbsp;
+                <a href="#"><i class="fab fa-youtube"></i></a> &nbsp;
+                <a href="#"><i class="fab fa-x-twitter"></i></a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- ══════════════════════════════════════════════
+         SCRIPTS
+    ══════════════════════════════════════════════ -->
+    <script>
+        // ─── NAVBAR SCROLL ──────────────────────────────
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 60);
+        });
+
+        // ─── MOBILE TOGGLE (Safe Check) ─────────────────
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.getElementById('navLinks');
+        if (mobileToggle && navLinks) {
+            mobileToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('open');
+                mobileToggle.innerHTML = navLinks.classList.contains('open') ?
+                    '<i class="fas fa-times"></i>' :
+                    '<i class="fas fa-bars"></i>';
+            });
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('open');
+                    mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                });
+            });
+        }
+
+        // ─── REVEAL ON SCROLL ──────────────────────────
+        function initReveal() {
+            const els = document.querySelectorAll('.reveal');
+            function check() {
+                const trigger = window.innerHeight * 0.88;
+                els.forEach(el => {
+                    if (el.getBoundingClientRect().top < trigger) el.classList.add('visible');
+                });
+            }
+            window.addEventListener('scroll', check);
+            window.addEventListener('resize', check);
+            check();
+        }
+        initReveal();
+
+        // ─── DYNAMIC SPONSOR CMS CONTENT LOADER ────────
+        async function loadSponsorPageContent() {
+            const isPreview = window.location.search.includes('preview=true') || window.location.search.includes('draft=true');
+            const endpoint = '/api/v1/sponsors' + (isPreview ? '?preview=true' : '');
+
+            try {
+                const res = await fetch(endpoint);
+                const json = await res.json();
+                if (!json.success || !json.data) return;
+
+                const data = json.data;
+                const hero = data.hero || {};
+                const rail = data.rail || {};
+                const tiersSection = data.tiersSection || {};
+                const enquirySection = data.enquirySection || {};
+                const settings = data.settings || {};
+
+                // 1. Title & Meta
+                if (settings.pageTitle) document.title = settings.pageTitle;
+
+                // 2. Hero Section
+                const heroSec = document.getElementById('sponsorHeroSection');
+                if (heroSec) {
+                    if (hero.visible === false) {
+                        heroSec.style.display = 'none';
+                    } else {
+                        heroSec.style.display = 'flex';
+                        if (hero.bgImageUrl) {
+                            heroSec.style.backgroundImage = `url('${hero.bgImageUrl}')`;
+                        }
+                        const eyebrowEl = document.getElementById('heroEyebrow');
+                        if (eyebrowEl) eyebrowEl.innerHTML = `<i class="${hero.eyebrowIcon || 'fas fa-handshake'}"></i> ${hero.eyebrow || 'Partner With Us'}`;
+
+                        const headingEl = document.getElementById('heroHeading');
+                        if (headingEl) headingEl.innerHTML = `${hero.headingLine1 || 'Become A'} <span class="text-gradient">${hero.headingHighlight || 'Sponsor'}</span>`;
+
+                        const descEl = document.getElementById('heroDescription');
+                        if (descEl) descEl.textContent = hero.description || '';
+
+                        const btnPrimary = document.getElementById('heroBtnPrimary');
+                        if (btnPrimary) {
+                            btnPrimary.href = hero.buttonPrimaryUrl || '#sponsor-form';
+                            btnPrimary.innerHTML = `<i class="${hero.buttonPrimaryIcon || 'fas fa-handshake'}"></i> ${hero.buttonPrimaryText || 'Start Here'}`;
+                        }
+
+                        const btnBrochure = document.getElementById('heroBtnBrochure');
+                        if (btnBrochure) {
+                            if (hero.buttonBrochureVisible === false || !hero.buttonBrochureUrl) {
+                                btnBrochure.style.display = 'none';
+                            } else {
+                                btnBrochure.style.display = 'inline-flex';
+                                btnBrochure.href = hero.buttonBrochureUrl;
+                                btnBrochure.target = '_blank';
+                                btnBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> ${hero.buttonBrochureText || 'Brochure'}`;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Sponsor Rail
+                const railSec = document.getElementById('sponsorRailSection');
+                if (railSec) {
+                    if (rail.visible === false) {
+                        railSec.style.display = 'none';
+                    } else {
+                        railSec.style.display = 'block';
+                        const railItems = (rail.items || []).filter(item => item.visible !== false);
+                        if (railItems.length > 0) {
+                            const wrapper = document.getElementById('sponsorScrollWrapper');
+                            if (wrapper) {
+                                if (rail.speed) {
+                                    wrapper.style.animationDuration = `${rail.speed}s`;
+                                }
+                                if (rail.direction === 'left-to-right') {
+                                    wrapper.style.animationDirection = 'reverse';
+                                }
+                                if (rail.animationEnabled === false) {
+                                    wrapper.style.animation = 'none';
+                                }
+
+                                const renderTrack = () => `
+                                    <div class="sponsor-track">
+                                        ${railItems.map(item => {
+                                            const content = item.logoUrl
+                                                ? `<img src="${item.logoUrl}" alt="${item.altText || item.name}" style="max-height:48px; max-width:140px; object-fit:contain;" />`
+                                                : `<i class="${item.icon || 'fas fa-bolt'}"></i> ${item.name}`;
+                                            if (item.websiteUrl) {
+                                                return `<div class="sponsor-item"><a href="${item.websiteUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none; display:flex; align-items:center;">${content}</a></div>`;
+                                            }
+                                            return `<div class="sponsor-item">${content}</div>`;
+                                        }).join('')}
+                                    </div>
+                                `;
+
+                                wrapper.innerHTML = renderTrack() + renderTrack();
+                            }
+                        }
+                    }
+                }
+
+                // 4. Sponsorship Tiers
+                const tiersSec = document.getElementById('tiers');
+                if (tiersSec) {
+                    if (tiersSection.visible === false) {
+                        tiersSec.style.display = 'none';
+                    } else {
+                        tiersSec.style.display = 'block';
+                        if (tiersSection.bgImageUrl) {
+                            tiersSec.style.backgroundImage = `url('${tiersSection.bgImageUrl}')`;
+                        }
+                        const tEye = document.getElementById('tiersEyebrow');
+                        if (tEye) tEye.innerHTML = `<i class="${tiersSection.eyebrowIcon || 'fas fa-layer-group'}"></i> ${tiersSection.eyebrow || 'Sponsorship Tiers'}`;
+
+                        const tTitle = document.getElementById('tiersTitle');
+                        if (tTitle) tTitle.innerHTML = `${tiersSection.headingLine1 || 'Choose Your'} <span class="text-gradient">${tiersSection.headingHighlight || 'Level'}</span>`;
+
+                        const tSub = document.getElementById('tiersSubtitle');
+                        if (tSub) tSub.textContent = tiersSection.description || '';
+
+                        const tiers = (tiersSection.tiers || []).filter(t => t.visible !== false);
+                        const tiersGrid = document.getElementById('tiersGrid');
+                        if (tiers.length > 0 && tiersGrid) {
+                            tiersGrid.innerHTML = tiers.map(tier => {
+                                const benefitsHtml = (tier.benefits || []).map(b => `
+                                    <li><i class="fas fa-check"></i> ${b}</li>
+                                `).join('');
+
+                                const isPopular = Boolean(tier.isPopular);
+                                const ribbonHtml = isPopular
+                                    ? `<div class="tier-ribbon">${tier.popularRibbonText || 'Popular'}</div>`
+                                    : '';
+
+                                return `
+                                    <div class="tier-card ${isPopular ? 'featured' : ''} reveal visible">
+                                        ${ribbonHtml}
+                                        <div class="tier-name" style="color:${tier.badgeColor || 'var(--signal-bright)'};">${tier.name || 'Tier'}</div>
+                                        <h3>${tier.title || ''}</h3>
+                                        <div class="tier-range">${tier.description || ''}</div>
+                                        <ul>
+                                            ${benefitsHtml}
+                                        </ul>
+                                        <a href="${tier.buttonUrl || '#sponsor-form'}" class="btn ${isPopular ? 'btn-primary' : 'btn-outline'}" ${isPopular ? '' : 'style="border-color: rgba(255,255,255,0.3); color: #fff;"'}>${tier.buttonText || 'Get In Touch'}</a>
+                                    </div>
+                                `;
+                            }).join('');
+                        }
+
+                        // Auto-populate the Interested Tier dropdown in Enquiry Form
+                        const tierSelect = document.getElementById('fTier');
+                        if (tierSelect && tiers.length > 0) {
+                            tierSelect.innerHTML = tiers.map((t, idx) => {
+                                const label = `${t.name} – ${t.title}`;
+                                return `<option value="${label}" ${t.isPopular || idx === 1 ? 'selected' : ''}>${label}</option>`;
+                            }).join('') + `<option value="In-Kind / Other">In-Kind / Not Sure Yet</option>`;
+                        }
+                    }
+                }
+
+                // 5. Enquiry Section
+                const enquirySec = document.getElementById('sponsor-form');
+                if (enquirySec) {
+                    if (enquirySection.visible === false) {
+                        enquirySec.style.display = 'none';
+                    } else {
+                        enquirySec.style.display = 'block';
+                        const eEye = document.getElementById('enquiryEyebrow');
+                        if (eEye) eEye.innerHTML = `<i class="${enquirySection.eyebrowIcon || 'fas fa-paper-plane'}"></i> ${enquirySection.eyebrow || 'Get Started'}`;
+
+                        const eHead = document.getElementById('enquiryHeading');
+                        if (eHead) eHead.innerHTML = `${enquirySection.headingLine1 || 'Become A'} <span class="text-gradient">${enquirySection.headingHighlight || 'Sponsor'}</span>`;
+
+                        const eSub = document.getElementById('enquirySubtitle');
+                        if (eSub) eSub.textContent = enquirySection.description || '';
+
+                        const cHead = document.getElementById('contactHeading');
+                        if (cHead) cHead.textContent = enquirySection.contactHeading || "Let's Talk";
+
+                        const cDesc = document.getElementById('contactDescription');
+                        if (cDesc) cDesc.textContent = enquirySection.contactDescription || '';
+
+                        const cEmail = document.getElementById('contactEmailRow');
+                        if (cEmail) cEmail.innerHTML = `<i class="fas fa-envelope"></i> <a href="mailto:${enquirySection.email || 'sponsors@ashwariders.in'}" style="color:inherit; text-decoration:none;">${enquirySection.email || 'sponsors@ashwariders.in'}</a>`;
+
+                        const cPhone = document.getElementById('contactPhoneRow');
+                        if (cPhone) cPhone.innerHTML = `<i class="fas fa-phone"></i> ${enquirySection.phone || '+91 00000 00000'}`;
+
+                        const cAddr = document.getElementById('contactAddressRow');
+                        if (cAddr) cAddr.innerHTML = `<i class="fas fa-location-dot"></i> ${enquirySection.address || 'St. Vincent Pallotti CET, Nagpur'}`;
+
+                        const cBrochure = document.getElementById('contactBrochureRow');
+                        if (cBrochure) {
+                            if (enquirySection.brochureVisible === false || !enquirySection.brochureUrl) {
+                                cBrochure.style.display = 'none';
+                            } else {
+                                cBrochure.style.display = 'flex';
+                                cBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> <a href="${enquirySection.brochureUrl}" target="_blank" style="color: var(--signal-bright); text-decoration: none;">${enquirySection.brochureText || 'Download sponsorship brochure'}</a>`;
+                            }
+                        }
+
+                        const submitBtn = document.getElementById('sponsorSubmitBtn');
+                        if (submitBtn) {
+                            submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${enquirySection.submitButtonText || 'Send Enquiry'}`;
+                        }
+                    }
+                }
+
+                initReveal();
+            } catch (err) {
+                console.warn('Could not load dynamic Sponsor CMS data, using static template fallback:', err);
+            }
+        }
+
+        // ─── FORM HANDLER (Direct to Database Inbox) ───
+        const form = document.getElementById('sponsorForm');
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('sponsorSubmitBtn') || form.querySelector('button[type="submit"]');
+                const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '<i class="fas fa-paper-plane"></i> Send Enquiry';
+
+                const name = document.getElementById('fName').value.trim();
+                const org = document.getElementById('fOrg').value.trim();
+                const email = document.getElementById('fEmail').value.trim();
+                const phone = document.getElementById('fPhone').value.trim();
+                const tier = document.getElementById('fTier').value;
+                const message = document.getElementById('fMessage').value.trim();
+
+                if (!name || !org || !email) {
+                    alert('Please fill in your name, organisation, and email.');
+                    return;
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                }
+
+                try {
+                    const res = await fetch('/api/v1/sponsors/enquiry', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, organisation: org, email, phone, tier, message }),
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        form.reset();
+                        alert(data.message || '🎉 Thank you for your enquiry! Our sponsorship team will review your proposal and get back to you shortly.');
+                    } else {
+                        alert(data.message || 'Submission failed. Please check your inputs and try again.');
+                    }
+                } catch (err) {
+                    console.error('Enquiry submission error:', err);
+                    // Fallback to mailto if network error
+                    const subject = encodeURIComponent('Sponsorship Enquiry – ' + org);
+                    const body = encodeURIComponent('Name: ' + name + '\nOrganisation: ' + org + '\nEmail: ' + email + '\nPhone: ' + (phone || '-') + '\nTier: ' + tier + '\n\nMessage:\n' + (message || '-'));
+                    window.location.href = 'mailto:sponsors@ashwariders.in?subject=' + subject + '&body=' + body;
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
+                    }
+                }
+            });
+        }
+
+        // Initialize CMS dynamic content
+        document.addEventListener('DOMContentLoaded', loadSponsorPageContent);
+    </script>
+
+  <script src="/auth.js"></script>
+  <script src="/cms.js"></script>
+  <script src="/mobile-nav.js"></script>
+  <script src="/sponsor-cms.js"></script>
+</body>
+</html>

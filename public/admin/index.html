@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashwa Admin — Control Center</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+  <link rel="stylesheet" href="/admin/home-cms.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       1. LOGIN OVERLAY SCREEN
+       ══════════════════════════════════════════════════════════ -->
+  <div class="admin-login-wrap" id="adminLoginWrap" style="display: none;">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Riders Logo" class="login-logo-mark" />
+        <div class="login-brand">Ashwa<span>Riders</span></div>
+        <div class="login-subtitle">Admin CMS Portal</div>
+      </div>
+
+      <div class="error-alert" id="loginErrorAlert" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="loginErrorMsg">Invalid email or password</span>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="admin@ashwariders.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-password-wrap">
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
+            <button type="button" class="toggle-password-btn" id="togglePasswordBtn" title="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In to CMS
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       2. MAIN ADMIN APPLICATION SHELL
+       ══════════════════════════════════════════════════════════ -->
+  <div class="admin-shell" id="adminShell" style="display: none;">
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Left Grouped Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <a href="/admin/dashboard" data-link class="sidebar-brand-link">
+          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png" alt="Ashwa Logo" class="sidebar-logo" />
+          <div class="sidebar-brand-block">
+            <div class="sidebar-brand">ASHWA <span>ADMIN</span></div>
+            <div class="sidebar-tagline">CONTROL CENTER</div>
+          </div>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <!-- Sidebar Navigation Groups rendered dynamically via JS -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="view-site-link">
+          <i class="fas fa-external-link-alt"></i>
+          <span>View Public Site</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="admin-main" id="adminMain">
+
+      <!-- Header Bar -->
+      <header class="admin-header">
+        <div class="header-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Navigation (Desktop Collapse / Mobile Drawer)">
+            <i class="fas fa-bars-staggered"></i>
+          </button>
+          <div class="breadcrumbs" id="adminBreadcrumbs">
+            <a href="/admin" data-link>Admin</a>
+            <span class="bc-sep">/</span>
+            <span class="current">Dashboard</span>
+          </div>
+        </div>
+
+        <!-- Global Search Autocomplete Bar -->
+        <div class="header-search-bar">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="global_search_input" class="header-search-input" placeholder="Search pages, content, team, messages..." autocomplete="off" />
+          <kbd class="search-kbd-shortcut">⌘K</kbd>
+          <div id="global_search_dropdown" class="global-search-dropdown hidden"></div>
+        </div>
+
+        <div class="header-right">
+          <button class="header-icon-btn" id="headerNotificationsBtn" title="Inbox Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="headerNotificationBadge" style="display: none;">0</span>
+          </button>
+
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">F</div>
+            <div class="user-info">
+              <span class="user-name" id="userName">Faktelectric</span>
+              <span class="user-role">Administrator</span>
+            </div>
+          </div>
+
+          <button class="btn-logout" id="logoutBtn" title="Log Out">
+            <i class="fas fa-arrow-right-from-bracket"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Container -->
+      <main class="admin-content" id="adminContent">
+        <!-- Page view content rendered by router -->
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       3. EDITOR DRAWER BACKDROP & CONTAINER
+       ══════════════════════════════════════════════════════════ -->
+  <div class="drawer-backdrop" id="adminDrawerBackdrop">
+    <div class="editor-drawer" id="adminDrawer">
+      <!-- Editor Drawer Header, Body, Footer rendered dynamically -->
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       4. GLOBAL TOAST CONTAINER
+       ══════════════════════════════════════════════════════════ -->
+  <div class="toast-container" id="adminToastContainer"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       5. JAVASCRIPT MODULES
+       ══════════════════════════════════════════════════════════ -->
+  <script src="/admin/js/api.js"></script>
+  <script src="/admin/js/auth.js"></script>
+  <script src="/admin/js/router.js"></script>
+  <script src="/admin/js/components/toast.js"></script>
+  <script src="/admin/js/components/navbar.js"></script>
+  <script src="/admin/js/components/sidebar.js"></script>
+  <script src="/admin/js/components/table.js"></script>
+  <script src="/admin/js/components/drawer.js"></script>
+  <script src="/admin/js/components/mediaPicker.js"></script>
+  <script src="/admin/js/components/iconPicker.js"></script>
+
+  <!-- Universal CMS Components & Engine -->
+  <script src="/admin/js/components/fieldRenderer.js"></script>
+  <script src="/admin/js/components/seoCard.js"></script>
+  <script src="/admin/js/modules/sectionBuilder.js"></script>
+  <script src="/admin/js/modules/livePreview.js"></script>
+  <script src="/admin/js/modules/universalEditor.js"></script>
+  <script src="/admin/js/modules/universalCms.js"></script>
+  <script src="/admin/js/modules/contentTypeBuilder.js"></script>
+  <script src="/admin/js/modules/globalSearch.js"></script>
+
+  <script src="/admin/js/modules/home.js"></script>
+  <script src="/admin/js/modules/dashboard.js"></script>
+  <script src="/admin/js/modules/news.js"></script>
+  <script src="/admin/js/modules/media.js"></script>
+  <script src="/admin/js/modules/hero.js"></script>
+  <script src="/admin/js/modules/buildStages.js"></script>
+  <script src="/admin/js/modules/stats.js"></script>
+  <script src="/admin/js/modules/about.js"></script>
+  <script src="/admin/js/modules/car.js"></script>
+  <script src="/admin/js/modules/sponsors.js"></script>
+  <script src="/admin/js/modules/team.js"></script>
+  <script src="/admin/js/modules/achievements.js"></script>
+  <script src="/admin/js/modules/gallery.js"></script>
+  <script src="/admin/js/modules/contact.js"></script>
+  <script src="/admin/js/modules/navigation.js"></script>
+  <script src="/admin/js/modules/seo.js"></script>
+  <script src="/admin/js/modules/contactMessages.js"></script>
+  <script src="/admin/js/modules/joinApplications.js"></script>
+  <script src="/admin/js/modules/sponsorRequests.js"></script>
+  <script src="/admin/js/modules/activity.js"></script>
+  <script src="/admin/js/modules/account.js"></script>
+  <script src="/admin/js/modules/pending.js"></script>
+  <script src="/admin/js/app.js"></script>
+</body>
+</html>

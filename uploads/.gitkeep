@@ -1,0 +1,4 @@
+# uploads/
+# This folder stores temporarily uploaded files.
+# Files are typically moved to Cloudinary and this folder is cleared.
+# This folder is excluded from git via .gitignore.
