@@ -17,12 +17,128 @@ const Sponsor = require('../models/Sponsor');
 const { sendSuccess, sendError } = require('../utils/responseHelper');
 const { logActivity, buildSnapshot } = require('../utils/publishingHelper');
 
+// Default Marquee Sponsor Tiers for Home page
+const DEFAULT_SPONSOR_TIERS = [
+  {
+    id: 'tier-gold',
+    name: 'Gold Tier',
+    slug: 'gold-tier',
+    direction: 'forward',
+    visible: true,
+    animationEnabled: true,
+    animationSpeed: 'normal',
+    order: 0,
+    sponsors: [
+      { id: 'sp-1', name: 'TechCorp', logoUrl: '', icon: 'fas fa-crown', websiteUrl: 'sponsors.html', altText: 'TechCorp', tier: 'Gold Tier', description: '', visible: true, featured: true, order: 0 },
+      { id: 'sp-2', name: 'EnergySys', logoUrl: '', icon: 'fas fa-bolt', websiteUrl: 'sponsors.html', altText: 'EnergySys', tier: 'Gold Tier', description: '', visible: true, featured: false, order: 1 },
+      { id: 'sp-3', name: 'VoltAge', logoUrl: '', icon: 'fas fa-car-battery', websiteUrl: 'sponsors.html', altText: 'VoltAge', tier: 'Gold Tier', description: '', visible: true, featured: false, order: 2 },
+    ],
+  },
+  {
+    id: 'tier-silver',
+    name: 'Silver Tier',
+    slug: 'silver-tier',
+    direction: 'reverse',
+    visible: true,
+    animationEnabled: true,
+    animationSpeed: 'normal',
+    order: 1,
+    sponsors: [
+      { id: 'sp-4', name: 'Carbonext', logoUrl: '', icon: 'fas fa-leaf', websiteUrl: 'sponsors.html', altText: 'Carbonext', tier: 'Silver Tier', description: '', visible: true, featured: false, order: 0 },
+      { id: 'sp-5', name: 'AeroDyn', logoUrl: '', icon: 'fas fa-wind', websiteUrl: 'sponsors.html', altText: 'AeroDyn', tier: 'Silver Tier', description: '', visible: true, featured: false, order: 1 },
+      { id: 'sp-6', name: 'NeuralWorks', logoUrl: '', icon: 'fas fa-brain', websiteUrl: 'sponsors.html', altText: 'NeuralWorks', tier: 'Silver Tier', description: '', visible: true, featured: false, order: 2 },
+      { id: 'sp-7', name: 'DataLink', logoUrl: '', icon: 'fas fa-satellite-dish', websiteUrl: 'sponsors.html', altText: 'DataLink', tier: 'Silver Tier', description: '', visible: true, featured: false, order: 3 },
+    ],
+  },
+  {
+    id: 'tier-bronze',
+    name: 'Bronze Tier',
+    slug: 'bronze-tier',
+    direction: 'forward',
+    visible: true,
+    animationEnabled: true,
+    animationSpeed: 'normal',
+    order: 2,
+    sponsors: [
+      { id: 'sp-8', name: 'MotoParts', logoUrl: '', icon: 'fas fa-industry', websiteUrl: 'sponsors.html', altText: 'MotoParts', tier: 'Bronze Tier', description: '', visible: true, featured: false, order: 0 },
+      { id: 'sp-9', name: 'EcoDrive', logoUrl: '', icon: 'fas fa-leaf', websiteUrl: 'sponsors.html', altText: 'EcoDrive', tier: 'Bronze Tier', description: '', visible: true, featured: false, order: 1 },
+      { id: 'sp-10', name: 'GripWorks', logoUrl: '', icon: 'fas fa-tools', websiteUrl: 'sponsors.html', altText: 'GripWorks', tier: 'Bronze Tier', description: '', visible: true, featured: false, order: 2 },
+    ],
+  },
+  {
+    id: 'tier-technical',
+    name: 'Technical Partners',
+    slug: 'technical-partners',
+    direction: 'reverse',
+    visible: true,
+    animationEnabled: true,
+    animationSpeed: 'normal',
+    order: 3,
+    sponsors: [
+      { id: 'sp-11', name: 'Bosch', logoUrl: '', icon: 'fas fa-cogs', websiteUrl: 'sponsors.html', altText: 'Bosch', tier: 'Technical Partners', description: '', visible: true, featured: false, order: 0 },
+      { id: 'sp-12', name: 'Zuken', logoUrl: '', icon: 'fas fa-microchip', websiteUrl: 'sponsors.html', altText: 'Zuken', tier: 'Technical Partners', description: '', visible: true, featured: false, order: 1 },
+    ],
+  },
+  {
+    id: 'tier-education',
+    name: 'Education Partners',
+    slug: 'education-partners',
+    direction: 'forward',
+    visible: true,
+    animationEnabled: true,
+    animationSpeed: 'normal',
+    order: 4,
+    sponsors: [
+      { id: 'sp-13', name: 'IIT Bombay', logoUrl: '', icon: 'fas fa-university', websiteUrl: 'sponsors.html', altText: 'IIT Bombay', tier: 'Education Partners', description: '', visible: true, featured: false, order: 0 },
+      { id: 'sp-14', name: 'BMS College', logoUrl: '', icon: 'fas fa-school', websiteUrl: 'sponsors.html', altText: 'BMS College', tier: 'Education Partners', description: '', visible: true, featured: false, order: 1 },
+    ],
+  },
+  {
+    id: 'tier-media',
+    name: 'Media Partners',
+    slug: 'media-partners',
+    direction: 'reverse',
+    visible: true,
+    animationEnabled: true,
+    animationSpeed: 'normal',
+    order: 5,
+    sponsors: [
+      { id: 'sp-15', name: 'EV Reporter', logoUrl: '', icon: 'fas fa-newspaper', websiteUrl: 'sponsors.html', altText: 'EV Reporter', tier: 'Media Partners', description: '', visible: true, featured: false, order: 0 },
+      { id: 'sp-16', name: 'Sportskeeda', logoUrl: '', icon: 'fas fa-video', websiteUrl: 'sponsors.html', altText: 'Sportskeeda', tier: 'Media Partners', description: '', visible: true, featured: false, order: 1 },
+    ],
+  },
+];
+
 /**
  * Initialize default or migrated Home Document if not present.
  */
 const getOrSeedHomeDoc = async () => {
   let doc = await HomePageContent.findOne();
-  if (doc) return doc;
+  if (doc) {
+    let needsSave = false;
+    if (!doc.footerSponsors) {
+      doc.footerSponsors = {};
+      needsSave = true;
+    }
+    if (!doc.footerSponsors.sponsorSection) {
+      doc.footerSponsors.sponsorSection = {};
+      needsSave = true;
+    }
+    if (!Array.isArray(doc.footerSponsors.sponsorSection.tiers) || doc.footerSponsors.sponsorSection.tiers.length === 0) {
+      doc.footerSponsors.sponsorSection.tiers = DEFAULT_SPONSOR_TIERS;
+      needsSave = true;
+    }
+    if (needsSave) {
+      doc.markModified('footerSponsors');
+      const snapshot = buildSnapshot(doc.toObject());
+      doc.publishedVersion = snapshot;
+      doc.draftVersion = snapshot;
+      doc.markModified('publishedVersion');
+      doc.markModified('draftVersion');
+      await doc.save();
+    }
+    return doc;
+  }
 
   console.log('⚡ Initializing Home Page Control Center document from existing records...');
 
@@ -335,44 +451,7 @@ const getOrSeedHomeDoc = async () => {
   ];
 
   // Marquee Sponsor tiers
-  const sponsorTiers = [
-    {
-      id: 'tier-gold',
-      name: 'Gold Tier',
-      direction: 'forward',
-      visible: true,
-      order: 0,
-      sponsors: [
-        { id: 'sp-1', name: 'TechCorp', logoUrl: '', icon: 'fas fa-crown', websiteUrl: 'sponsors.html', tier: 'Gold Tier', description: '', visible: true, order: 0 },
-        { id: 'sp-2', name: 'EnergySys', logoUrl: '', icon: 'fas fa-bolt', websiteUrl: 'sponsors.html', tier: 'Gold Tier', description: '', visible: true, order: 1 },
-        { id: 'sp-3', name: 'VoltAge', logoUrl: '', icon: 'fas fa-car-battery', websiteUrl: 'sponsors.html', tier: 'Gold Tier', description: '', visible: true, order: 2 },
-      ],
-    },
-    {
-      id: 'tier-silver',
-      name: 'Silver Tier',
-      direction: 'reverse',
-      visible: true,
-      order: 1,
-      sponsors: [
-        { id: 'sp-4', name: 'AeroDyn', logoUrl: '', icon: 'fas fa-wind', websiteUrl: 'sponsors.html', tier: 'Silver Tier', description: '', visible: true, order: 0 },
-        { id: 'sp-5', name: 'NeuralWorks', logoUrl: '', icon: 'fas fa-brain', websiteUrl: 'sponsors.html', tier: 'Silver Tier', description: '', visible: true, order: 1 },
-        { id: 'sp-6', name: 'DataLink', logoUrl: '', icon: 'fas fa-satellite-dish', websiteUrl: 'sponsors.html', tier: 'Silver Tier', description: '', visible: true, order: 2 },
-      ],
-    },
-    {
-      id: 'tier-bronze',
-      name: 'Bronze Tier',
-      direction: 'forward',
-      visible: true,
-      order: 2,
-      sponsors: [
-        { id: 'sp-7', name: 'MotoParts', logoUrl: '', icon: 'fas fa-industry', websiteUrl: 'sponsors.html', tier: 'Bronze Tier', description: '', visible: true, order: 0 },
-        { id: 'sp-8', name: 'EcoDrive', logoUrl: '', icon: 'fas fa-leaf', websiteUrl: 'sponsors.html', tier: 'Bronze Tier', description: '', visible: true, order: 1 },
-        { id: 'sp-9', name: 'GripWorks', logoUrl: '', icon: 'fas fa-tools', websiteUrl: 'sponsors.html', tier: 'Bronze Tier', description: '', visible: true, order: 2 },
-      ],
-    },
-  ];
+  const sponsorTiers = DEFAULT_SPONSOR_TIERS;
 
   doc = new HomePageContent({
     status: 'published',
@@ -489,9 +568,13 @@ const updateHomeDraft = async (req, res) => {
     if (body.hero) doc.hero = Object.assign(doc.hero || {}, body.hero);
     if (body.carStory) doc.carStory = Object.assign(doc.carStory || {}, body.carStory);
     if (body.news) doc.news = Object.assign(doc.news || {}, body.news);
-    if (body.footerSponsors) doc.footerSponsors = Object.assign(doc.footerSponsors || {}, body.footerSponsors);
+    if (body.footerSponsors) {
+      doc.footerSponsors = Object.assign(doc.footerSponsors || {}, body.footerSponsors);
+      doc.markModified('footerSponsors');
+    }
 
     doc.draftVersion = buildSnapshot(doc.toObject());
+    doc.markModified('draftVersion');
     doc.status = 'draft';
     doc.version += 1;
     doc.lastEditedAt = new Date();
@@ -523,6 +606,7 @@ const publishHome = async (req, res) => {
 
     const snapshot = doc.draftVersion || buildSnapshot(doc.toObject());
     doc.publishedVersion = snapshot;
+    doc.markModified('publishedVersion');
     doc.status = 'published';
     doc.version += 1;
     doc.lastPublishedAt = new Date();
@@ -576,11 +660,46 @@ const getPublicHome = async (req, res) => {
     }
 
     // Clean internal audit fields
+    const rawSection = data.footerSponsors?.sponsorSection || {};
+    const rawTiers = rawSection.tiers || [];
+    let publicTiers;
+
+    if (isPreview) {
+      publicTiers = rawTiers.map((t) => ({
+        ...t,
+        order: t.order || 0,
+        sponsors: (t.sponsors || []).sort((a, b) => (a.order || 0) - (b.order || 0)),
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+    } else {
+      // Level 1: Tier visibility check
+      // Level 2: Individual sponsor visibility check
+      // Empty tier behavior: Omit tier if 0 visible sponsors
+      publicTiers = rawTiers
+        .filter((t) => t.visible !== false)
+        .map((t) => ({
+          ...t,
+          order: t.order || 0,
+          sponsors: (t.sponsors || [])
+            .filter((s) => s.visible !== false)
+            .sort((a, b) => (a.order || 0) - (b.order || 0)),
+        }))
+        .filter((t) => t.sponsors.length > 0)
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+    }
+
+    const publicFooterSponsors = {
+      ...data.footerSponsors,
+      sponsorSection: {
+        ...rawSection,
+        tiers: publicTiers,
+      },
+    };
+
     const publicPayload = {
       hero: data.hero,
       carStory: data.carStory,
       news: data.news,
-      footerSponsors: data.footerSponsors,
+      footerSponsors: publicFooterSponsors,
       version: data.version,
       lastPublishedAt: data.lastPublishedAt,
       isPreview,
@@ -588,7 +707,7 @@ const getPublicHome = async (req, res) => {
       heroSlides: data.hero?.slides || [],
       buildStory: data.carStory?.cards || [],
       statistics: data.carStory?.stats || [],
-      sponsors: (data.footerSponsors?.tiers || []).flatMap((t) =>
+      sponsors: publicTiers.flatMap((t) =>
         (t.sponsors || []).map((s) => ({ ...s, tier: t.name, tierName: t.name }))
       ),
     };

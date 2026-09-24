@@ -205,8 +205,12 @@ const homePageContentSchema = new mongoose.Schema(
           {
             id: { type: String },
             name: { type: String, default: 'Gold Tier' },
-            direction: { type: String, enum: ['forward', 'reverse'], default: 'forward' },
+            slug: { type: String, default: '' },
+            direction: { type: String, enum: ['forward', 'reverse', 'left', 'right'], default: 'forward' },
             visible: { type: Boolean, default: true },
+            animationEnabled: { type: Boolean, default: true },
+            animationSpeed: { type: String, enum: ['slow', 'normal', 'fast'], default: 'normal' },
+            displaySize: { type: String, default: 'medium' },
             order: { type: Number, default: 0 },
             sponsors: [
               {
@@ -215,9 +219,11 @@ const homePageContentSchema = new mongoose.Schema(
                 logoUrl: { type: String, default: '' },
                 icon: { type: String, default: 'fas fa-award' },
                 websiteUrl: { type: String, default: '' },
-                tier: { type: String, default: 'Gold Tier' },
+                altText: { type: String, default: '' },
+                tier: { type: String, default: '' },
                 description: { type: String, default: '' },
                 visible: { type: Boolean, default: true },
+                featured: { type: Boolean, default: false },
                 order: { type: Number, default: 0 },
               },
             ],

@@ -632,9 +632,17 @@
   // ============================================================
   const hydrateSponsors = async () => {
     try {
-      const res = await apiFetch(`${HOME_API}/sponsors`);
-      if (res.success && res.data && res.data.length > 0) {
-        renderSponsors(res.data);
+      const res = await apiFetch(HOME_API);
+      if (res && res.success && res.data) {
+        const tiers = res.data.footerSponsors?.sponsorSection?.tiers || [];
+        if (tiers.length > 0) {
+          renderSponsorsFromTiers(tiers);
+          return;
+        }
+      }
+      const rawRes = await apiFetch(`${HOME_API}/sponsors`);
+      if (rawRes && rawRes.success && rawRes.data && rawRes.data.length > 0) {
+        renderSponsors(rawRes.data);
       }
     } catch (err) {
       console.warn('Sponsors hydration notice:', err.message);
@@ -642,60 +650,107 @@
   };
 
   const renderSponsorsFromTiers = (tiersList) => {
-    const sponsorSec = document.querySelector('.sponsor-tier')?.closest('section');
-    if (!sponsorSec) return;
+    const container = document.getElementById('homeSponsorTiersContainer') || document.querySelector('.sponsor-tier')?.parentElement;
+    const sponsorSec = container ? container.closest('section') : document.querySelector('.sponsor-tier')?.closest('section');
+    if (!container) return;
 
-    const existingTiers = sponsorSec.querySelectorAll('.sponsor-tier');
-    
-    tiersList.forEach((tier, idx) => {
-      let tierEl = existingTiers[idx];
-      if (!tierEl) {
-        tierEl = document.createElement('div');
-        tierEl.className = 'sponsor-tier reveal-scale';
-        sponsorSec.appendChild(tierEl);
-      }
-      
-      if (tier.visible === false) {
-        tierEl.style.display = 'none';
-        return;
-      }
-      tierEl.style.display = '';
+    if (!Array.isArray(tiersList) || tiersList.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
 
-      const isReverse = tier.direction === 'reverse';
-      const sponsors = (tier.sponsors || []).filter((s) => s.visible !== false);
-      
+    // Sort tiers by order / displayOrder
+    const sortedTiers = tiersList.slice().sort((a, b) => {
+      const orderA = a.order !== undefined ? a.order : (a.displayOrder !== undefined ? a.displayOrder : 0);
+      const orderB = b.order !== undefined ? b.order : (b.displayOrder !== undefined ? b.displayOrder : 0);
+      return orderA - orderB;
+    });
+
+    // Level 1: Filter out hidden tiers (visible === false)
+    // Empty tier behavior: Filter out tiers that have 0 visible sponsors
+    const activeTiers = sortedTiers.filter((tier) => {
+      if (tier.visible === false) return false;
+      const visibleSponsors = (tier.sponsors || []).filter((s) => s.visible !== false);
+      return visibleSponsors.length > 0;
+    });
+
+    if (activeTiers.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let allTiersHtml = '';
+
+    activeTiers.forEach((tier) => {
+      // Direction
+      const isReverse = tier.direction === 'reverse' || tier.direction === 'right';
+
+      // Speed duration mapping: Slow -> 55s, Normal -> 35s, Fast -> 20s
+      let speedDuration = '35s';
+      if (tier.animationSpeed === 'slow') speedDuration = '55s';
+      else if (tier.animationSpeed === 'fast') speedDuration = '20s';
+
+      // Animation enabled
+      let trackStyle = `animation-duration: ${speedDuration};`;
+      if (tier.animationEnabled === false) {
+        trackStyle += ' animation: none;';
+      }
+
+      // Level 2: Filter and sort individual sponsors
+      const sponsors = (tier.sponsors || [])
+        .filter((s) => s.visible !== false)
+        .sort((a, b) => {
+          const ordA = a.order !== undefined ? a.order : (a.displayOrder !== undefined ? a.displayOrder : 0);
+          const ordB = b.order !== undefined ? b.order : (b.displayOrder !== undefined ? b.displayOrder : 0);
+          return ordA - ordB;
+        });
+
+      if (sponsors.length === 0) return;
+
+      // Tier visual style class
+      const tierNameLower = (tier.name || '').toLowerCase();
+      let tierClass = 'silver';
+      if (tierNameLower.includes('gold') || tierNameLower.includes('title') || tierNameLower.includes('platinum')) {
+        tierClass = 'gold';
+      } else if (tierNameLower.includes('bronze')) {
+        tierClass = 'bronze';
+      }
+
       let marqueeHtml = '';
       sponsors.forEach((s) => {
         const logoContent = s.logoUrl
-          ? `<img src="${s.logoUrl}" class="sponsor-logo-img" alt="${s.name}" />`
+          ? `<img src="${s.logoUrl}" class="sponsor-logo-img" alt="${s.altText || s.name || 'Sponsor'}" loading="lazy" />`
           : `<i class="${s.icon || 'fas fa-award'} logo"></i>`;
 
-        const itemContent = `${logoContent} <span class="sponsor-name">${s.name}</span>`;
-        const tierSlug = tier.name ? tier.name.toLowerCase().replace(/\s+/g, '-') : 'gold';
+        const itemContent = `${logoContent} <span class="sponsor-name">${s.name || ''}</span>`;
 
-        if (s.websiteUrl) {
-          marqueeHtml += `<a href="${s.websiteUrl}" target="_blank" rel="noopener noreferrer" class="sponsor-item ${tierSlug}">${itemContent}</a>`;
+        if (s.websiteUrl && s.websiteUrl.trim() !== '' && s.websiteUrl.trim() !== '#') {
+          marqueeHtml += `<a href="${s.websiteUrl.trim()}" target="_blank" rel="noopener noreferrer" class="sponsor-item ${tierClass}">${itemContent}</a>`;
         } else {
-          marqueeHtml += `<span class="sponsor-item ${tierSlug}">${itemContent}</span>`;
+          marqueeHtml += `<span class="sponsor-item ${tierClass}" style="cursor:default;">${itemContent}</span>`;
         }
       });
 
-      // Repeat items so each half comfortably spans across full widescreen displays (min 18 items per half)
-      const repeatCount = sponsors.length > 0 ? Math.max(2, Math.ceil(18 / sponsors.length)) : 2;
+      // Repeat items so each half comfortably spans across wide displays (min 24 items per half)
+      // This ensures 0 to -50% translation is completely continuous, starts and ends outside viewport on any resolution
+      const repeatCount = Math.max(2, Math.ceil(24 / sponsors.length));
       let oneHalf = '';
       for (let r = 0; r < repeatCount; r++) {
         oneHalf += marqueeHtml;
       }
-      // Two identical halves: translates 0 to -50% seamlessly across 100% of viewport
       const fullContent = oneHalf + oneHalf;
 
-      tierEl.innerHTML = `
-        <span class="sponsor-tier-label container">${tier.name}</span>
-        <div class="marquee ${isReverse ? 'reverse' : ''}">
-          <div class="marquee-track">${fullContent}</div>
+      allTiersHtml += `
+        <div class="sponsor-tier reveal-scale">
+          <span class="sponsor-tier-label container">${tier.name || 'Sponsor Tier'}</span>
+          <div class="marquee ${isReverse ? 'reverse' : ''}">
+            <div class="marquee-track" style="${trackStyle}">${fullContent}</div>
+          </div>
         </div>
       `;
     });
+
+    container.innerHTML = allTiersHtml;
   };
 
   const renderSponsors = (sponsorsList) => {

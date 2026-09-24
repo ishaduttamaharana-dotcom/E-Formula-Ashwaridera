@@ -145,13 +145,27 @@ window.AdminHomeModule = (function () {
           btnText: sponsorCTA.primaryBtnText || 'Become a Partner',
           btnLink: sponsorCTA.primaryBtnUrl || 'sponsors.html',
         },
-        tiers: (sponsorSection.tiers || []).map((t) => ({
-          name: t.name || 'Tier',
+        tiers: (sponsorSection.tiers || []).map((t, idx) => ({
+          id: t.id || t._id || ('tier-' + (t.slug || idx)),
+          name: t.name || 'Tier ' + (idx + 1),
+          slug: t.slug || (t.name ? t.name.toLowerCase().replace(/\s+/g, '-') : ''),
+          direction: t.direction || 'forward',
+          visible: t.visible !== false,
+          animationEnabled: t.animationEnabled !== false,
+          animationSpeed: t.animationSpeed || 'normal',
           displaySize: t.displaySize || 'medium',
-          sponsors: (t.sponsors || []).map((s) => ({
+          order: t.order !== undefined ? t.order : (t.displayOrder !== undefined ? t.displayOrder : idx),
+          sponsors: (t.sponsors || []).map((s, sidx) => ({
+            id: s.id || s._id || ('sp-' + sidx),
             name: s.name || '',
             logoUrl: s.logoUrl || '',
+            icon: s.icon || 'fas fa-award',
             websiteUrl: s.websiteUrl || '',
+            altText: s.altText || s.name || '',
+            tier: s.tier || t.name || '',
+            visible: s.visible !== false,
+            featured: !!s.featured,
+            order: s.order !== undefined ? s.order : (s.displayOrder !== undefined ? s.displayOrder : sidx),
           })),
         })),
         company: {
@@ -238,18 +252,32 @@ window.AdminHomeModule = (function () {
       footerSponsors: {
         sponsorSection: {
           visible: true,
+          eyebrow: 'Sponsors & Partners',
+          heading: 'Backed By The Best',
+          highlightText: 'Best',
+          description: 'Every tier of support that makes the car possible.',
+          viewAllUrl: 'sponsors.html',
           tiers: (ui.footerSponsors.tiers || []).map((t, i) => ({
+            id: t.id || ('tier-' + (t.slug || i)),
             name: t.name,
-            direction: 'forward',
-            visible: true,
-            order: i,
-            displaySize: t.displaySize,
+            slug: t.slug || (t.name ? t.name.toLowerCase().replace(/\s+/g, '-') : ''),
+            direction: t.direction || 'forward',
+            visible: t.visible !== false,
+            animationEnabled: t.animationEnabled !== false,
+            animationSpeed: t.animationSpeed || 'normal',
+            order: t.order !== undefined ? t.order : i,
+            displaySize: t.displaySize || 'medium',
             sponsors: (t.sponsors || []).map((s, j) => ({
+              id: s.id || ('sp-' + j),
               name: s.name,
               logoUrl: s.logoUrl,
+              icon: s.icon || 'fas fa-award',
               websiteUrl: s.websiteUrl,
-              visible: true,
-              order: j,
+              altText: s.altText || s.name,
+              tier: t.name,
+              visible: s.visible !== false,
+              featured: !!s.featured,
+              order: s.order !== undefined ? s.order : j,
             })),
           })),
         },
@@ -1334,69 +1362,176 @@ window.AdminHomeModule = (function () {
 
   function renderTierCard(tier, tIdx, total) {
     const sponsors = tier.sponsors || [];
+    const isVisible = tier.visible !== false;
+    const isAnim = tier.animationEnabled !== false;
+    const speed = tier.animationSpeed || 'normal';
+    const dir = tier.direction || 'forward';
+
     return `
-      <div class="hcms-tier-card" data-tier-index="${tIdx}">
-        <div class="hcms-tier-header">
-          <div class="hcms-tier-name-block">
-            <span class="hcms-tier-badge">TIER ${String(tIdx + 1).padStart(2, '0')}</span>
+      <div class="hcms-tier-card ${isVisible ? '' : 'tier-hidden'}" data-tier-index="${tIdx}" style="background:#141419; border:1px solid ${isVisible ? '#282832' : 'rgba(255,77,77,0.35)'}; border-radius:10px; margin-bottom:18px; padding:18px; transition:border-color 0.2s;">
+        <!-- Top Row: Tier Name, Status, Actions -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid #23232C; padding-bottom:14px; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:260px;">
+            <span class="hcms-tier-badge" style="font-family:monospace; font-size:0.75rem; font-weight:800; background:rgba(242,89,18,0.12); color:#F25912; border:1px solid rgba(242,89,18,0.3); padding:4px 8px; border-radius:4px;">TIER ${String(tIdx + 1).padStart(2, '0')}</span>
             <input type="text" class="hcms-tier-name-input tier-name-input" data-tidx="${tIdx}"
-              value="${escapeHtml(tier.name || 'Tier ' + (tIdx + 1))}" placeholder="Tier name" aria-label="Tier name" />
-            <select class="hcms-tier-size-select tier-size-select" data-tidx="${tIdx}" aria-label="Logo display size">
-              <option value="large" ${tier.displaySize === 'large' ? 'selected' : ''}>Large Logos</option>
-              <option value="medium" ${(!tier.displaySize || tier.displaySize === 'medium') ? 'selected' : ''}>Medium</option>
-              <option value="small" ${tier.displaySize === 'small' ? 'selected' : ''}>Small</option>
-            </select>
+              value="${escapeHtml(tier.name || 'Tier ' + (tIdx + 1))}" placeholder="e.g. Gold Tier, Technical Partners" style="font-weight:700; font-size:0.95rem; color:#FFFFFF; background:#1C1C24; border:1px solid #333; padding:5px 10px; border-radius:4px; flex:1;" />
           </div>
-          <div class="hcms-tier-actions">
-            <button type="button" class="hcms-add-btn add-sponsor-to-tier-btn" data-tidx="${tIdx}" style="border-style:solid; font-size:0.68rem;">
-              <i class="fas fa-plus"></i> Add Logo
+
+          <!-- Controls: Visible Toggle, Reorder, Delete -->
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:600; cursor:pointer; color:${isVisible ? '#00D1B2' : '#9696A0'}; background:rgba(255,255,255,0.03); padding:5px 12px; border-radius:6px; border:1px solid ${isVisible ? 'rgba(0,209,178,0.3)' : '#282832'};" title="Show or hide complete tier on Home page">
+              <input type="checkbox" class="tier-visible-check" data-tidx="${tIdx}" ${isVisible ? 'checked' : ''} style="accent-color:#00D1B2; cursor:pointer;" />
+              <span>Visible on Home</span>
+            </label>
+
+            <button type="button" class="hcms-action-btn" data-action="move-tier-up" data-tidx="${tIdx}" ${tIdx === 0 ? 'disabled style="opacity:0.3; padding:5px 9px;"' : 'style="padding:5px 9px;"'} title="Move tier up">
+              <i class="fas fa-chevron-up"></i>
             </button>
-            <button type="button" class="hcms-action-btn danger" data-action="delete-tier" data-tidx="${tIdx}" title="Delete tier"
-              style="padding:5px 10px; font-size:0.72rem;">
+            <button type="button" class="hcms-action-btn" data-action="move-tier-down" data-tidx="${tIdx}" ${tIdx === total - 1 ? 'disabled style="opacity:0.3; padding:5px 9px;"' : 'style="padding:5px 9px;"'} title="Move tier down">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <button type="button" class="hcms-action-btn danger" data-action="delete-tier" data-tidx="${tIdx}" title="Delete tier" style="padding:5px 10px;">
               <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
-        <div class="hcms-tier-logos-grid" id="tierLogosGrid_${tIdx}">
+
+        <!-- Animation & Behavior Row -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:6px; border:1px solid #23232C; margin-bottom:14px; font-size:0.78rem;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#DDD;">
+              <input type="checkbox" class="tier-anim-check" data-tidx="${tIdx}" ${isAnim ? 'checked' : ''} style="accent-color:#F25912;" />
+              <span>Animation Enabled</span>
+            </label>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="color:#9696A0; white-space:nowrap;">Speed:</span>
+            <select class="tier-speed-select" data-tidx="${tIdx}" style="background:#1C1C24; color:#fff; border:1px solid #333; border-radius:4px; padding:4px 8px; font-size:0.75rem; flex:1;">
+              <option value="slow" ${speed === 'slow' ? 'selected' : ''}>Slow (55s)</option>
+              <option value="normal" ${speed === 'normal' ? 'selected' : ''}>Normal (35s)</option>
+              <option value="fast" ${speed === 'fast' ? 'selected' : ''}>Fast (20s)</option>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="color:#9696A0; white-space:nowrap;">Direction:</span>
+            <select class="tier-direction-select" data-tidx="${tIdx}" style="background:#1C1C24; color:#fff; border:1px solid #333; border-radius:4px; padding:4px 8px; font-size:0.75rem; flex:1;">
+              <option value="forward" ${dir !== 'reverse' && dir !== 'right' ? 'selected' : ''}>Left (Forward)</option>
+              <option value="reverse" ${dir === 'reverse' || dir === 'right' ? 'selected' : ''}>Right (Reverse)</option>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:flex-end;">
+            <span class="badge" style="background:#23232C; color:#9696A0; font-family:monospace; padding:3px 8px; border-radius:4px; font-size:0.72rem;">
+              ${sponsors.length} SPONSOR${sponsors.length === 1 ? '' : 'S'}
+            </span>
+          </div>
+        </div>
+
+        <!-- Sponsor Logos Section -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:0.8rem; font-weight:700; color:#E5E5E5; text-transform:uppercase; letter-spacing:0.04em;">
+            <i class="fas fa-handshake" style="color:#F25912; margin-right:6px;"></i> Sponsors inside this tier
+          </span>
+          <button type="button" class="hcms-add-btn add-sponsor-to-tier-btn" data-tidx="${tIdx}" style="border-style:solid; font-size:0.72rem; padding:4px 10px;">
+            <i class="fas fa-plus"></i> Add Sponsor
+          </button>
+        </div>
+
+        <div class="hcms-tier-logos-grid" id="tierLogosGrid_${tIdx}" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
           ${sponsors.length === 0
-            ? `<div style="grid-column:1/-1; color:var(--text-muted,#666672); font-size:0.78rem; text-align:center; padding:16px 0;">No logos yet — click Add Logo to add partners.</div>`
-            : sponsors.map((s, sIdx) => renderLogoCard(s, tIdx, sIdx)).join('')
+            ? `<div style="grid-column:1/-1; color:#888; font-size:0.78rem; text-align:center; padding:20px; background:rgba(255,255,255,0.01); border:1px dashed #333; border-radius:8px;">
+                No sponsors in this tier yet. Click <strong>Add Sponsor</strong> to add a partner.
+               </div>`
+            : sponsors.map((s, sIdx) => renderLogoCard(s, tIdx, sIdx, sponsors.length)).join('')
           }
         </div>
       </div>
     `;
   }
 
-  function renderLogoCard(sponsor, tIdx, sIdx) {
+  function renderLogoCard(sponsor, tIdx, sIdx, totalSponsors) {
+    const isVisible = sponsor.visible !== false;
+    const isFeatured = !!sponsor.featured;
+
     return `
-      <div class="hcms-logo-card" data-tidx="${tIdx}" data-sidx="${sIdx}">
-        <div class="hcms-logo-card-header">
-          <span class="hcms-logo-name-preview">${escapeHtml(sponsor.name || 'Partner')}</span>
-          <button type="button" class="hcms-action-btn danger" data-action="delete-tier-sponsor" data-tidx="${tIdx}" data-sidx="${sIdx}"
-            style="padding:2px 7px; font-size:0.65rem;"><i class="fas fa-times"></i></button>
-        </div>
-        ${sponsor.logoUrl ? `
-          <div class="hcms-logo-img-preview">
-            <img src="${escapeHtml(sponsor.logoUrl)}" alt="${escapeHtml(sponsor.name || 'logo')}" onerror="this.style.display='none'" />
-          </div>
-        ` : ''}
-        <div class="hcms-field-group" style="margin-bottom:6px;">
-          <input type="text" class="hcms-input hcms-input-sm tier-sponsor-field" data-tidx="${tIdx}" data-sidx="${sIdx}" data-key="name"
-            value="${escapeHtml(sponsor.name || '')}" placeholder="Company Name" />
-        </div>
-        <div class="hcms-field-group" style="margin-bottom:6px;">
-          <div style="display:flex; gap:6px;">
-            <input type="text" id="spLogo_${tIdx}_${sIdx}" class="hcms-input hcms-input-sm tier-sponsor-field" data-tidx="${tIdx}" data-sidx="${sIdx}" data-key="logoUrl"
-              value="${escapeHtml(sponsor.logoUrl || '')}" placeholder="Logo URL" style="flex:1;" />
-            <button type="button" class="hcms-media-replace-btn open-media-picker-btn" data-target="spLogo_${tIdx}_${sIdx}" data-type="image"
-              style="flex-shrink:0; padding:4px 8px; font-size:0.65rem; white-space:nowrap;">
-              <i class="fas fa-image"></i>
+      <div class="hcms-logo-card" data-tidx="${tIdx}" data-sidx="${sIdx}" style="background:#1B1B22; border:1px solid ${isVisible ? '#2C2C38' : 'rgba(255,77,77,0.35)'}; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+        <!-- Card Header: Title & Actions -->
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:700; font-size:0.82rem; color:#FFFFFF; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
+            ${escapeHtml(sponsor.name || 'New Sponsor')}
+          </span>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <button type="button" class="hcms-action-btn" data-action="move-tier-sponsor-up" data-tidx="${tIdx}" data-sidx="${sIdx}" ${sIdx === 0 ? 'disabled style="opacity:0.3; padding:2px 6px; font-size:0.65rem;"' : 'style="padding:2px 6px; font-size:0.65rem;"'} title="Move earlier in rail">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button type="button" class="hcms-action-btn" data-action="move-tier-sponsor-down" data-tidx="${tIdx}" data-sidx="${sIdx}" ${sIdx === totalSponsors - 1 ? 'disabled style="opacity:0.3; padding:2px 6px; font-size:0.65rem;"' : 'style="padding:2px 6px; font-size:0.65rem;"'} title="Move later in rail">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            <button type="button" class="hcms-action-btn danger" data-action="delete-tier-sponsor" data-tidx="${tIdx}" data-sidx="${sIdx}" style="padding:2px 6px; font-size:0.65rem;" title="Delete sponsor">
+              <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
-        <div class="hcms-field-group" style="margin-bottom:0;">
+
+        <!-- Logo Preview & Upload -->
+        <div style="display:flex; align-items:center; gap:10px; background:#141419; border:1px solid #23232C; border-radius:6px; padding:8px;">
+          <div style="width:52px; height:38px; background:#0D0D11; border:1px solid #2C2C38; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+            ${sponsor.logoUrl ? `
+              <img src="${escapeHtml(sponsor.logoUrl)}" alt="Logo" style="width:100%; height:100%; object-fit:contain; padding:2px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <i class="fas fa-image" style="display:none; color:#555; font-size:1rem;"></i>
+            ` : `
+              <i class="${escapeHtml(sponsor.icon || 'fas fa-award')}" style="color:#F25912; font-size:1.1rem;"></i>
+            `}
+          </div>
+
+          <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+            <input type="text" id="spLogo_${tIdx}_${sIdx}" class="hcms-input hcms-input-sm tier-sponsor-field" data-tidx="${tIdx}" data-sidx="${sIdx}" data-key="logoUrl"
+              value="${escapeHtml(sponsor.logoUrl || '')}" placeholder="Logo URL" style="font-size:0.72rem; padding:3px 6px;" />
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="hcms-media-replace-btn open-media-picker-btn" data-target="spLogo_${tIdx}_${sIdx}" data-type="image" style="padding:2px 8px; font-size:0.65rem; border-radius:4px;">
+                <i class="fas fa-upload"></i> Media Picker
+              </button>
+              ${sponsor.logoUrl ? `
+                <button type="button" class="hcms-action-btn" data-action="clear-sponsor-logo" data-tidx="${tIdx}" data-sidx="${sIdx}" style="padding:2px 6px; font-size:0.65rem;" title="Clear logo URL">
+                  <i class="fas fa-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+
+        <!-- Form fields: Name, Website, Alt Text -->
+        <div>
+          <label style="font-size:0.65rem; color:#888; text-transform:uppercase; letter-spacing:0.04em;">Sponsor Name</label>
+          <input type="text" class="hcms-input hcms-input-sm tier-sponsor-field" data-tidx="${tIdx}" data-sidx="${sIdx}" data-key="name"
+            value="${escapeHtml(sponsor.name || '')}" placeholder="e.g. Carbonext" style="font-size:0.78rem; padding:4px 8px;" />
+        </div>
+
+        <div>
+          <label style="font-size:0.65rem; color:#888; text-transform:uppercase; letter-spacing:0.04em;">Website URL (Optional Link)</label>
           <input type="text" class="hcms-input hcms-input-sm tier-sponsor-field" data-tidx="${tIdx}" data-sidx="${sIdx}" data-key="websiteUrl"
-            value="${escapeHtml(sponsor.websiteUrl || '')}" placeholder="Website URL (https://...)" />
+            value="${escapeHtml(sponsor.websiteUrl || '')}" placeholder="https://..." style="font-size:0.78rem; padding:4px 8px;" />
+        </div>
+
+        <div>
+          <label style="font-size:0.65rem; color:#888; text-transform:uppercase; letter-spacing:0.04em;">Accessible Name / Alt Text</label>
+          <input type="text" class="hcms-input hcms-input-sm tier-sponsor-field" data-tidx="${tIdx}" data-sidx="${sIdx}" data-key="altText"
+            value="${escapeHtml(sponsor.altText || sponsor.name || '')}" placeholder="e.g. Carbonext Aerospace Partner" style="font-size:0.78rem; padding:4px 8px;" />
+        </div>
+
+        <!-- Visibility & Featured Toggles -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #23232C; padding-top:8px; margin-top:2px;">
+          <label style="display:inline-flex; align-items:center; gap:5px; font-size:0.72rem; cursor:pointer; color:${isVisible ? '#00D1B2' : '#777'};">
+            <input type="checkbox" class="tier-sponsor-visible-check" data-tidx="${tIdx}" data-sidx="${sIdx}" ${isVisible ? 'checked' : ''} style="accent-color:#00D1B2;" />
+            <span>Visible</span>
+          </label>
+
+          <label style="display:inline-flex; align-items:center; gap:5px; font-size:0.72rem; cursor:pointer; color:${isFeatured ? '#FFD700' : '#777'};">
+            <input type="checkbox" class="tier-sponsor-featured-check" data-tidx="${tIdx}" data-sidx="${sIdx}" ${isFeatured ? 'checked' : ''} style="accent-color:#FFD700;" />
+            <span>Featured</span>
+          </label>
         </div>
       </div>
     `;
@@ -1615,6 +1750,30 @@ window.AdminHomeModule = (function () {
           });
           break;
 
+        case 'move-tier-up': {
+          const tidx = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
+          if (tidx > 0) {
+            syncFormDataToState();
+            const tmp = homeData.footerSponsors.tiers[tidx - 1];
+            homeData.footerSponsors.tiers[tidx - 1] = homeData.footerSponsors.tiers[tidx];
+            homeData.footerSponsors.tiers[tidx] = tmp;
+            markDirty(); renderInterface(container);
+          }
+          break;
+        }
+
+        case 'move-tier-down': {
+          const tidx = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
+          if (tidx < homeData.footerSponsors.tiers.length - 1) {
+            syncFormDataToState();
+            const tmp = homeData.footerSponsors.tiers[tidx + 1];
+            homeData.footerSponsors.tiers[tidx + 1] = homeData.footerSponsors.tiers[tidx];
+            homeData.footerSponsors.tiers[tidx] = tmp;
+            markDirty(); renderInterface(container);
+          }
+          break;
+        }
+
         case 'delete-tier': {
           const tidx = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
           showDeleteConfirm('Delete this entire sponsor tier and its logos?', () => {
@@ -1625,12 +1784,50 @@ window.AdminHomeModule = (function () {
           break;
         }
 
+        case 'move-tier-sponsor-up': {
+          const ti = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
+          const si = parseInt(actionBtn.getAttribute('data-sidx') ?? '-1', 10);
+          if (homeData.footerSponsors.tiers[ti] && si > 0) {
+            syncFormDataToState();
+            const tmp = homeData.footerSponsors.tiers[ti].sponsors[si - 1];
+            homeData.footerSponsors.tiers[ti].sponsors[si - 1] = homeData.footerSponsors.tiers[ti].sponsors[si];
+            homeData.footerSponsors.tiers[ti].sponsors[si] = tmp;
+            markDirty(); renderInterface(container);
+          }
+          break;
+        }
+
+        case 'move-tier-sponsor-down': {
+          const ti = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
+          const si = parseInt(actionBtn.getAttribute('data-sidx') ?? '-1', 10);
+          const spList = homeData.footerSponsors.tiers[ti]?.sponsors || [];
+          if (si < spList.length - 1) {
+            syncFormDataToState();
+            const tmp = spList[si + 1];
+            spList[si + 1] = spList[si];
+            spList[si] = tmp;
+            markDirty(); renderInterface(container);
+          }
+          break;
+        }
+
         case 'delete-tier-sponsor': {
           const ti = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
           const si = parseInt(actionBtn.getAttribute('data-sidx') ?? '-1', 10);
           syncFormDataToState();
           if (homeData.footerSponsors.tiers[ti]) {
             homeData.footerSponsors.tiers[ti].sponsors.splice(si, 1);
+            markDirty(); renderInterface(container);
+          }
+          break;
+        }
+
+        case 'clear-sponsor-logo': {
+          const ti = parseInt(actionBtn.getAttribute('data-tidx') ?? '-1', 10);
+          const si = parseInt(actionBtn.getAttribute('data-sidx') ?? '-1', 10);
+          syncFormDataToState();
+          if (homeData.footerSponsors.tiers[ti]?.sponsors[si]) {
+            homeData.footerSponsors.tiers[ti].sponsors[si].logoUrl = '';
             markDirty(); renderInterface(container);
           }
           break;
@@ -1727,7 +1924,18 @@ window.AdminHomeModule = (function () {
     // 9. Add Sponsor Tier
     const addTierHandler = () => {
       syncFormDataToState();
-      homeData.footerSponsors.tiers.push({ name: 'New Tier', displaySize: 'medium', sponsors: [] });
+      homeData.footerSponsors.tiers.push({
+        id: 'tier-' + Date.now(),
+        name: 'New Sponsor Tier',
+        slug: 'new-tier',
+        direction: 'forward',
+        visible: true,
+        animationEnabled: true,
+        animationSpeed: 'normal',
+        order: homeData.footerSponsors.tiers.length,
+        displaySize: 'medium',
+        sponsors: [],
+      });
       markDirty(); renderInterface(container);
     };
     document.getElementById('hcmsAddTierBtn')?.addEventListener('click', addTierHandler);
@@ -1739,7 +1947,17 @@ window.AdminHomeModule = (function () {
         const tidx = parseInt(btn.getAttribute('data-tidx'), 10);
         syncFormDataToState();
         if (homeData.footerSponsors.tiers[tidx]) {
-          homeData.footerSponsors.tiers[tidx].sponsors.push({ name: 'New Partner', logoUrl: '', websiteUrl: '' });
+          homeData.footerSponsors.tiers[tidx].sponsors.push({
+            id: 'sp-' + Date.now(),
+            name: 'New Partner',
+            logoUrl: '',
+            icon: 'fas fa-award',
+            websiteUrl: '',
+            altText: 'New Partner',
+            visible: true,
+            featured: false,
+            order: homeData.footerSponsors.tiers[tidx].sponsors.length,
+          });
           markDirty(); renderInterface(container);
         }
       });
@@ -2005,10 +2223,26 @@ window.AdminHomeModule = (function () {
     const spCtaLnk = document.getElementById('sponsorCta_btnLink');
     if (spCtaLnk) homeData.footerSponsors.sponsorCta.btnLink = spCtaLnk.value;
 
-    // Tiers
+    // Tiers & Sponsor Sync
     document.querySelectorAll('.tier-name-input').forEach(el => {
       const tidx = parseInt(el.getAttribute('data-tidx'), 10);
       if (homeData.footerSponsors.tiers[tidx]) homeData.footerSponsors.tiers[tidx].name = el.value;
+    });
+    document.querySelectorAll('.tier-visible-check').forEach(el => {
+      const tidx = parseInt(el.getAttribute('data-tidx'), 10);
+      if (homeData.footerSponsors.tiers[tidx]) homeData.footerSponsors.tiers[tidx].visible = el.checked;
+    });
+    document.querySelectorAll('.tier-anim-check').forEach(el => {
+      const tidx = parseInt(el.getAttribute('data-tidx'), 10);
+      if (homeData.footerSponsors.tiers[tidx]) homeData.footerSponsors.tiers[tidx].animationEnabled = el.checked;
+    });
+    document.querySelectorAll('.tier-speed-select').forEach(el => {
+      const tidx = parseInt(el.getAttribute('data-tidx'), 10);
+      if (homeData.footerSponsors.tiers[tidx]) homeData.footerSponsors.tiers[tidx].animationSpeed = el.value;
+    });
+    document.querySelectorAll('.tier-direction-select').forEach(el => {
+      const tidx = parseInt(el.getAttribute('data-tidx'), 10);
+      if (homeData.footerSponsors.tiers[tidx]) homeData.footerSponsors.tiers[tidx].direction = el.value;
     });
     document.querySelectorAll('.tier-size-select').forEach(el => {
       const tidx = parseInt(el.getAttribute('data-tidx'), 10);
@@ -2020,6 +2254,20 @@ window.AdminHomeModule = (function () {
       const key = el.getAttribute('data-key');
       if (homeData.footerSponsors.tiers[tidx]?.sponsors[sidx] && key) {
         homeData.footerSponsors.tiers[tidx].sponsors[sidx][key] = el.value;
+      }
+    });
+    document.querySelectorAll('.tier-sponsor-visible-check').forEach(el => {
+      const tidx = parseInt(el.getAttribute('data-tidx'), 10);
+      const sidx = parseInt(el.getAttribute('data-sidx'), 10);
+      if (homeData.footerSponsors.tiers[tidx]?.sponsors[sidx]) {
+        homeData.footerSponsors.tiers[tidx].sponsors[sidx].visible = el.checked;
+      }
+    });
+    document.querySelectorAll('.tier-sponsor-featured-check').forEach(el => {
+      const tidx = parseInt(el.getAttribute('data-tidx'), 10);
+      const sidx = parseInt(el.getAttribute('data-sidx'), 10);
+      if (homeData.footerSponsors.tiers[tidx]?.sponsors[sidx]) {
+        homeData.footerSponsors.tiers[tidx].sponsors[sidx].featured = el.checked;
       }
     });
   }

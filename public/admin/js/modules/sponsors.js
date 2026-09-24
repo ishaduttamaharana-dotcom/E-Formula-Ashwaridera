@@ -154,6 +154,21 @@
         </div>
       </div>
 
+      <!-- Quick Access: Home Page Sponsor Rails -->
+      <div style="background:linear-gradient(90deg, rgba(242,89,18,0.14), rgba(20,20,25,0.9)); border:1px solid rgba(242,89,18,0.35); border-radius:10px; padding:16px 20px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div style="font-weight:800; color:#FFFFFF; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-house" style="color:#F25912;"></i> HOME PAGE SPONSOR RAILS CONTROL
+          </div>
+          <div style="font-size:0.82rem; color:#A0A0B0; margin-top:3px;">
+            Horizontally moving tiered marquee rails (Gold, Silver, Bronze, Tech Partners, etc.) are managed live in the Home Page CMS.
+          </div>
+        </div>
+        <a href="/admin/home" onclick="event.preventDefault(); if (window.AdminRouter) window.AdminRouter.navigate('/admin/home');" class="btn btn-sm btn-primary" style="background:#F25912; border-color:#F25912; display:inline-flex; align-items:center; gap:6px; font-weight:700;">
+          <i class="fas fa-sliders"></i> Open Home Sponsor Rails
+        </a>
+      </div>
+
       <!-- ════════════════════════════════════════════════════ -->
       <!-- 01 HEADER & SETTINGS ACCORDION                       -->
       <!-- ════════════════════════════════════════════════════ -->
