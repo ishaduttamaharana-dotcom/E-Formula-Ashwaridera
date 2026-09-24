@@ -124,10 +124,30 @@ const getOrSeedHomeDoc = async () => {
       doc.footerSponsors.sponsorSection = {};
       needsSave = true;
     }
-    if (!Array.isArray(doc.footerSponsors.sponsorSection.tiers) || doc.footerSponsors.sponsorSection.tiers.length === 0) {
-      doc.footerSponsors.sponsorSection.tiers = DEFAULT_SPONSOR_TIERS;
-      needsSave = true;
+    const currentTiers = doc.footerSponsors.sponsorSection.tiers || [];
+    if (currentTiers.length < 5) {
+      const existingNames = new Set(currentTiers.map(t => (t.name || '').toLowerCase().trim()));
+      DEFAULT_SPONSOR_TIERS.forEach(defTier => {
+        if (!existingNames.has((defTier.name || '').toLowerCase().trim())) {
+          currentTiers.push({ ...defTier, order: currentTiers.length });
+          needsSave = true;
+        }
+      });
+      doc.footerSponsors.sponsorSection.tiers = currentTiers;
     }
+
+    // Ensure all tiers have animationEnabled, animationSpeed, direction, visible
+    (doc.footerSponsors.sponsorSection.tiers || []).forEach((t, i) => {
+      if (t.animationEnabled === undefined) { t.animationEnabled = true; needsSave = true; }
+      if (!t.animationSpeed) { t.animationSpeed = 'normal'; needsSave = true; }
+      if (!t.direction) { t.direction = i % 2 === 1 ? 'reverse' : 'forward'; needsSave = true; }
+      if (t.visible === undefined) { t.visible = true; needsSave = true; }
+      (t.sponsors || []).forEach((s, j) => {
+        if (s.visible === undefined) { s.visible = true; needsSave = true; }
+        if (s.order === undefined) { s.order = j; needsSave = true; }
+      });
+    });
+
     if (needsSave) {
       doc.markModified('footerSponsors');
       const snapshot = buildSnapshot(doc.toObject());
