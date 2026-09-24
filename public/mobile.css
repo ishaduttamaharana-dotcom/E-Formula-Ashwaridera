@@ -959,14 +959,14 @@ a, button, input, select, textarea {
   html {
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden !important;
+    overflow-x: clip !important;
     scroll-behavior: smooth;
   }
 
   body {
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden !important;
+    overflow-x: clip !important;
     font-size: 15px !important;
     line-height: 1.6 !important;
   }
@@ -1262,6 +1262,7 @@ a, button, input, select, textarea {
   #buildTimelineSection {
     height: 520vh !important;
     min-height: 520vh !important;
+    overflow: visible !important;
     background: #f0f0f0 !important;
   }
 
