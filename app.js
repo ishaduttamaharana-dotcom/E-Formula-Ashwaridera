@@ -159,9 +159,6 @@ app.use(async (req, res, next) => {
         details: dbErr.message,
         envCheck: {
           hasMongoUri,
-          uriType: typeof process.env.MONGODB_URI,
-          uriLength: (process.env.MONGODB_URI || '').length,
-          jwtLength: (process.env.JWT_SECRET || '').length,
           nodeEnv: process.env.NODE_ENV || 'not set',
           isVercel: Boolean(process.env.VERCEL),
         },
