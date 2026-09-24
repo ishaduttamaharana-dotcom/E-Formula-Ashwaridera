@@ -943,3 +943,817 @@ a, button, input, select, textarea {
     font-size: clamp(1.55rem, 8vw, 2.15rem) !important;
   }
 }
+
+
+/* ============================================================
+   MOBILE V2 — FINAL PHONE COMPOSITION
+   Keeps desktop/laptop styling untouched.
+   Frontend-only; backend/CMS/auth files are not modified.
+   ============================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --mobile-gutter: 16px;
+  }
+
+  html {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+    min-width: 0;
+  }
+
+  img, video, canvas, svg, iframe {
+    max-width: 100%;
+  }
+
+  p, li, a, span, label, td, th {
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  .container,
+  .section-inner {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: var(--mobile-gutter) !important;
+    padding-right: var(--mobile-gutter) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  section,
+  .section-padding {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-top: 52px !important;
+    padding-bottom: 52px !important;
+  }
+
+  .section-header {
+    margin-bottom: 28px !important;
+  }
+
+  .section-header-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .section-title {
+    font-size: clamp(1.65rem, 7.5vw, 2.35rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.035em !important;
+    margin-bottom: 10px !important;
+  }
+
+  .section-subtitle {
+    max-width: 100% !important;
+    font-size: .92rem !important;
+    line-height: 1.6 !important;
+  }
+
+  .btn {
+    min-height: 46px !important;
+    max-width: 100% !important;
+    padding: 12px 18px !important;
+    font-size: .72rem !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    justify-content: center !important;
+  }
+
+  /* ---------- NAVBAR ---------- */
+  .navbar {
+    height: 68px !important;
+    min-height: 68px !important;
+    padding: 8px 0 !important;
+    background: rgba(0,0,0,.72) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-bottom: 1px solid rgba(255,255,255,.10) !important;
+  }
+
+  .navbar.scrolled {
+    height: 62px !important;
+    min-height: 62px !important;
+    padding: 6px 0 !important;
+    background: rgba(0,0,0,.94) !important;
+  }
+
+  .navbar .container {
+    height: 100% !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    gap: 10px !important;
+  }
+
+  .nav-logo {
+    min-width: 0 !important;
+    max-width: calc(100% - 54px) !important;
+    gap: 8px !important;
+    font-size: .98rem !important;
+    line-height: 1.05 !important;
+    letter-spacing: .01em !important;
+  }
+
+  .logo-mark {
+    width: auto !important;
+    height: 34px !important;
+    max-width: 40px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .nav-logo-wrapper {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .nav-logo > .nav-logo-wrapper > span:first-child {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .nav-subtitle {
+    display: none !important;
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  .mobile-nav-toggle,
+  .mobile-toggle.mobile-nav-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    flex: 0 0 42px !important;
+    margin-left: auto !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    border-radius: 8px !important;
+    background: rgba(255,255,255,.05) !important;
+    color: #fff !important;
+    font-size: 1.05rem !important;
+  }
+
+  .mobile-nav-drawer {
+    width: min(88vw, 360px) !important;
+    padding: 18px 14px !important;
+  }
+
+  .mobile-nav-link {
+    min-height: 50px !important;
+    padding: 12px 14px !important;
+    font-size: .98rem !important;
+  }
+
+  /* ---------- HOME HERO ---------- */
+  .hero {
+    width: 100% !important;
+    min-height: 100svh !important;
+    height: 100svh !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    isolation: isolate;
+  }
+
+  .hero-video {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    opacity: .55 !important;
+  }
+
+  .hero-video-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.30) 42%, rgba(0,0,0,.82) 100%) !important;
+    z-index: 1 !important;
+  }
+
+  .hero-content {
+    position: relative !important;
+    z-index: 5 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 94px 14px 48px !important;
+  }
+
+  .hero-badge {
+    max-width: 100% !important;
+    margin-bottom: 20px !important;
+    padding: 6px 10px 6px 7px !important;
+    font-size: .58rem !important;
+    letter-spacing: .06em !important;
+    white-space: normal !important;
+  }
+
+  .hero h1 {
+    max-width: 100% !important;
+    font-size: clamp(2.2rem, 13vw, 3.5rem) !important;
+    line-height: .94 !important;
+    letter-spacing: -.055em !important;
+    margin-bottom: 0 !important;
+  }
+
+  .hero h1 .line {
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .hero h1 .word {
+    display: inline-block !important;
+  }
+
+  .hero h2.tagline {
+    max-width: 100% !important;
+    font-size: clamp(.9rem, 4vw, 1.15rem) !important;
+    line-height: 1.4 !important;
+    margin: 16px 0 22px !important;
+    letter-spacing: .015em !important;
+  }
+
+  .hero h2.tagline span {
+    display: block !important;
+  }
+
+  .hero-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    margin-bottom: 30px !important;
+  }
+
+  .hero-actions .btn {
+    width: 100% !important;
+  }
+
+  .hero-stats {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px 12px !important;
+    padding-top: 18px !important;
+  }
+
+  .hero-stats .stat-item {
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  .hero-stats .stat-item::after {
+    display: none !important;
+  }
+
+  .hero-stats .stat-number {
+    font-size: clamp(1.15rem, 5.5vw, 1.6rem) !important;
+  }
+
+  .hero-stats .stat-label {
+    font-size: .56rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .scroll-indicator {
+    display: none !important;
+  }
+
+  /* ---------- HOME: GARAGE TO GRID / PURPOSE-BUILT STORY ---------- */
+  /* The original experience is 550vh. The old mobile override shortened it
+     to 220vh, which can leave the sticky scene blank after the JS timeline
+     still expects the full scroll range. Keep enough scroll space on phones. */
+  .g2g-outer,
+  #buildTimelineSection {
+    height: 520vh !important;
+    min-height: 520vh !important;
+    background: #f0f0f0 !important;
+  }
+
+  .g2g-scene {
+    position: sticky !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100svh !important;
+    min-height: 620px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  .g2g-section-label {
+    top: 18px !important;
+    left: 14px !important;
+    right: 70px !important;
+    font-size: .52rem !important;
+    letter-spacing: .10em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .g2g-dots {
+    display: none !important;
+  }
+
+  .g2g-car-wrap {
+    inset: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transform: none !important;
+  }
+
+  .g2g-car-img {
+    width: min(92vw, 390px) !important;
+    max-width: 92vw !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  .g2g-stage {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .g2g-card {
+    width: calc(100% - 28px) !important;
+    max-width: 390px !important;
+    left: 14px !important;
+    right: 14px !important;
+    top: auto !important;
+    bottom: 78px !important;
+    margin: 0 auto !important;
+    padding: 18px 17px 16px !important;
+    border-radius: 12px !important;
+    max-height: min(48svh, 390px) !important;
+    overflow: auto !important;
+  }
+
+  .g2g-card-title {
+    font-size: clamp(1.25rem, 6.5vw, 1.75rem) !important;
+    line-height: 1.08 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .g2g-card-desc {
+    font-size: .78rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 13px !important;
+  }
+
+  .g2g-card-eyebrow {
+    font-size: .54rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .g2g-card-stats {
+    gap: 8px !important;
+    padding-top: 10px !important;
+  }
+
+  .g2g-card-stat {
+    min-width: 0 !important;
+    padding-right: 8px !important;
+  }
+
+  .g2g-card-stat:not(:last-child) {
+    margin-right: 8px !important;
+  }
+
+  .g2g-card-stat-val {
+    font-size: .95rem !important;
+  }
+
+  .g2g-card-stat-lbl {
+    font-size: .48rem !important;
+  }
+
+  .g2g-card-cta {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .g2g-card-cta .btn {
+    width: 100% !important;
+  }
+
+  .g2g-counter {
+    bottom: 22px !important;
+    gap: 9px !important;
+  }
+
+  .g2g-counter-bar {
+    width: 80px !important;
+  }
+
+  .g2g-scroll-hint {
+    display: none !important;
+  }
+
+  /* ---------- COMMON PAGE HEROES ---------- */
+  .about-hero,
+  .team-hero,
+  .sponsor-hero,
+  .achievements-hero,
+  .contact-hero,
+  .gallery-hero,
+  .car-hero {
+    width: 100% !important;
+    min-height: 56svh !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .about-hero .hero-content,
+  .team-hero .hero-content,
+  .sponsor-hero .hero-content,
+  .achievements-hero .hero-content,
+  .contact-hero .hero-content,
+  .gallery-hero .hero-content {
+    padding: 96px 14px 44px !important;
+  }
+
+  /* ---------- GRIDS / CARDS ---------- */
+  .value-grid,
+  .value-grid-6,
+  .dept-grid,
+  .dept-grid-detailed,
+  .team-grid,
+  .achievement-grid,
+  .gallery-grid,
+  .contact-grid,
+  .tiers-grid,
+  .workshop-grid,
+  .broadcast-grid,
+  .vm-new,
+  .chip-grid {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .team-card,
+  .achievement-card,
+  .tier-card,
+  .gallery-item,
+  .dept-card,
+  .value-card,
+  .workshop-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .team-card .card-body,
+  .achievement-card .card-body {
+    padding: 16px !important;
+  }
+
+  .team-card .card-image img,
+  .achievement-card .card-media img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 360px !important;
+    aspect-ratio: 4 / 3 !important;
+    object-fit: cover !important;
+  }
+
+  /* ---------- TWO-COLUMN CONTENT ---------- */
+  .split-block,
+  .car-showcase,
+  .form-grid-2,
+  .car-actions,
+  .stage-btn-row,
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+  }
+
+  .split-image,
+  .split-copy,
+  .form-panel,
+  .form-info,
+  .console,
+  .pitlane-wrap,
+  .pitlane-map,
+  .pitlane-data {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* ---------- CAR PAGE ---------- */
+  .car-scroll-track {
+    height: 360vh !important;
+    min-height: 2400px !important;
+  }
+
+  .car-sticky-viewport {
+    height: 100svh !important;
+    min-height: 620px !important;
+    max-height: none !important;
+  }
+
+  .stage-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 92px 14px 18px !important;
+  }
+
+  .stage-title {
+    font-size: clamp(1.65rem, 8vw, 2.6rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  .stage-desc {
+    max-width: 100% !important;
+    font-size: .86rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .stage-stats {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 9px !important;
+  }
+
+  .canvas-side {
+    width: 100% !important;
+    height: 38svh !important;
+    min-height: 220px !important;
+    max-height: 360px !important;
+    overflow: hidden !important;
+  }
+
+  .canvas-side canvas,
+  .studio-grid canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .timeline-bottom,
+  .build-timeline,
+  .sys-tabs,
+  .filter-bar,
+  .sponsor-track {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .timeline-bottom::-webkit-scrollbar,
+  .build-timeline::-webkit-scrollbar,
+  .sys-tabs::-webkit-scrollbar,
+  .filter-bar::-webkit-scrollbar,
+  .sponsor-track::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .sys-tabs,
+  .filter-bar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .sys-tab,
+  .filter-btn {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  .spec-list,
+  .spec-row {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .spec-row {
+    gap: 10px !important;
+  }
+
+  .spec-row .spec-label,
+  .spec-row .spec-value {
+    overflow-wrap: break-word !important;
+  }
+
+  .gallery-masonry {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .g-item {
+    width: 100% !important;
+    min-height: 200px !important;
+  }
+
+  /* ---------- SPONSORS / FORMS ---------- */
+  .sponsor-scroll-section,
+  .sponsor-scroll-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .tier-card {
+    padding: 18px !important;
+  }
+
+  .form-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  input, select, textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    font-size: 16px !important;
+  }
+
+  /* ---------- GALLERY / MEDIA ---------- */
+  .gallery-grid {
+    gap: 12px !important;
+  }
+
+  .gallery-item img,
+  .gallery-item video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 72svh !important;
+    object-fit: cover !important;
+  }
+
+  .hero-bg-video,
+  .hero-bg-video video {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+
+  .lightbox-content,
+  .modal-box {
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+    max-height: calc(100svh - 20px) !important;
+    overflow-y: auto !important;
+  }
+
+  .lightbox-media {
+    max-width: 100% !important;
+    max-height: 72svh !important;
+  }
+
+  /* ---------- FOOTER / MISC ---------- */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 26px !important;
+  }
+
+  .footer-bottom {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    text-align: center !important;
+  }
+
+  .org-chart {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .toolbar-row {
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --mobile-gutter: 14px;
+  }
+
+  body {
+    font-size: 14.5px !important;
+  }
+
+  section,
+  .section-padding {
+    padding-top: 44px !important;
+    padding-bottom: 44px !important;
+  }
+
+  .hero {
+    min-height: 100svh !important;
+    height: 100svh !important;
+  }
+
+  .hero-content {
+    padding-top: 88px !important;
+    padding-bottom: 36px !important;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 14vw, 3rem) !important;
+  }
+
+  .hero-stats {
+    gap: 12px 8px !important;
+  }
+
+  .g2g-outer,
+  #buildTimelineSection {
+    height: 520vh !important;
+    min-height: 520vh !important;
+  }
+
+  .g2g-scene {
+    min-height: 580px !important;
+  }
+
+  .g2g-car-img {
+    width: 88vw !important;
+    max-width: 360px !important;
+  }
+
+  .g2g-card {
+    bottom: 68px !important;
+    width: calc(100% - 20px) !important;
+    left: 10px !important;
+    right: 10px !important;
+    padding: 15px 14px !important;
+    max-height: 44svh !important;
+  }
+
+  .g2g-card-title {
+    font-size: clamp(1.15rem, 6.8vw, 1.55rem) !important;
+  }
+
+  .g2g-card-desc {
+    font-size: .74rem !important;
+  }
+
+  .g2g-counter {
+    bottom: 16px !important;
+  }
+
+  .g2g-counter-bar {
+    width: 64px !important;
+  }
+
+  .mobile-nav-drawer {
+    width: 90vw !important;
+  }
+
+  .mobile-nav-brand {
+    font-size: .88rem !important;
+  }
+
+  .mobile-nav-brand img {
+    height: 28px !important;
+  }
+}
