@@ -147,10 +147,21 @@ app.use(async (req, res, next) => {
       await connectDB();
     } catch (dbErr) {
       console.error('Database connection error in request middleware:', dbErr.message);
+      const hasMongoUri = Boolean(
+        process.env.MONGODB_URI ||
+        process.env.MONGO_URI ||
+        process.env.DATABASE_URL ||
+        process.env.MONGODB_URL
+      );
       return res.status(503).json({
         success: false,
         message: 'Database connection failed. Please ensure MONGODB_URI is set in Vercel environment variables and 0.0.0.0/0 is whitelisted in MongoDB Atlas.',
         details: dbErr.message,
+        envCheck: {
+          hasMongoUri,
+          nodeEnv: process.env.NODE_ENV || 'not set',
+          isVercel: Boolean(process.env.VERCEL),
+        },
       });
     }
   }

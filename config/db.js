@@ -6,10 +6,15 @@
 const mongoose = require('mongoose');
 const dns = require('dns');
 
-// Use reliable public DNS resolvers to handle MongoDB Atlas SRV records on Windows
+// Set IPv4 first to avoid IPv6 timeouts in serverless / Node 18+ environments
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch (e) {
+  // Ignore in environments where setDefaultResultOrder is not supported
+}
+
 if (process.platform === 'win32') {
   try {
-    dns.setDefaultResultOrder('ipv4first');
     dns.setServers(['8.8.8.8', '1.1.1.1']);
   } catch (e) {
     // Fallback if DNS setServers fails in constrained runtime environments
@@ -18,7 +23,7 @@ if (process.platform === 'win32') {
 
 /**
  * Establishes or reuses a connection to MongoDB Atlas.
- * Reads the URI from process.env.MONGODB_URI.
+ * Reads the URI from process.env.MONGODB_URI (or aliases MONGO_URI, DATABASE_URL).
  * Supports serverless connection reuse (e.g. Vercel lambdas).
  */
 let cachedConn = null;
@@ -30,14 +35,21 @@ const connectDB = async () => {
     return mongoose.connection;
   }
 
-  const uri = process.env.MONGODB_URI;
+  const rawUri =
+    process.env.MONGODB_URI ||
+    process.env.MONGO_URI ||
+    process.env.DATABASE_URL ||
+    process.env.MONGODB_URL ||
+    '';
+
+  const uri = rawUri.trim().replace(/^["']|["']$/g, '');
 
   if (!uri) {
     console.error('❌  MONGODB_URI is not defined in environment variables.');
     if (!process.env.VERCEL) {
       process.exit(1);
     }
-    throw new Error('MONGODB_URI is not defined');
+    throw new Error('MONGODB_URI is not defined in environment variables');
   }
 
   if (!cachedPromise) {
