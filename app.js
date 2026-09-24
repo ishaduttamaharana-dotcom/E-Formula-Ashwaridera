@@ -158,6 +158,7 @@ app.use(async (req, res, next) => {
           DATABASE_NAME_PRESENT: diag.DATABASE_NAME_PRESENT,
           CONNECTION_STATE: diag.CONNECTION_STATE,
           CONNECTION_ERROR_CATEGORY: category,
+          matchingEnvKeys: diag.matchingEnvKeys,
         },
       });
     }
