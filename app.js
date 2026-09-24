@@ -161,6 +161,9 @@ app.use(async (req, res, next) => {
           hasMongoUri,
           nodeEnv: process.env.NODE_ENV || 'not set',
           isVercel: Boolean(process.env.VERCEL),
+          availableKeys: Object.keys(process.env).filter(
+            (k) => !k.startsWith('npm_') && !k.startsWith('AWS_') && !k.startsWith('__') && k !== 'PATH'
+          ),
         },
       });
     }
