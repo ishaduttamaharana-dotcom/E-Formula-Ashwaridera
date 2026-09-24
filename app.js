@@ -159,11 +159,11 @@ app.use(async (req, res, next) => {
         details: dbErr.message,
         envCheck: {
           hasMongoUri,
+          uriType: typeof process.env.MONGODB_URI,
+          uriLength: (process.env.MONGODB_URI || '').length,
+          uriFirstChars: (process.env.MONGODB_URI || '').substring(0, 10),
           nodeEnv: process.env.NODE_ENV || 'not set',
           isVercel: Boolean(process.env.VERCEL),
-          availableKeys: Object.keys(process.env).filter(
-            (k) => !k.startsWith('npm_') && !k.startsWith('AWS_') && !k.startsWith('__') && k !== 'PATH'
-          ),
         },
       });
     }
