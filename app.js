@@ -1,8 +1,8 @@
 // ============================================================
 //  app.js
 //  Express application factory.
-//  All middleware, security, CORS, logging, and route mounting
-//  is configured here. The HTTP server is started in server.js.
+//  Production ready with safe database connection handling.
+//  Updated: 2026-09-24
 // ============================================================
 
 const express       = require('express');
