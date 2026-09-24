@@ -35,14 +35,34 @@ const connectDB = async () => {
     return mongoose.connection;
   }
 
-  const rawUri =
+  // Primary canonical and alias keys
+  let rawUri =
     process.env.MONGODB_URI ||
     process.env.MONGO_URI ||
     process.env.DATABASE_URL ||
     process.env.MONGODB_URL ||
+    process.env.DATABASE_URI ||
+    process.env.ATLAS_URI ||
+    process.env.MONGO_CONNECTION_STRING ||
+    process.env.MONGODB_CONNECTION_STRING ||
+    process.env.NEXT_PUBLIC_MONGODB_URI ||
     '';
 
-  const uri = rawUri.trim().replace(/^["']|["']$/g, '');
+  // Smart fallback: scan process.env for ANY variable starting with mongodb:// or mongodb+srv://
+  if (!rawUri || rawUri.trim().length === 0) {
+    for (const [k, v] of Object.entries(process.env)) {
+      if (typeof v === 'string') {
+        const trimmed = v.trim().replace(/^["']|["']$/g, '');
+        if (trimmed.startsWith('mongodb://') || trimmed.startsWith('mongodb+srv://')) {
+          rawUri = trimmed;
+          console.log(`✅  Auto-detected MongoDB URI in environment variable: ${k}`);
+          break;
+        }
+      }
+    }
+  }
+
+  const uri = (rawUri || '').trim().replace(/^["']|["']$/g, '');
 
   if (!uri) {
     console.error('❌  MONGODB_URI is not defined in environment variables.');
@@ -90,19 +110,35 @@ const connectDB = async () => {
  * NEVER exposes passwords, usernames, or connection string secrets.
  */
 const getDatabaseDiagnostic = () => {
-  const rawUri =
+  let rawUri =
     process.env.MONGODB_URI ||
     process.env.MONGO_URI ||
     process.env.DATABASE_URL ||
     process.env.MONGODB_URL ||
+    process.env.DATABASE_URI ||
+    process.env.ATLAS_URI ||
+    process.env.MONGO_CONNECTION_STRING ||
+    process.env.MONGODB_CONNECTION_STRING ||
+    process.env.NEXT_PUBLIC_MONGODB_URI ||
     '';
-  const uri = rawUri.trim().replace(/^["']|["']$/g, '');
 
+  if (!rawUri || rawUri.trim().length === 0) {
+    for (const [, v] of Object.entries(process.env)) {
+      if (typeof v === 'string') {
+        const trimmed = v.trim().replace(/^["']|["']$/g, '');
+        if (trimmed.startsWith('mongodb://') || trimmed.startsWith('mongodb+srv://')) {
+          rawUri = trimmed;
+          break;
+        }
+      }
+    }
+  }
+
+  const uri = (rawUri || '').trim().replace(/^["']|["']$/g, '');
   const MONGODB_URI_PRESENT = uri.length > 0;
 
   let DATABASE_NAME_PRESENT = false;
   if (MONGODB_URI_PRESENT) {
-    // Check if database name exists in URI path without exposing user or password
     const match = uri.match(/mongodb(?:\+srv)?:\/\/[^/]+\/([^?]+)/);
     DATABASE_NAME_PRESENT = Boolean(match && match[1] && match[1].trim().length > 0);
   }
@@ -110,10 +146,19 @@ const getDatabaseDiagnostic = () => {
   const stateMap = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
   const CONNECTION_STATE = stateMap[mongoose.connection.readyState] || 'unknown';
 
+  // Safe list of relevant keys with their character length (NO VALUES EXPOSED)
+  const matchingEnvKeys = Object.keys(process.env)
+    .filter((k) => /mongo|database|atlas|db_uri|db_url/i.test(k) || k === 'MONGODB_URI')
+    .map((k) => ({
+      key: k,
+      length: (process.env[k] || '').length,
+    }));
+
   return {
     MONGODB_URI_PRESENT,
     DATABASE_NAME_PRESENT,
     CONNECTION_STATE,
+    matchingEnvKeys,
   };
 };
 
