@@ -140,27 +140,24 @@ if (process.env.NODE_ENV === 'development' || process.env.VERCEL) {
 // ============================================================
 
 const connectDB = require('./config/db');
+const { getDatabaseDiagnostic, categorizeMongoError } = require('./config/db');
 
 app.use(async (req, res, next) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/v1')) {
     try {
       await connectDB();
     } catch (dbErr) {
-      console.error('Database connection error in request middleware:', dbErr.message);
-      const hasMongoUri = Boolean(
-        process.env.MONGODB_URI ||
-        process.env.MONGO_URI ||
-        process.env.DATABASE_URL ||
-        process.env.MONGODB_URL
-      );
+      const diag = getDatabaseDiagnostic();
+      const category = categorizeMongoError(dbErr);
+      console.error(`[DB_ERROR] Category: ${category}, Error: ${dbErr.message}`);
       return res.status(503).json({
         success: false,
         message: 'Database connection failed. Please ensure MONGODB_URI is set in Vercel environment variables and 0.0.0.0/0 is whitelisted in MongoDB Atlas.',
-        details: dbErr.message,
-        envCheck: {
-          hasMongoUri,
-          nodeEnv: process.env.NODE_ENV || 'not set',
-          isVercel: Boolean(process.env.VERCEL),
+        diagnostic: {
+          MONGODB_URI_PRESENT: diag.MONGODB_URI_PRESENT,
+          DATABASE_NAME_PRESENT: diag.DATABASE_NAME_PRESENT,
+          CONNECTION_STATE: diag.CONNECTION_STATE,
+          CONNECTION_ERROR_CATEGORY: category,
         },
       });
     }

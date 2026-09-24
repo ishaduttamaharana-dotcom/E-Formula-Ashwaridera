@@ -85,4 +85,56 @@ const connectDB = async () => {
   }
 };
 
+/**
+ * Returns safe diagnostic metadata about the MongoDB configuration and state.
+ * NEVER exposes passwords, usernames, or connection string secrets.
+ */
+const getDatabaseDiagnostic = () => {
+  const rawUri =
+    process.env.MONGODB_URI ||
+    process.env.MONGO_URI ||
+    process.env.DATABASE_URL ||
+    process.env.MONGODB_URL ||
+    '';
+  const uri = rawUri.trim().replace(/^["']|["']$/g, '');
+
+  const MONGODB_URI_PRESENT = uri.length > 0;
+
+  let DATABASE_NAME_PRESENT = false;
+  if (MONGODB_URI_PRESENT) {
+    // Check if database name exists in URI path without exposing user or password
+    const match = uri.match(/mongodb(?:\+srv)?:\/\/[^/]+\/([^?]+)/);
+    DATABASE_NAME_PRESENT = Boolean(match && match[1] && match[1].trim().length > 0);
+  }
+
+  const stateMap = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+  const CONNECTION_STATE = stateMap[mongoose.connection.readyState] || 'unknown';
+
+  return {
+    MONGODB_URI_PRESENT,
+    DATABASE_NAME_PRESENT,
+    CONNECTION_STATE,
+  };
+};
+
+/**
+ * Sanitizes and categorizes MongoDB errors into controlled buckets.
+ */
+const categorizeMongoError = (err) => {
+  if (!err) return 'NONE';
+  const msg = (err.message || '').toLowerCase();
+  if (msg.includes('not defined') || msg.includes('missing') || msg.includes('empty')) return 'MISSING_ENV';
+  if (msg.includes('bad auth') || msg.includes('authentication failed') || msg.includes('auth error')) return 'AUTH_ERROR';
+  if (msg.includes('enotfound') || msg.includes('econnrefused') || msg.includes('querysrv') || msg.includes('dns')) return 'DNS_ERROR';
+  if (msg.includes('timed out') || msg.includes('timeout') || msg.includes('serverselectionerror')) return 'TIMEOUT';
+  if (msg.includes('tls') || msg.includes('ssl') || msg.includes('cert')) return 'TLS_ERROR';
+  if (msg.includes('invalid scheme') || msg.includes('invalid uri') || msg.includes('uri malformed')) return 'INVALID_URI';
+  if (msg.includes('network') || msg.includes('connection reset') || msg.includes('socket')) return 'NETWORK_ERROR';
+  if (msg.includes('pool')) return 'CONNECTION_POOL_ERROR';
+  return 'UNKNOWN';
+};
+
 module.exports = connectDB;
+module.exports.connectDB = connectDB;
+module.exports.getDatabaseDiagnostic = getDatabaseDiagnostic;
+module.exports.categorizeMongoError = categorizeMongoError;
