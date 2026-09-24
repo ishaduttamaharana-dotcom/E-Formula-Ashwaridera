@@ -20,9 +20,18 @@
           <h2 class="page-title">Media Asset Library</h2>
           <p class="page-subtitle">Upload, browse, inspect, and manage images, videos, and brochure documents.</p>
         </div>
-        <button type="button" class="admin-btn admin-btn--primary" id="mediaUploadMainBtn">
-          <i class="fas fa-cloud-upload-alt"></i> Upload New Media
-        </button>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="admin-btn admin-btn--secondary" id="mediaAuditBtn">
+            <i class="fas fa-stethoscope"></i> Audit Media Health
+          </button>
+          <button type="button" class="admin-btn admin-btn--primary" id="mediaUploadMainBtn">
+            <i class="fas fa-cloud-upload-alt"></i> Upload New Media
+          </button>
+        </div>
+      </div>
+
+      <div id="mediaAuditPanel" style="display:none; margin-bottom:20px;" class="admin-card">
+        <!-- Rendered dynamically -->
       </div>
 
       <div class="admin-card" style="margin-bottom:20px; padding:16px;">
@@ -53,6 +62,79 @@
         onSelect: () => loadMediaList(),
       });
     });
+
+    const auditBtn = document.getElementById('mediaAuditBtn');
+    const auditPanel = document.getElementById('mediaAuditPanel');
+    if (auditBtn && auditPanel) {
+      auditBtn.addEventListener('click', async () => {
+        if (auditPanel.style.display === 'block') {
+          auditPanel.style.display = 'none';
+          auditBtn.innerHTML = '<i class="fas fa-stethoscope"></i> Audit Media Health';
+          return;
+        }
+
+        auditBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Auditing Pipeline...';
+        auditPanel.style.display = 'block';
+        auditPanel.innerHTML = '<p style="padding:20px; text-align:center; color:var(--text-muted);"><i class="fas fa-spinner fa-spin text-orange"></i> Scanning all CMS content and verifying storage URLs...</p>';
+
+        try {
+          const res = await window.AdminApi.get('/admin/media/audit');
+          if (res.success && res.data) {
+            const d = res.data;
+            auditPanel.innerHTML = `
+              <div style="padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border-hairline); padding-bottom:10px;">
+                  <h4 style="margin:0; font-size:1rem; font-weight:700;"><i class="fas fa-shield-alt text-orange"></i> Media Pipeline Health Report</h4>
+                  <button type="button" id="closeAuditBtn" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-times"></i></button>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:16px;">
+                  <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-hairline); border-radius:6px; padding:12px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Storage Cloud</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#10B981; margin-top:4px;">${d.cloudName} (${d.storageConfigured ? 'Connected' : 'Offline'})</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-hairline); border-radius:6px; padding:12px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Registered Assets</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#FFF; margin-top:4px;">${d.totalMediaAssets}</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-hairline); border-radius:6px; padding:12px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Active References</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#FFF; margin-top:4px;">${d.totalCmsReferences}</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-hairline); border-radius:6px; padding:12px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Verified Healthy</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#10B981; margin-top:4px;">${d.healthyReferencesCount}</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-hairline); border-radius:6px; padding:12px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Broken / Inaccessible</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:${d.brokenReferencesCount > 0 ? '#EF4444' : '#10B981'}; margin-top:4px;">${d.brokenReferencesCount}</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-hairline); border-radius:6px; padding:12px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Orphan Records</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--accent-orange); margin-top:4px;">${d.orphanDbRecordsCount}</div>
+                  </div>
+                </div>
+                ${d.brokenReferencesCount > 0 ? `
+                  <div style="margin-top:10px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:12px;">
+                    <h5 style="color:#EF4444; margin:0 0 8px 0; font-size:0.85rem;"><i class="fas fa-exclamation-triangle"></i> Broken Media Items Found:</h5>
+                    <ul style="margin:0; padding-left:20px; font-size:0.8rem; color:#FFF;">
+                      ${d.brokenItems.map(item => `<li><strong>${item.collection}</strong> (${item.title || item.fieldPath}): <span style="font-family:monospace; color:#EF4444;">${item.url}</span> [HTTP ${item.httpStatus || 'Failed'}]</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : '<div style="color:#10B981; font-size:0.85rem;"><i class="fas fa-check-circle"></i> All active CMS media references are live and verified accessible.</div>'}
+              </div>
+            `;
+            document.getElementById('closeAuditBtn')?.addEventListener('click', () => {
+              auditPanel.style.display = 'none';
+              auditBtn.innerHTML = '<i class="fas fa-stethoscope"></i> Audit Media Health';
+            });
+          }
+        } catch (err) {
+          auditPanel.innerHTML = `<div style="padding:16px; color:#EF4444;">Audit failed: ${err.message}</div>`;
+        } finally {
+          auditBtn.innerHTML = '<i class="fas fa-stethoscope"></i> Refresh Audit';
+        }
+      });
+    }
 
     const searchInput = document.getElementById('mediaSearchInput');
     const typeSelect = document.getElementById('mediaTypeSelect');

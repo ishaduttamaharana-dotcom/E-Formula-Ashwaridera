@@ -306,19 +306,31 @@
         const file = e.target.files[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('folder', 'ashwa_seo');
-
         try {
           if (window.AdminToast) window.AdminToast.info('Uploading social share image...');
-          const res = await window.AdminApi.post('/admin/media/upload', formData);
-          const imageUrl = res.data?.secureUrl || res.data?.url || res.url;
+          let imageUrl = '';
+
+          if (window.AdminUploader && window.AdminUploader.uploadFile) {
+            const res = await window.AdminUploader.uploadFile(file, {
+              folder: 'ashwa_seo',
+              allowedType: 'image',
+            });
+            imageUrl = res.url || res.secureUrl;
+          } else {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('folder', 'ashwa_seo');
+            const res = await window.AdminApi.post('/admin/media/upload', formData);
+            imageUrl = res.data?.secureUrl || res.data?.url || res.url;
+          }
+
           if (imageUrl) {
             const ogInput = document.getElementById('defaultOgImage');
             if (ogInput) ogInput.value = imageUrl;
             markDirty();
-            if (window.AdminToast) window.AdminToast.success('Image uploaded successfully.');
+            if (window.AdminToast) window.AdminToast.success('Image uploaded and verified successfully.');
+          } else {
+            throw new Error('No valid URL returned.');
           }
         } catch (err) {
           if (window.AdminToast) window.AdminToast.error('Image upload failed: ' + err.message);

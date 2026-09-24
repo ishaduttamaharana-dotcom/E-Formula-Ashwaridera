@@ -1123,18 +1123,35 @@ window.AdminAboutModule = (function () {
       const file = fileInput.files[0];
       if (!file) return;
       try {
-        Toast().info('Uploading file...');
-        const formData = new FormData();
-        formData.append('file', file);
-        const token = localStorage.getItem('token') || localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
-        const res = await fetch('/api/v1/admin/media/upload', {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          credentials: 'include',
-          body: formData
-        });
-        const data = await res.json();
-        const url = data.data?.secureUrl || data.data?.url || data.media?.url || data.url;
+        Toast().info('Preparing upload...');
+        let uploadRes;
+
+        if (window.AdminUploader && window.AdminUploader.uploadFile) {
+          uploadRes = await window.AdminUploader.uploadFile(file, {
+            folder: 'ashwa_about',
+            onProgress: (pct, msg) => {
+              if (pct % 25 === 0) Toast().info(msg);
+            },
+          });
+        } else {
+          const formData = new FormData();
+          formData.append('file', file);
+          const token = localStorage.getItem('token') || localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+          const res = await fetch('/api/v1/admin/media/upload', {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            credentials: 'include',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.success && data.data) {
+            uploadRes = { url: data.data.secureUrl || data.data.url };
+          } else {
+            throw new Error(data.message || 'Upload failed');
+          }
+        }
+
+        const url = uploadRes.url || uploadRes.secureUrl;
         if (url) {
           const el = document.getElementById(inputId);
           if (el) el.value = url;
@@ -1143,9 +1160,9 @@ window.AdminAboutModule = (function () {
           } else {
             updateField(fieldPaths, url);
           }
-          Toast().success('Upload successful!');
+          Toast().success('Upload and verification successful!');
         } else {
-          throw new Error(data.message || 'Upload failed');
+          throw new Error('Upload failed: no usable URL returned');
         }
       } catch (err) {
         console.error('File upload error:', err);

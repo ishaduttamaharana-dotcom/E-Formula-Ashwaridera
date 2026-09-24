@@ -285,10 +285,14 @@ const {
   deleteMediaAsset,
   getUploadSignature,
   createMediaAssetFromDirectUpload,
+  verifyMediaEndpoint,
+  auditMediaHealth,
 } = require('../../controllers/adminMediaController');
 
 router.get('/media', getMediaAssets);
 router.get('/media/signature', getUploadSignature);
+router.get('/media/audit', auditMediaHealth);
+router.post('/media/verify', verifyMediaEndpoint);
 router.post('/media/direct-record', createMediaAssetFromDirectUpload);
 router.post('/media/upload', uploadToMemory('file'), uploadMediaAsset);
 router.get('/media/:id', getMediaAssetById);

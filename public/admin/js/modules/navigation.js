@@ -451,20 +451,32 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'ashwa_navigation');
-
       try {
         if (window.AdminToast) window.AdminToast.info('Uploading logo image...');
-        const res = await window.AdminApi.post('/admin/media/upload', formData);
-        const logoUrl = res.data?.secureUrl || res.data?.url || res.url;
+        let logoUrl = '';
+
+        if (window.AdminUploader && window.AdminUploader.uploadFile) {
+          const res = await window.AdminUploader.uploadFile(file, {
+            folder: 'ashwa_navigation',
+            allowedType: 'image',
+          });
+          logoUrl = res.url || res.secureUrl;
+        } else {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('folder', 'ashwa_navigation');
+          const res = await window.AdminApi.post('/admin/media/upload', formData);
+          logoUrl = res.data?.secureUrl || res.data?.url || res.url;
+        }
+
         if (logoUrl) {
           document.getElementById('inpLogoUrl').value = logoUrl;
           currentData.branding.logoUrl = logoUrl;
           updateLivePreview();
           markDirty();
-          if (window.AdminToast) window.AdminToast.success('Logo uploaded successfully.');
+          if (window.AdminToast) window.AdminToast.success('Logo uploaded and verified successfully.');
+        } else {
+          throw new Error('No valid URL returned.');
         }
       } catch (err) {
         if (window.AdminToast) window.AdminToast.error('Logo upload failed: ' + err.message);

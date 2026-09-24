@@ -532,21 +532,37 @@
       if (radio) radio.checked = true;
       activeEditorState.currentData.mediaType = mediaType;
 
-      const formData = new FormData();
-      formData.append('file', file);
-
       try {
-        if (window.AdminToast) window.AdminToast.info('Uploading media file...');
-        const token = localStorage.getItem('token');
-        const res = await fetch('/api/v1/admin/media/upload', {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: formData,
-        });
+        if (window.AdminToast) window.AdminToast.info(`Uploading ${mediaType} file...`);
+        let uploadRes;
 
-        const json = await res.json();
-        if (json.success && json.data) {
-          const fileUrl = json.data.secureUrl || json.data.url;
+        if (window.AdminUploader && window.AdminUploader.uploadFile) {
+          uploadRes = await window.AdminUploader.uploadFile(file, {
+            allowedType: isVideo ? 'video' : 'image',
+            folder: isVideo ? 'ashwa_cms/videos' : 'ashwa_cms/images',
+            onProgress: (pct, msg) => {
+              if (window.AdminToast && pct % 25 === 0) window.AdminToast.info(msg);
+            },
+          });
+        } else {
+          const formData = new FormData();
+          formData.append('file', file);
+          const token = localStorage.getItem('token');
+          const res = await fetch('/api/v1/admin/media/upload', {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData,
+          });
+          const json = await res.json();
+          if (json.success && json.data) {
+            uploadRes = { url: json.data.secureUrl || json.data.url };
+          } else {
+            throw new Error(json.message || 'Upload failed');
+          }
+        }
+
+        const fileUrl = uploadRes.url || uploadRes.secureUrl;
+        if (fileUrl) {
           if (mediaType === 'video') {
             activeEditorState.currentData.videoUrl = fileUrl;
             const inputVid = drawer.querySelector('#inputVideoUrl');
@@ -564,9 +580,7 @@
               ? `<video src="${fileUrl}" style="max-height:120px; border-radius:6px; border:1px solid var(--border-hairline, #2D2D3B);" controls></video>`
               : `<img src="${fileUrl}" style="max-height:120px; border-radius:6px; border:1px solid var(--border-hairline, #2D2D3B); object-fit:cover;" />`;
           }
-          if (window.AdminToast) window.AdminToast.success('Media uploaded successfully!');
-        } else {
-          throw new Error(json.message || 'Upload failed');
+          if (window.AdminToast) window.AdminToast.success(`${mediaType === 'video' ? 'Video' : 'Image'} uploaded and verified successfully!`);
         }
       } catch (err) {
         if (window.AdminToast) window.AdminToast.error('Upload failed: ' + err.message);

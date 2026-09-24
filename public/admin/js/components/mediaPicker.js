@@ -280,130 +280,48 @@ const MediaPicker = (function () {
   const uploadFile = async (file) => {
     if (!file) return;
 
-    const maxSizeBytes = 1000 * 1024 * 1024; // 1000 MB
-    if (file.size > maxSizeBytes) {
-      if (window.AdminToast) {
-        window.AdminToast.error(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum limit is 1000MB.`);
-      } else {
-        alert(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum limit is 1000MB.`);
-      }
-      return;
-    }
-
     const progress = document.getElementById('pickerUploadProgress');
     const label = document.getElementById('pickerProgressLabel');
     const percent = document.getElementById('pickerPercentLabel');
     const bar = document.getElementById('pickerProgressBar');
 
     if (progress) progress.style.display = 'block';
-    if (label) label.textContent = `Uploading ${file.name}...`;
+    if (label) label.textContent = `Preparing ${file.name}...`;
 
-    const api = window.AdminApi || window.API;
-    const isVideo = file.type.startsWith('video/');
-    const isDoc = file.type.includes('pdf') || file.type.includes('word') || file.type.includes('document');
-    let resourceType = isVideo ? 'video' : (isDoc ? 'raw' : 'image');
-    let folder = isVideo ? 'ashwa_cms/videos' : (isDoc ? 'ashwa_cms/documents' : 'ashwa_cms/images');
-
-    // Helper: update progress UI
-    const updateProgress = (pct) => {
+    const updateProgress = (pct, msg) => {
       if (bar) bar.style.width = `${pct}%`;
       if (percent) percent.textContent = `${pct}%`;
-    };
-
-    // Helper: Direct to Cloudinary Upload via XMLHttpRequest for true progress tracking
-    const uploadDirectToCloudinary = (sigData) => {
-      return new Promise((resolve, reject) => {
-        const cloudUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/${resourceType}/upload`;
-        const cfd = new FormData();
-        cfd.append('file', file);
-        cfd.append('api_key', sigData.apiKey);
-        cfd.append('timestamp', sigData.timestamp);
-        cfd.append('signature', sigData.signature);
-        cfd.append('folder', sigData.folder);
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', cloudUrl);
-
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const p = Math.round((e.loaded / e.total) * 90);
-            updateProgress(p);
-          }
-        };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const resData = JSON.parse(xhr.responseText);
-              resolve(resData);
-            } catch (err) {
-              reject(new Error('Invalid Cloudinary response JSON.'));
-            }
-          } else {
-            reject(new Error(`Cloudinary rejected upload: status ${xhr.status}`));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Network error during direct Cloudinary upload.'));
-        xhr.send(cfd);
-      });
+      if (label && msg) label.textContent = msg;
     };
 
     try {
-      updateProgress(10);
-      let assetRecord = null;
-      let usedDirect = false;
+      updateProgress(5, 'Starting upload pipeline...');
+      let uploadRes;
 
-      // 1. Check if direct signed upload is supported (essential for Vercel 4.5MB payload limit)
-      try {
-        const sigRes = await api.get(`/admin/media/signature?folder=${encodeURIComponent(folder)}`);
-        if (sigRes && sigRes.success && sigRes.data && sigRes.data.signature) {
-          label.textContent = `Uploading directly to cloud (${file.name})...`;
-          const cloudResult = await uploadDirectToCloudinary(sigRes.data);
-          updateProgress(95);
-
-          // Record asset in database
-          const recordRes = await api.post('/admin/media/direct-record', {
-            publicId: cloudResult.public_id,
-            url: cloudResult.secure_url || cloudResult.url,
-            secureUrl: cloudResult.secure_url || cloudResult.url,
-            resourceType: cloudResult.resource_type || resourceType,
-            format: cloudResult.format || file.name.split('.').pop().toLowerCase(),
-            bytes: cloudResult.bytes || file.size,
-            width: cloudResult.width || 0,
-            height: cloudResult.height || 0,
-            altText: file.name.replace(/\.[^/.]+$/, ''),
-          });
-
-          if (recordRes && recordRes.success && recordRes.data) {
-            assetRecord = recordRes.data;
-            usedDirect = true;
-          }
-        }
-      } catch (directErr) {
-        console.warn('Direct upload bypassed or unavailable, using server stream fallback:', directErr.message);
-      }
-
-      // 2. Fallback to standard server upload if direct upload wasn't used
-      if (!usedDirect) {
-        label.textContent = `Streaming ${file.name}...`;
+      if (window.AdminUploader && window.AdminUploader.uploadFile) {
+        uploadRes = await window.AdminUploader.uploadFile(file, {
+          allowedType: currentConfig?.allowedType || 'all',
+          onProgress: updateProgress,
+        });
+      } else {
+        // Fallback directly to API if AdminUploader isn't initialized yet
+        const api = window.AdminApi || window.API;
         const formData = new FormData();
         formData.append('file', file);
         formData.append('altText', file.name.replace(/\.[^/.]+$/, ''));
-        updateProgress(50);
-
+        updateProgress(50, 'Uploading to server...');
         const res = await api.post('/admin/media/upload', formData);
         if (res && res.success && res.data) {
-          assetRecord = res.data;
+          uploadRes = { success: true, asset: res.data };
         } else {
           throw new Error((res && res.message) || 'Upload failed.');
         }
       }
 
-      updateProgress(100);
-      if (assetRecord) {
-        if (window.AdminToast) window.AdminToast.success('File uploaded and ready!');
-        selectedAsset = assetRecord;
+      updateProgress(100, 'Upload verified and saved!');
+      if (uploadRes && uploadRes.success && uploadRes.asset) {
+        if (window.AdminToast) window.AdminToast.success('File uploaded and verified successfully!');
+        selectedAsset = uploadRes.asset;
 
         // Switch to browse view and refresh
         document.getElementById('tabBrowse').click();
@@ -411,10 +329,11 @@ const MediaPicker = (function () {
       }
     } catch (err) {
       if (window.AdminToast) window.AdminToast.error('Upload error: ' + err.message);
+      if (label) label.textContent = `Failed: ${err.message}`;
     } finally {
       setTimeout(() => {
         if (progress) progress.style.display = 'none';
-      }, 1000);
+      }, 1500);
     }
   };
 
