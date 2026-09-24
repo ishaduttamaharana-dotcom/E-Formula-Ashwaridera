@@ -7,6 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
 const SiteSeoSettings = require('../models/SiteSeoSettings');
 
 const seoMiddleware = async (req, res, next) => {
@@ -18,7 +19,7 @@ const seoMiddleware = async (req, res, next) => {
   let filePath = '';
   let pageKey = 'homeTitle';
 
-  const p = req.path.toLowerCase();
+  const p = (req.path.toLowerCase().replace(/^\/public/, '') || '/');
   if (p === '/' || p === '/index.html') {
     filePath = path.join(__dirname, '../public/index.html');
     pageKey = 'homeTitle';
@@ -29,7 +30,11 @@ const seoMiddleware = async (req, res, next) => {
     filePath = path.join(__dirname, '../public/car.html');
     pageKey = 'carTitle';
   } else if (p === '/team' || p === '/team.html') {
-    filePath = path.join(__dirname, '../public/Team.html');
+    filePath = path.join(__dirname, '../public/team.html');
+    if (!fs.existsSync(filePath)) {
+      const altPath = path.join(__dirname, '../public/Team.html');
+      if (fs.existsSync(altPath)) filePath = altPath;
+    }
     pageKey = 'teamTitle';
   } else if (p === '/achievements' || p === '/achievements.html') {
     filePath = path.join(__dirname, '../public/achievements.html');
@@ -43,6 +48,9 @@ const seoMiddleware = async (req, res, next) => {
   } else if (p === '/contact' || p === '/contact.html') {
     filePath = path.join(__dirname, '../public/contact.html');
     pageKey = 'contactTitle';
+  } else if (p === '/my-applications' || p === '/my-applications.html') {
+    filePath = path.join(__dirname, '../public/my-applications.html');
+    pageKey = 'homeTitle';
   } else {
     return next();
   }
@@ -50,7 +58,10 @@ const seoMiddleware = async (req, res, next) => {
   if (!fs.existsSync(filePath)) return next();
 
   try {
-    const seoDoc = await SiteSeoSettings.findOne({ status: 'published' }) || await SiteSeoSettings.findOne();
+    let seoDoc = null;
+    if (mongoose.connection.readyState === 1) {
+      seoDoc = await SiteSeoSettings.findOne({ status: 'published' }).maxTimeMS(2500) || await SiteSeoSettings.findOne().maxTimeMS(2500);
+    }
     const seo = seoDoc ? (seoDoc.publishedVersion || seoDoc) : {};
 
     const pageTitle = seo[pageKey] || seo.defaultTitle || 'Ashwa Riders — Formula Student Electric Team';
@@ -80,13 +91,13 @@ const seoMiddleware = async (req, res, next) => {
   <link rel="canonical" href="${canonical}" />
 `;
     // Inject initial SSR team data if serving Team page
-    if (p === '/team' || p === '/team.html') {
+    if ((p === '/team' || p === '/team.html') && mongoose.connection.readyState === 1) {
       try {
         const TeamPageContent = require('../models/TeamPageContent');
         const TeamMember = require('../models/TeamMember');
-        const teamDoc = await TeamPageContent.findOne();
+        const teamDoc = await TeamPageContent.findOne().maxTimeMS(2500);
         const source = (teamDoc && teamDoc.publishedVersion) ? teamDoc.publishedVersion : (teamDoc || {});
-        const teamMembers = await TeamMember.find({ isArchived: { $ne: true }, status: 'published', isVisible: { $ne: false } }).sort({ order: 1 });
+        const teamMembers = await TeamMember.find({ isArchived: { $ne: true }, status: 'published', isVisible: { $ne: false } }).sort({ order: 1 }).maxTimeMS(2500);
         const { formatMemberItem } = require('../controllers/teamPageController');
         const teamPayload = {
           settings: source.settings || {},
@@ -103,18 +114,18 @@ const seoMiddleware = async (req, res, next) => {
     }
 
     // Inject initial SSR gallery data if serving Gallery page
-    if (p === '/gallery' || p === '/gallery.html') {
+    if ((p === '/gallery' || p === '/gallery.html') && mongoose.connection.readyState === 1) {
       try {
         const GalleryPageContent = require('../models/GalleryPageContent');
         const GalleryAlbum = require('../models/GalleryAlbum');
         const GalleryImage = require('../models/GalleryImage');
         const { formatMediaItem, formatAlbumItem } = require('../controllers/galleryPageController');
 
-        const galleryDoc = await GalleryPageContent.findOne();
+        const galleryDoc = await GalleryPageContent.findOne().maxTimeMS(2500);
         const source = (galleryDoc && galleryDoc.publishedVersion) ? galleryDoc.publishedVersion : (galleryDoc || {});
 
-        const albums = await GalleryAlbum.find({ status: 'published', isVisible: { $ne: false } }).sort({ order: 1 });
-        const media = await GalleryImage.find({ status: 'published', isVisible: { $ne: false } }).sort({ order: 1, createdAt: -1 });
+        const albums = await GalleryAlbum.find({ status: 'published', isVisible: { $ne: false } }).sort({ order: 1 }).maxTimeMS(2500);
+        const media = await GalleryImage.find({ status: 'published', isVisible: { $ne: false } }).sort({ order: 1, createdAt: -1 }).maxTimeMS(2500);
 
         const albumCounts = {};
         const categoryCounts = { all: media.length, image: 0, video: 0 };

@@ -209,6 +209,20 @@ app.get(['/admin', '/admin/*', '/public/admin', '/public/admin/*'], (req, res, n
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
 });
 
+// Public HTML page routes (guarantees clean URLs, lowercase, uppercase, and /public/ aliases resolve cleanly)
+const servePublicHtml = (fileName) => (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', fileName));
+};
+
+app.get(['/team', '/team.html', '/Team.html', '/public/team.html', '/public/Team.html'], servePublicHtml('team.html'));
+app.get(['/about', '/about.html', '/About.html', '/public/about.html', '/public/About.html'], servePublicHtml('about.html'));
+app.get(['/car', '/car.html', '/Car.html', '/public/car.html', '/public/Car.html'], servePublicHtml('car.html'));
+app.get(['/achievements', '/achievements.html', '/Achievements.html', '/public/achievements.html', '/public/Achievements.html'], servePublicHtml('achievements.html'));
+app.get(['/gallery', '/gallery.html', '/Gallery.html', '/public/gallery.html', '/public/Gallery.html'], servePublicHtml('gallery.html'));
+app.get(['/sponsors', '/sponsors.html', '/Sponsors.html', '/public/sponsors.html', '/public/Sponsors.html'], servePublicHtml('sponsors.html'));
+app.get(['/contact', '/contact.html', '/Contact.html', '/public/contact.html', '/public/Contact.html'], servePublicHtml('contact.html'));
+app.get(['/my-applications', '/my-applications.html', '/public/my-applications.html'], servePublicHtml('my-applications.html'));
+
 // ============================================================
 //  ERROR HANDLING  —  must be LAST
 // ============================================================

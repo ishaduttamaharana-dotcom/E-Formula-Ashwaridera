@@ -11,7 +11,7 @@
 This repository houses the complete full-stack website and connected Admin Control Center for **E-Formula Ashwa Riders**, Central India’s premier Formula Student Electric racing team.
 
 The platform provides a unified system where:
-1. **Public Website**: High-performance, responsive motorsport presentation (`index.html`, `about.html`, `Team.html`, `car.html`, `sponsors.html`, `achievements.html`, `contact.html`, `gallery.html`).
+1. **Public Website**: High-performance, responsive motorsport presentation (`index.html`, `about.html`, `team.html`, `car.html`, `sponsors.html`, `achievements.html`, `contact.html`, `gallery.html`).
 2. **Dynamic CMS Hydration**: Frontend templates dynamically consume content published through the CMS without rebuilding source code (`*-cms.js` engines).
 3. **Admin Control Center**: Single-page dark-mode administrative suite at `/admin` managing Home, Car, About, Team, Sponsors, Gallery, Achievements, Global Navigation & Footer, SEO, and Media Library.
 4. **Form Submissions Pipeline**: Public visitors can submit Join Team applications, Contact messages, and Corporate Sponsorship enquiries directly into MongoDB collections with live admin notification counters.

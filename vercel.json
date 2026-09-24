@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/v1/:path*",
@@ -20,6 +21,78 @@
     {
       "source": "/admin/:path*",
       "destination": "/admin/index.html"
+    },
+    {
+      "source": "/team",
+      "destination": "/team.html"
+    },
+    {
+      "source": "/Team.html",
+      "destination": "/team.html"
+    },
+    {
+      "source": "/public/team.html",
+      "destination": "/team.html"
+    },
+    {
+      "source": "/public/Team.html",
+      "destination": "/team.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/public/about.html",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/car",
+      "destination": "/car.html"
+    },
+    {
+      "source": "/public/car.html",
+      "destination": "/car.html"
+    },
+    {
+      "source": "/achievements",
+      "destination": "/achievements.html"
+    },
+    {
+      "source": "/public/achievements.html",
+      "destination": "/achievements.html"
+    },
+    {
+      "source": "/gallery",
+      "destination": "/gallery.html"
+    },
+    {
+      "source": "/public/gallery.html",
+      "destination": "/gallery.html"
+    },
+    {
+      "source": "/sponsors",
+      "destination": "/sponsors.html"
+    },
+    {
+      "source": "/public/sponsors.html",
+      "destination": "/sponsors.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/public/contact.html",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/my-applications",
+      "destination": "/my-applications.html"
+    },
+    {
+      "source": "/public/my-applications.html",
+      "destination": "/my-applications.html"
     }
   ]
 }

@@ -1544,7 +1544,7 @@ window.AdminHomeModule = (function () {
     const pages = [
       { label: 'Home', value: 'index.html' },
       { label: 'About', value: 'about.html' },
-      { label: 'Team', value: 'Team.html' },
+      { label: 'Team', value: 'team.html' },
       { label: 'Car', value: 'car.html' },
       { label: 'Gallery', value: 'gallery.html' },
       { label: 'Sponsors', value: 'sponsors.html' },
