@@ -178,8 +178,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // SSR SEO Meta Injector Middleware for public HTML requests
 app.use(seoMiddleware);
 
-// Serve public assets
+// Serve public assets (both root and /public prefix)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Dynamic API No-Cache Middleware (ensures fresh load receives published content)
 app.use('/api', (req, res, next) => {
@@ -203,7 +204,7 @@ app.use('/api', apiRouter);
 app.use('/v1', apiRouter);
 
 // Serve Admin Panel SPA for /admin and /admin/* routes
-app.get(['/admin', '/admin/*'], (req, res, next) => {
+app.get(['/admin', '/admin/*', '/public/admin', '/public/admin/*'], (req, res, next) => {
   if (req.originalUrl.startsWith('/api')) return next();
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
 });

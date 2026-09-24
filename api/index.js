@@ -12,11 +12,12 @@ module.exports = (req, res) => {
   // Vercel can strip the '/api' prefix when routing to this function.
   // Ensure Express always sees the full path starting with /api.
   if (req.url) {
-    if (!req.url.startsWith('/api')) {
+    const isStaticOrAdmin = req.url.startsWith('/admin') || req.url.startsWith('/public');
+    if (!req.url.startsWith('/api') && !isStaticOrAdmin) {
       req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
     }
     // Also fix req.path for Express routing
-    if (req.path && !req.path.startsWith('/api')) {
+    if (req.path && !req.path.startsWith('/api') && !isStaticOrAdmin) {
       Object.defineProperty(req, 'path', {
         value: '/api' + (req.path.startsWith('/') ? req.path : '/' + req.path),
         writable: true,

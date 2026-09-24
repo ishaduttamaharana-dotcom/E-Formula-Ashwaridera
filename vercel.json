@@ -11,19 +11,15 @@
     },
     {
       "source": "/admin",
-      "destination": "/public/admin/index.html"
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/",
+      "destination": "/admin/index.html"
     },
     {
       "source": "/admin/:path*",
-      "destination": "/public/admin/index.html"
-    },
-    {
-      "source": "/",
-      "destination": "/public/index.html"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/public/:path*"
+      "destination": "/admin/index.html"
     }
   ]
 }
