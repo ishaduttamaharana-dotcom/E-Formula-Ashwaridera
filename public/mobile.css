@@ -369,3 +369,577 @@ a, button, input, select, textarea {
 
 
 
+
+
+/* ============================================================
+   MOBILE FIX PATCH
+   IMPORTANT: Mobile-only overrides. Desktop styles are untouched.
+   ============================================================ */
+
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+  }
+
+  *, *::before, *::after {
+    min-width: 0;
+  }
+
+  img, svg, video, canvas, iframe {
+    max-width: 100%;
+  }
+
+  /* Navbar / logo */
+  .navbar {
+    padding: 12px 0 !important;
+  }
+
+  .navbar .container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    gap: 10px;
+  }
+
+  .nav-logo {
+    min-width: 0;
+    max-width: calc(100% - 56px);
+    gap: 8px;
+    font-size: clamp(.95rem, 4vw, 1.25rem) !important;
+  }
+
+  .logo-mark {
+    height: 38px !important;
+    max-width: 44px;
+  }
+
+  .nav-logo-wrapper {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .nav-logo span,
+  .nav-subtitle {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-nav-toggle {
+    flex: 0 0 44px;
+    display: flex !important;
+  }
+
+  /* Shared containers / sections */
+  .container,
+  .section-inner {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .section-padding,
+  section {
+    padding-top: 56px !important;
+    padding-bottom: 56px !important;
+  }
+
+  .section-title {
+    font-size: clamp(1.65rem, 8vw, 2.45rem) !important;
+    line-height: 1.08 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .section-subtitle,
+  .lead,
+  .lede {
+    max-width: 100% !important;
+    font-size: .92rem !important;
+    line-height: 1.65 !important;
+    overflow-wrap: anywhere;
+  }
+
+  /* Shared buttons */
+  .btn {
+    max-width: 100%;
+    min-height: 46px;
+    white-space: normal !important;
+    text-align: center;
+  }
+
+  /* All common grids: never force desktop columns on a phone */
+  .value-grid,
+  .value-grid-6,
+  .dept-grid,
+  .dept-grid-detailed,
+  .team-grid,
+  .achievement-grid,
+  .gallery-grid,
+  .contact-grid,
+  .tiers-grid,
+  .workshop-grid,
+  .broadcast-grid,
+  .vm-new,
+  .chip-grid {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Two-column layouts become a clean vertical flow */
+  .split-block,
+  .car-showcase,
+  .form-grid-2,
+  .car-actions,
+  .stage-btn-row {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+  }
+
+  .split-image,
+  .split-copy {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Home hero */
+  .hero {
+    min-height: 100svh !important;
+    height: auto !important;
+    max-height: none !important;
+    align-items: center !important;
+  }
+
+  .hero-video,
+  .hero-video video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+
+  .hero-content {
+    width: 100% !important;
+    padding: 112px 16px 64px !important;
+  }
+
+  .hero h1 {
+    max-width: 100% !important;
+    font-size: clamp(2.05rem, 11vw, 3.4rem) !important;
+    line-height: .98 !important;
+    letter-spacing: -.045em !important;
+    overflow-wrap: anywhere;
+  }
+
+  .hero h2.tagline {
+    font-size: clamp(.95rem, 4.4vw, 1.25rem) !important;
+    line-height: 1.4 !important;
+    margin: 16px 0 24px !important;
+  }
+
+  .hero-actions {
+    width: 100% !important;
+    margin-bottom: 38px !important;
+    gap: 10px !important;
+  }
+
+  .hero-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .hero-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px 12px !important;
+  }
+
+  .hero-stats .stat-item {
+    min-width: 0 !important;
+    padding-right: 10px !important;
+  }
+
+  .hero-stats .stat-item:not(:last-child)::after {
+    display: none !important;
+  }
+
+  .hero-stats .stat-number {
+    font-size: clamp(1.25rem, 6vw, 1.8rem) !important;
+  }
+
+  .scroll-indicator {
+    display: none !important;
+  }
+
+  /* About page */
+  .about-hero,
+  .team-hero,
+  .sponsor-hero,
+  .achievements-hero,
+  .contact-hero,
+  .gallery-hero {
+    min-height: 70svh !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .about-hero .hero-content,
+  .team-hero .hero-content,
+  .sponsor-hero .hero-content,
+  .achievements-hero .hero-content,
+  .contact-hero .hero-content,
+  .gallery-hero .hero-content {
+    padding: 110px 16px 56px !important;
+  }
+
+  .org-chart {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Team cards */
+  .team-grid {
+    gap: 14px !important;
+  }
+
+  .team-card,
+  .team-card .card-body,
+  .team-card .bio {
+    min-width: 0 !important;
+  }
+
+  .team-card .card-image img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3;
+    object-fit: cover !important;
+  }
+
+  /* Car page: keep the existing scroll/3D experience usable */
+  .car-scroll-track {
+    height: 190vh !important;
+    min-height: 1100px !important;
+  }
+
+  .car-sticky-viewport {
+    height: 100svh !important;
+    min-height: 620px !important;
+  }
+
+  .stage-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 100px 16px 24px !important;
+    z-index: 5 !important;
+  }
+
+  .stage-title {
+    font-size: clamp(1.8rem, 9vw, 3rem) !important;
+    line-height: 1 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .stage-desc {
+    max-width: 100% !important;
+    font-size: .9rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .stage-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .canvas-side {
+    width: 100% !important;
+    height: 42svh !important;
+    min-height: 240px !important;
+    max-height: 430px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .canvas-side canvas,
+  .studio-grid canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .timeline-bottom {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .timeline-bottom,
+  .build-timeline {
+    max-width: 100% !important;
+  }
+
+  .sys-tabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .sys-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sys-tab {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  .sys-panel {
+    width: 100% !important;
+  }
+
+  .spec-list {
+    width: 100% !important;
+  }
+
+  .spec-row {
+    gap: 14px !important;
+    align-items: flex-start !important;
+  }
+
+  .spec-row .spec-label,
+  .spec-row .spec-value {
+    overflow-wrap: anywhere;
+  }
+
+  .gallery-masonry {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .g-item {
+    width: 100% !important;
+    min-height: 220px !important;
+  }
+
+  /* Sponsors */
+  .sponsor-scroll-section {
+    overflow: hidden !important;
+  }
+
+  .sponsor-scroll-wrapper,
+  .sponsor-track {
+    max-width: 100% !important;
+  }
+
+  .sponsor-track {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tier-card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .form-shell {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .form-panel,
+  .form-info {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .form-row,
+  .form-group {
+    min-width: 0 !important;
+  }
+
+  input,
+  select,
+  textarea {
+    max-width: 100% !important;
+    width: 100% !important;
+    font-size: 16px !important;
+  }
+
+  /* Achievements */
+  .achievement-grid {
+    gap: 14px !important;
+  }
+
+  .achievement-card,
+  .achievement-card .card-media {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .achievement-card .card-media img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+  }
+
+  .toolbar-row {
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+
+  .filter-bar {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-btn {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  /* Gallery */
+  .gallery-grid {
+    gap: 10px !important;
+  }
+
+  .gallery-item {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .gallery-item img,
+  .gallery-item video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 70svh !important;
+    object-fit: cover !important;
+  }
+
+  .hero-bg-video,
+  .hero-bg-video video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  /* Contact */
+  .contact-grid {
+    gap: 24px !important;
+  }
+
+  .console,
+  .pitlane-wrap,
+  .pitlane-map,
+  .pitlane-data {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .pitlane-map {
+    min-height: 300px !important;
+  }
+
+  .waveform {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+
+  .footer {
+    overflow: hidden !important;
+  }
+
+  /* Prevent long CMS text/URLs from breaking the page */
+  p, h1, h2, h3, h4, h5, h6, a, span, li, td, th, label {
+    overflow-wrap: anywhere;
+  }
+
+  /* Lightbox / modal fits inside the phone */
+  .modal-box,
+  .lightbox-content {
+    width: calc(100% - 24px) !important;
+    max-width: calc(100% - 24px) !important;
+    max-height: calc(100svh - 24px) !important;
+    overflow-y: auto !important;
+  }
+
+  .lightbox-media {
+    max-width: 100% !important;
+    max-height: 70svh !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content,
+  .about-hero .hero-content,
+  .team-hero .hero-content,
+  .sponsor-hero .hero-content,
+  .achievements-hero .hero-content,
+  .contact-hero .hero-content,
+  .gallery-hero .hero-content {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .container,
+  .section-inner,
+  .navbar .container {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.9rem, 10.5vw, 2.8rem) !important;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .stage-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .stage-panel {
+    padding-top: 92px !important;
+  }
+
+  .canvas-side {
+    height: 36svh !important;
+    min-height: 210px !important;
+  }
+
+  .car-scroll-track {
+    min-height: 1000px !important;
+  }
+
+  .spec-row {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  .spec-row .spec-value {
+    text-align: left !important;
+  }
+
+  .section-title {
+    font-size: clamp(1.55rem, 8vw, 2.15rem) !important;
+  }
+}
