@@ -161,7 +161,7 @@ app.use(async (req, res, next) => {
           hasMongoUri,
           uriType: typeof process.env.MONGODB_URI,
           uriLength: (process.env.MONGODB_URI || '').length,
-          uriFirstChars: (process.env.MONGODB_URI || '').substring(0, 10),
+          jwtLength: (process.env.JWT_SECRET || '').length,
           nodeEnv: process.env.NODE_ENV || 'not set',
           isVercel: Boolean(process.env.VERCEL),
         },
