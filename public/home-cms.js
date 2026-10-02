@@ -1207,6 +1207,14 @@
     } else if (data.sponsors && data.sponsors.length > 0) {
       renderSponsors(data.sponsors);
     }
+
+    if (!isPreview && data) {
+      try { sessionStorage.setItem('ar_home_cache', JSON.stringify(data)); } catch (e) {}
+    }
+
+    document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
+      el.setAttribute('data-cms-pending', 'false');
+    });
   };
 
   // ============================================================
@@ -1218,6 +1226,17 @@
     if (isPreview) {
       renderPreviewBanner();
     }
+
+    // 0. Fast-path: instant 0ms paint from session cache
+    try {
+      const cached = sessionStorage.getItem('ar_home_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          hydrateFromUnifiedData(parsed);
+        }
+      }
+    } catch (e) {}
 
     try {
       const url = isPreview ? `${HOME_API}?preview=true` : HOME_API;

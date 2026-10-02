@@ -56,6 +56,10 @@
     if (!data) return;
     currentGalleryData = data;
 
+    if (!isPreview && data) {
+      try { sessionStorage.setItem('ar_gallery_cache', JSON.stringify(data)); } catch (e) {}
+    }
+
     const { settings, hero, categories, media, albums, cta } = data;
     const mediaItems = media || data.images || [];
 
@@ -87,6 +91,11 @@
 
     // 05. CTA Section (if present)
     if (cta) hydrateCTA(cta);
+
+    // Remove pending states
+    document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
+      el.setAttribute('data-cms-pending', 'false');
+    });
   }
 
   // ============================================================
@@ -433,6 +442,17 @@
   //  BOOTSTRAP ENGINE
   // ============================================================
   async function init() {
+    // 0. Session cache fast-path (instant 0ms paint)
+    try {
+      const cached = sessionStorage.getItem('ar_gallery_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          hydrateGalleryPage(parsed);
+        }
+      }
+    } catch (e) {}
+
     // 1. SSR Preload check
     if (window.__INITIAL_GALLERY_DATA__) {
       try {

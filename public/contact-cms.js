@@ -309,14 +309,37 @@
     document.body.appendChild(adminBar);
   }
 
-  async function init() {
-    const data = await fetchContactPageData();
+  function applyContactData(data) {
     if (!data) return;
-
     hydrateHeroSection(data.heroSection);
     hydrateChannelsSection(data.channelsSection);
     hydrateFindUsSection(data.findUsSection);
     renderAdminBar(data);
+
+    document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
+      el.setAttribute('data-cms-pending', 'false');
+    });
+  }
+
+  async function init() {
+    // 0. Session cache fast-path (instant 0ms paint)
+    try {
+      const cached = sessionStorage.getItem('ar_contact_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          applyContactData(parsed);
+        }
+      }
+    } catch (e) {}
+
+    const data = await fetchContactPageData();
+    if (!data) return;
+
+    applyContactData(data);
+    if (!isPreview) {
+      try { sessionStorage.setItem('ar_contact_cache', JSON.stringify(data)); } catch (e) {}
+    }
   }
 
   if (document.readyState === 'loading') {

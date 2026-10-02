@@ -49,6 +49,10 @@
   function hydrateTeamPage(data) {
     if (!data) return;
 
+    if (!isPreview && data) {
+      try { sessionStorage.setItem('ar_team_cache', JSON.stringify(data)); } catch (e) {}
+    }
+
     const { settings, hero, membersSection, filters, members, cta, footer } = data;
 
     // ─── 00. Page Settings & SEO ──────────────────────────────
@@ -372,6 +376,17 @@
   //  INIT
   // ============================================================
   async function initTeamCms() {
+    // 0. Session cache fast-path (instant 0ms paint)
+    try {
+      const cached = sessionStorage.getItem('ar_team_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          hydrateTeamPage(parsed);
+        }
+      }
+    } catch (e) {}
+
     // 1. Immediately hydrate from preloaded SSR data if available
     if (window.__INITIAL_TEAM_DATA__) {
       try {

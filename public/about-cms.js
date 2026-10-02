@@ -59,6 +59,17 @@
     const isPreview = window.location.search.includes('preview=true');
     if (isPreview) renderPreviewBanner();
 
+    // 0. Fast-path: instant 0ms paint from session cache
+    try {
+      const cached = sessionStorage.getItem('ar_about_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          renderAbout(parsed);
+        }
+      }
+    } catch (e) {}
+
     try {
       const url = isPreview ? `${ABOUT_API}?preview=true` : ABOUT_API;
       let res = await apiFetch(url);
@@ -589,6 +600,14 @@
         }
       }
     }
+
+    if (!window.location.search.includes('preview=true') && data) {
+      try { sessionStorage.setItem('ar_about_cache', JSON.stringify(data)); } catch (e) {}
+    }
+
+    document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
+      el.setAttribute('data-cms-pending', 'false');
+    });
   };
 
   if (document.readyState === 'loading') {

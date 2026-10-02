@@ -819,24 +819,16 @@
         initReveal();
 
         // ─── DYNAMIC SPONSOR CMS CONTENT LOADER ────────
-        async function loadSponsorPageContent() {
-            const isPreview = window.location.search.includes('preview=true') || window.location.search.includes('draft=true');
-            const endpoint = '/api/v1/sponsors' + (isPreview ? '?preview=true' : '');
+        function applySponsorData(data) {
+            if (!data) return;
+            const hero = data.hero || {};
+            const rail = data.rail || {};
+            const tiersSection = data.tiersSection || {};
+            const enquirySection = data.enquirySection || {};
+            const settings = data.settings || {};
 
-            try {
-                const res = await fetch(endpoint);
-                const json = await res.json();
-                if (!json.success || !json.data) return;
-
-                const data = json.data;
-                const hero = data.hero || {};
-                const rail = data.rail || {};
-                const tiersSection = data.tiersSection || {};
-                const enquirySection = data.enquirySection || {};
-                const settings = data.settings || {};
-
-                // 1. Title & Meta
-                if (settings.pageTitle) document.title = settings.pageTitle;
+            // 1. Title & Meta
+            if (settings.pageTitle) document.title = settings.pageTitle;
 
                 // 2. Hero Section
                 const heroSec = document.getElementById('sponsorHeroSection');
@@ -1024,7 +1016,37 @@
                     }
                 }
 
+                document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
+                    el.setAttribute('data-cms-pending', 'false');
+                });
                 initReveal();
+            } catch (err) {
+                console.warn('Error applying Sponsor CMS data:', err);
+            }
+        }
+
+        async function loadSponsorPageContent() {
+            const isPreview = window.location.search.includes('preview=true') || window.location.search.includes('draft=true');
+            const endpoint = '/api/v1/sponsors' + (isPreview ? '?preview=true' : '');
+
+            // 0. Fast-path: instant 0ms paint from session cache
+            try {
+                const cached = sessionStorage.getItem('ar_sponsors_cache');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (parsed && typeof parsed === 'object') applySponsorData(parsed);
+                }
+            } catch (e) {}
+
+            try {
+                const res = await fetch(endpoint, { cache: 'no-store' });
+                const json = await res.json();
+                if (json && json.success && json.data) {
+                    applySponsorData(json.data);
+                    if (!isPreview) {
+                        try { sessionStorage.setItem('ar_sponsors_cache', JSON.stringify(json.data)); } catch (e) {}
+                    }
+                }
             } catch (err) {
                 console.warn('Could not load dynamic Sponsor CMS data:', err);
                 const tiersGrid = document.getElementById('tiersGrid');

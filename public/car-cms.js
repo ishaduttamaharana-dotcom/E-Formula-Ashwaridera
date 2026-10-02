@@ -368,34 +368,57 @@
   // ============================================================
   //  MAIN HYDRATION EXECUTION
   // ============================================================
-  const hydrateCarPage = async () => {
-    try {
-      showPreviewBanner();
+  const applyCarData = (data) => {
+    if (!data) return;
 
+    // 01. Car Experience
+    hydrateStages(data.carExperience);
+
+    // 02. Key Specs Strip
+    hydrateKeySpecs(data.keySpecs);
+
+    // 03. Engineering Systems
+    hydrateEngineering(data.engineeringSection);
+
+    // 04. The Build Journey
+    hydrateBuildJourney(data.buildJourneySection);
+
+    // 05. Visual Breakdown
+    hydrateVisualBreakdown(data.visualBreakdownSection);
+
+    // 06. Open Positions
+    hydrateOpenPositions(data.openPositionsSection);
+
+    // Remove pending states
+    document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
+      el.setAttribute('data-cms-pending', 'false');
+    });
+  };
+
+  const hydrateCarPage = async () => {
+    showPreviewBanner();
+
+    // 0. Session cache fast-path (instant 0ms paint)
+    try {
+      const cached = sessionStorage.getItem('ar_car_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          applyCarData(parsed);
+        }
+      }
+    } catch (e) {}
+
+    try {
       const res = await fetch(CAR_API, { credentials: 'include', cache: 'no-store' });
       const json = await res.json();
 
       if (json && json.success && json.data) {
         const data = json.data;
-
-        // 01. Car Experience
-        hydrateStages(data.carExperience);
-
-        // 02. Key Specs Strip
-        hydrateKeySpecs(data.keySpecs);
-
-        // 03. Engineering Systems
-        hydrateEngineering(data.engineeringSection);
-
-        // 04. The Build Journey
-        hydrateBuildJourney(data.buildJourneySection);
-
-        // 05. Visual Breakdown
-        hydrateVisualBreakdown(data.visualBreakdownSection);
-
-        // 06. Open Positions
-        hydrateOpenPositions(data.openPositionsSection);
-
+        applyCarData(data);
+        if (!window.location.search.includes('preview=true')) {
+          try { sessionStorage.setItem('ar_car_cache', JSON.stringify(data)); } catch (e) {}
+        }
         console.log(`[Ashwa Car CMS] Page hydrated successfully (v${data.version || 1}).`);
       }
     } catch (err) {
