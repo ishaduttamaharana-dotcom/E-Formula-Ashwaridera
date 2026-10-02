@@ -680,7 +680,306 @@
     return 'fas fa-globe';
   };
 
+  // ============================================================
+  //  AUTHORITATIVE NAVIGATION & FOOTER HYDRATION
+  //  Single Source of Truth: MongoDB via /api/v1/content/navigation
+  // ============================================================
+  const NAV_CACHE_KEY = 'ar_nav_cache';
+
+  const renderBrandTitleHtml = (title) => {
+    if (!title) return 'Ashwa<span>Riders</span>';
+    if (title.includes('<span')) return title;
+    const parts = title.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[0]}<span>${parts.slice(1).join(' ')}</span>`;
+    }
+    const camelMatch = title.match(/^([A-Z][a-z0-9]+)([A-Z].*)$/);
+    if (camelMatch) {
+      return `${camelMatch[1]}<span>${camelMatch[2]}</span>`;
+    }
+    return title;
+  };
+
+  const renderNavDom = (nav) => {
+    if (!nav) return;
+
+    // Extract unified schema fields with fallbacks
+    const branding = nav.branding || {
+      brandTitle: nav.brandTitle || nav.logo?.brandText || 'Ashwa Riders',
+      logoUrl: nav.logoAsset || nav.logoUrl || nav.logo?.markImageUrl || '',
+      subtitle: nav.logo?.subtitle || 'E-FORMULA · SVPCET',
+      homeUrl: 'index.html',
+    };
+
+    const navItems = Array.isArray(nav.navigation) && nav.navigation.length > 0
+      ? nav.navigation
+      : (nav.navLinks || []).filter((l) => !l.isCta).map((l, i) => ({
+          id: `nav-${i}`,
+          label: l.label,
+          url: l.url,
+          visible: true,
+          order: l.order || i + 1,
+        }));
+
+    const headerCta = nav.headerCta || {
+      label: nav.navbarCta?.label || nav.ctaLabel || 'Join Team',
+      url: nav.navbarCta?.targetUrl || nav.ctaUrl || 'index.html#recruitment',
+      visible: nav.navbarCta?.visible !== false,
+    };
+
+    const footerBrand = nav.footerBrand || {
+      brandTitle: branding.brandTitle,
+      description: nav.footer?.tagline || nav.footer?.slogan || nav.footerSummary || '',
+      logoUrl: '',
+      logoLink: branding.homeUrl || 'index.html',
+    };
+
+    const socialLinks = Array.isArray(nav.socialLinks) && nav.socialLinks.length > 0
+      ? nav.socialLinks
+      : Object.entries(nav.footer?.socialLinks || {}).map(([platform, url], i) => ({
+          id: `soc-${i}`,
+          platform,
+          label: platform,
+          url,
+          visible: url && url !== '#',
+          order: i + 1,
+        }));
+
+    const linkGroups = Array.isArray(nav.linkGroups) ? nav.linkGroups : [];
+
+    const copyright = nav.copyright || {
+      text: nav.footer?.copyright || nav.footer?.copyrightText || nav.copyrightText || '© 2026 Ashwa Riders. All rights reserved.',
+      autoYear: true,
+    };
+
+    const credit = nav.credit || {
+      text: nav.footer?.builtByText || nav.footer?.designedBy || nav.designedBy || 'Built by the Ashwa Riders Team',
+      url: '',
+      visible: true,
+    };
+
+    const appearance = nav.appearance || {
+      footerEnabled: true,
+      socialLinksEnabled: true,
+      footerCreditEnabled: true,
+      headerCtaEnabled: true,
+    };
+
+    // ─── 1. BRANDING & LOGO ───
+    if (branding.logoUrl) {
+      const logoImgs = document.querySelectorAll('.nav-logo img, .navbar .nav-logo img, .logo-mark, .mobile-nav-brand img');
+      logoImgs.forEach((img) => {
+        if (img && img.src !== branding.logoUrl) img.src = branding.logoUrl;
+      });
+    }
+
+    if (branding.brandTitle) {
+      const titleSpan = document.querySelector('.nav-logo-wrapper > span:first-child');
+      if (titleSpan) {
+        titleSpan.innerHTML = renderBrandTitleHtml(branding.brandTitle);
+      } else {
+        const navLogo = document.querySelector('.nav-logo');
+        if (navLogo) {
+          const wrapper = navLogo.querySelector('.nav-logo-wrapper');
+          if (wrapper) wrapper.innerHTML = `<span>${renderBrandTitleHtml(branding.brandTitle)}</span><span class="nav-subtitle">${branding.subtitle || 'E-FORMULA · SVPCET'}</span>`;
+        }
+      }
+
+      const mobileBrand = document.querySelector('.mobile-nav-brand span');
+      if (mobileBrand) mobileBrand.textContent = branding.brandTitle;
+
+      const footerLogo = document.querySelector('.footer-brand .logo');
+      if (footerLogo) footerLogo.innerHTML = renderBrandTitleHtml(branding.brandTitle);
+    }
+
+    if (branding.subtitle) {
+      const subSpan = document.querySelector('.nav-subtitle');
+      if (subSpan) subSpan.textContent = branding.subtitle;
+    }
+
+    if (branding.homeUrl) {
+      const navLogos = document.querySelectorAll('.nav-logo');
+      navLogos.forEach((nl) => nl.setAttribute('href', branding.homeUrl));
+    }
+
+    // ─── 2. HEADER NAVIGATION (DESKTOP & MOBILE DRAWER) ───
+    const currentPath = window.location.pathname.toLowerCase();
+    const currentFile = currentPath.split('/').pop() || 'index.html';
+    const cleanCurrent = currentFile.replace(/\.html$/, '');
+
+    // Desktop Navbar
+    const navLinksUl = document.querySelector('.nav-links, #navLinks');
+    if (navLinksUl && navItems && navItems.length > 0) {
+      const visibleNavItems = navItems.filter((item) => item.visible !== false);
+
+      let linksMarkup = visibleNavItems
+        .map((item) => {
+          const itemFile = (item.url || '').split('/').pop().toLowerCase();
+          const cleanItem = itemFile.replace(/\.html$/, '');
+          const isActive = cleanItem === cleanCurrent || ((cleanCurrent === 'index' || cleanCurrent === '') && cleanItem === 'index');
+          return `<li><a href="${item.url}" class="${isActive ? 'active' : ''}">${item.label}</a></li>`;
+        })
+        .join('');
+
+      if (appearance.headerCtaEnabled !== false && headerCta.visible !== false && headerCta.label) {
+        linksMarkup += `<li><a href="${headerCta.url || '#'}" class="nav-cta">${headerCta.label}</a></li>`;
+      }
+
+      // Authoritative Login button placeholder (populated by auth.js)
+      linksMarkup += `<li id="arNavItem"></li>`;
+
+      navLinksUl.innerHTML = linksMarkup;
+      navLinksUl.removeAttribute('data-cms-nav');
+
+      // Coordinate with auth system immediately so login / profile button renders without flicker
+      if (window.AshwaAuth && typeof window.AshwaAuth.updateNavButton === 'function') {
+        window.AshwaAuth.updateNavButton();
+      }
+    }
+
+    // Mobile Navigation Drawer Links
+    const mobileNav = document.querySelector('.mobile-nav-links');
+    if (mobileNav && navItems && navItems.length > 0) {
+      const visibleNavItems = navItems.filter((item) => item.visible !== false);
+
+      mobileNav.innerHTML = visibleNavItems
+        .map((item) => {
+          const itemFile = (item.url || '').split('/').pop().toLowerCase();
+          const cleanItem = itemFile.replace(/\.html$/, '');
+          const isActive = cleanItem === cleanCurrent || ((cleanCurrent === 'index' || cleanCurrent === '') && cleanItem === 'index');
+          return `<a class="mobile-nav-link ${isActive ? 'active' : ''}" href="${item.url}"><span>${item.label}</span> <i class="fas fa-chevron-right"></i></a>`;
+        })
+        .join('');
+
+      // Ensure clicking links closes the drawer
+      const drawer = document.querySelector('.mobile-nav-drawer, #mobile-nav-drawer');
+      const backdrop = document.querySelector('.mobile-nav-backdrop, #mobile-nav-backdrop');
+      mobileNav.querySelectorAll('a').forEach((a) => {
+        a.addEventListener('click', () => {
+          if (drawer) drawer.classList.remove('is-open');
+          if (backdrop) backdrop.classList.remove('is-open');
+          document.body.classList.remove('mobile-nav-active');
+          document.body.style.overflow = '';
+        });
+      });
+    }
+
+    // Mobile Drawer Footer CTA
+    const mobileCtaWrap = document.querySelector('.mobile-nav-footer');
+    if (mobileCtaWrap) {
+      if (appearance.headerCtaEnabled !== false && headerCta.visible !== false && headerCta.label) {
+        mobileCtaWrap.style.display = '';
+        let ctaAnchor = mobileCtaWrap.querySelector('a');
+        if (!ctaAnchor) {
+          ctaAnchor = document.createElement('a');
+          ctaAnchor.className = 'mobile-nav-cta';
+          mobileCtaWrap.appendChild(ctaAnchor);
+        }
+        ctaAnchor.href = headerCta.url || '#';
+        ctaAnchor.innerHTML = `<i class="fas fa-arrow-right"></i> ${headerCta.label}`;
+      } else {
+        mobileCtaWrap.style.display = 'none';
+      }
+    }
+
+    // ─── 3. FOOTER BRAND & DESCRIPTION ───
+    if (footerBrand.description) {
+      const footerSummaries = document.querySelectorAll('.footer-brand p, .footer-about p');
+      footerSummaries.forEach((p) => {
+        p.textContent = footerBrand.description;
+      });
+    }
+
+    // ─── 4. FOOTER SOCIAL LINKS ───
+    const socialContainers = document.querySelectorAll('.footer-brand .social-links, .footer .social-links');
+    if (socialContainers.length > 0) {
+      if (appearance.socialLinksEnabled === false) {
+        socialContainers.forEach((sc) => { sc.style.display = 'none'; });
+      } else {
+        socialContainers.forEach((sc) => {
+          sc.style.display = '';
+          const visibleSocial = (socialLinks || []).filter((s) => s.visible !== false && s.url && s.url !== '#');
+          if (visibleSocial.length > 0) {
+            sc.innerHTML = visibleSocial
+              .map((s) => `
+                <a href="${s.url}" target="_blank" rel="noopener noreferrer" aria-label="${s.label || s.platform}">
+                  <i class="${getSocialIconClass(s.platform, s.icon)}"></i>
+                </a>
+              `)
+              .join('');
+          }
+        });
+      }
+    }
+
+    // ─── 5. FOOTER LINK COLUMNS (GROUPS) ───
+    const footerGrid = document.querySelector('.footer-grid');
+    if (footerGrid && linkGroups && linkGroups.length > 0) {
+      const brandBlock = footerGrid.querySelector('.footer-brand');
+      if (brandBlock) {
+        // Remove existing sibling column divs
+        while (brandBlock.nextElementSibling) {
+          brandBlock.nextElementSibling.remove();
+        }
+
+        // Append CMS-defined columns
+        const visibleGroups = linkGroups.filter((g) => g.visible !== false);
+        visibleGroups.forEach((grp) => {
+          const colDiv = document.createElement('div');
+          const colLinks = (grp.links || []).filter((l) => l.visible !== false);
+          colDiv.innerHTML = `
+            <h4>${grp.title}</h4>
+            <ul>
+              ${colLinks.map((l) => `<li><a href="${l.url}">${l.label}</a></li>`).join('')}
+            </ul>
+          `;
+          footerGrid.appendChild(colDiv);
+        });
+      }
+    }
+
+    // ─── 6. FOOTER COPYRIGHT & CREDIT ───
+    let finalCopyText = copyright.text || '© 2026 Ashwa Riders. All rights reserved.';
+    if (copyright.autoYear !== false) {
+      const curYear = new Date().getFullYear();
+      finalCopyText = finalCopyText.replace(/\b(20\d{2})\b/, curYear);
+    }
+
+    const copySpan = document.querySelector('.footer-bottom span:first-child, .copyright-text, .footer-mini p:first-child');
+    if (copySpan) copySpan.textContent = finalCopyText;
+
+    const builtBySpan = document.querySelector('.footer-bottom span:last-child');
+    if (builtBySpan && builtBySpan !== copySpan) {
+      if (appearance.footerCreditEnabled === false || credit.visible === false) {
+        builtBySpan.style.display = 'none';
+      } else {
+        builtBySpan.style.display = '';
+        if (credit.url && credit.url.trim() && credit.url !== '#') {
+          builtBySpan.innerHTML = `<a href="${credit.url}" style="color:inherit; text-decoration:none;">${credit.text}</a>`;
+        } else {
+          builtBySpan.textContent = credit.text || 'Built by the Ashwa Riders Team';
+        }
+      }
+    }
+
+    console.log('[CMS NAV FOOTER] Successfully hydrated global navigation and footer across page:', {
+      brandTitle: branding.brandTitle,
+      navCount: navItems.length,
+      cta: headerCta.label,
+      groupsCount: linkGroups.length,
+    });
+  };
+
   const hydrateNavigationAndFooter = async () => {
+    // Fast path: if session cache exists, render immediately (0ms synchronous delay)
+    try {
+      const cached = sessionStorage.getItem(NAV_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed) renderNavDom(parsed);
+      }
+    } catch (_) {}
+
     try {
       console.log('[CMS NAV FOOTER] Fetching published navigation and footer settings...');
       let res;
@@ -702,259 +1001,11 @@
       }
 
       const nav = data.data;
+      try {
+        sessionStorage.setItem(NAV_CACHE_KEY, JSON.stringify(nav));
+      } catch (_) {}
 
-      // Extract unified schema fields with fallbacks
-      const branding = nav.branding || {
-        brandTitle: nav.brandTitle || nav.logo?.brandText || 'Ashwa Riders',
-        logoUrl: nav.logoAsset || nav.logoUrl || nav.logo?.markImageUrl || '',
-        subtitle: nav.logo?.subtitle || 'E-FORMULA · SVPCET',
-        homeUrl: 'index.html',
-      };
-
-      const navItems = Array.isArray(nav.navigation) && nav.navigation.length > 0
-        ? nav.navigation
-        : (nav.navLinks || []).filter((l) => !l.isCta).map((l, i) => ({
-            id: `nav-${i}`,
-            label: l.label,
-            url: l.url,
-            visible: true,
-            order: l.order || i + 1,
-          }));
-
-      const headerCta = nav.headerCta || {
-        label: nav.navbarCta?.label || nav.ctaLabel || 'Join Team',
-        url: nav.navbarCta?.targetUrl || nav.ctaUrl || 'index.html#recruitment',
-        visible: nav.navbarCta?.visible !== false,
-      };
-
-      const footerBrand = nav.footerBrand || {
-        brandTitle: branding.brandTitle,
-        description: nav.footer?.tagline || nav.footer?.slogan || nav.footerSummary || '',
-        logoUrl: '',
-        logoLink: branding.homeUrl || 'index.html',
-      };
-
-      const socialLinks = Array.isArray(nav.socialLinks) && nav.socialLinks.length > 0
-        ? nav.socialLinks
-        : Object.entries(nav.footer?.socialLinks || {}).map(([platform, url], i) => ({
-            id: `soc-${i}`,
-            platform,
-            label: platform,
-            url,
-            visible: url && url !== '#',
-            order: i + 1,
-          }));
-
-      const linkGroups = Array.isArray(nav.linkGroups) ? nav.linkGroups : [];
-
-      const copyright = nav.copyright || {
-        text: nav.footer?.copyright || nav.footer?.copyrightText || nav.copyrightText || '© 2026 Ashwa Riders. All rights reserved.',
-        autoYear: true,
-      };
-
-      const credit = nav.credit || {
-        text: nav.footer?.builtByText || nav.footer?.designedBy || nav.designedBy || 'Built by the Ashwa Riders Team',
-        url: '',
-        visible: true,
-      };
-
-      const appearance = nav.appearance || {
-        footerEnabled: true,
-        socialLinksEnabled: true,
-        footerCreditEnabled: true,
-        headerCtaEnabled: true,
-      };
-
-      // ─── 1. BRANDING & LOGO ───
-      if (branding.logoUrl) {
-        const logoImgs = document.querySelectorAll('.nav-logo img, .navbar .nav-logo img, .logo-mark, .mobile-nav-brand img');
-        logoImgs.forEach((img) => {
-          if (img && img.src !== branding.logoUrl) img.src = branding.logoUrl;
-        });
-      }
-
-      if (branding.brandTitle) {
-        const titleSpan = document.querySelector('.nav-logo-wrapper > span:first-child');
-        if (titleSpan) {
-          titleSpan.textContent = branding.brandTitle;
-        } else {
-          const navLogo = document.querySelector('.nav-logo');
-          if (navLogo) {
-            const wrapper = navLogo.querySelector('.nav-logo-wrapper');
-            if (wrapper) wrapper.innerHTML = `<span>${branding.brandTitle}</span><span class="nav-subtitle">${branding.subtitle || 'E-FORMULA · SVPCET'}</span>`;
-          }
-        }
-
-        const mobileBrand = document.querySelector('.mobile-nav-brand span');
-        if (mobileBrand) mobileBrand.textContent = branding.brandTitle;
-
-        const footerLogo = document.querySelector('.footer-brand .logo');
-        if (footerLogo) footerLogo.innerHTML = branding.brandTitle;
-      }
-
-      if (branding.subtitle) {
-        const subSpan = document.querySelector('.nav-subtitle');
-        if (subSpan) subSpan.textContent = branding.subtitle;
-      }
-
-      if (branding.homeUrl) {
-        const navLogos = document.querySelectorAll('.nav-logo');
-        navLogos.forEach((nl) => nl.setAttribute('href', branding.homeUrl));
-      }
-
-      // ─── 2. HEADER NAVIGATION (DESKTOP & MOBILE DRAWER) ───
-      const currentFile = window.location.pathname.split('/').pop().toLowerCase() || 'index.html';
-
-      // Desktop Navbar
-      const navLinksUl = document.querySelector('.nav-links, #navLinks');
-      if (navLinksUl && navItems && navItems.length > 0) {
-        const visibleNavItems = navItems.filter((item) => item.visible !== false);
-
-        let linksMarkup = visibleNavItems
-          .map((item) => {
-            const itemFile = (item.url || '').split('/').pop().toLowerCase();
-            const isActive = itemFile === currentFile || (currentFile === '' && itemFile === 'index.html');
-            return `<li><a href="${item.url}" class="${isActive ? 'active' : ''}">${item.label}</a></li>`;
-          })
-          .join('');
-
-        if (appearance.headerCtaEnabled !== false && headerCta.visible !== false && headerCta.label) {
-          linksMarkup += `<li><a href="${headerCta.url || '#'}" class="nav-cta">${headerCta.label}</a></li>`;
-        }
-
-        navLinksUl.innerHTML = linksMarkup;
-      }
-
-      // Mobile Navigation Drawer Links
-      const mobileNav = document.querySelector('.mobile-nav-links');
-      if (mobileNav && navItems && navItems.length > 0) {
-        const visibleNavItems = navItems.filter((item) => item.visible !== false);
-
-        mobileNav.innerHTML = visibleNavItems
-          .map((item) => {
-            const itemFile = (item.url || '').split('/').pop().toLowerCase();
-            const isActive = itemFile === currentFile || (currentFile === '' && itemFile === 'index.html');
-            return `<a class="mobile-nav-link ${isActive ? 'active' : ''}" href="${item.url}"><span>${item.label}</span> <i class="fas fa-chevron-right"></i></a>`;
-          })
-          .join('');
-
-        // Ensure clicking links closes the drawer
-        const drawer = document.querySelector('.mobile-nav-drawer, #mobile-nav-drawer');
-        const backdrop = document.querySelector('.mobile-nav-backdrop, #mobile-nav-backdrop');
-        mobileNav.querySelectorAll('a').forEach((a) => {
-          a.addEventListener('click', () => {
-            if (drawer) drawer.classList.remove('is-open');
-            if (backdrop) backdrop.classList.remove('is-open');
-            document.body.classList.remove('mobile-nav-active');
-            document.body.style.overflow = '';
-          });
-        });
-      }
-
-      // Mobile Drawer Footer CTA
-      const mobileCtaWrap = document.querySelector('.mobile-nav-footer');
-      if (mobileCtaWrap) {
-        if (appearance.headerCtaEnabled !== false && headerCta.visible !== false && headerCta.label) {
-          mobileCtaWrap.style.display = '';
-          let ctaAnchor = mobileCtaWrap.querySelector('a');
-          if (!ctaAnchor) {
-            ctaAnchor = document.createElement('a');
-            ctaAnchor.className = 'mobile-nav-cta';
-            mobileCtaWrap.appendChild(ctaAnchor);
-          }
-          ctaAnchor.href = headerCta.url || '#';
-          ctaAnchor.innerHTML = `<i class="fas fa-arrow-right"></i> ${headerCta.label}`;
-        } else {
-          mobileCtaWrap.style.display = 'none';
-        }
-      }
-
-      // ─── 3. FOOTER BRAND & DESCRIPTION ───
-      if (footerBrand.description) {
-        const footerSummaries = document.querySelectorAll('.footer-brand p, .footer-about p');
-        footerSummaries.forEach((p) => {
-          p.textContent = footerBrand.description;
-        });
-      }
-
-      // ─── 4. FOOTER SOCIAL LINKS ───
-      const socialContainers = document.querySelectorAll('.footer-brand .social-links, .footer .social-links');
-      if (socialContainers.length > 0) {
-        if (appearance.socialLinksEnabled === false) {
-          socialContainers.forEach((sc) => { sc.style.display = 'none'; });
-        } else {
-          socialContainers.forEach((sc) => {
-            sc.style.display = '';
-            const visibleSocial = (socialLinks || []).filter((s) => s.visible !== false && s.url && s.url !== '#');
-            if (visibleSocial.length > 0) {
-              sc.innerHTML = visibleSocial
-                .map((s) => `
-                  <a href="${s.url}" target="_blank" rel="noopener noreferrer" aria-label="${s.label || s.platform}">
-                    <i class="${getSocialIconClass(s.platform, s.icon)}"></i>
-                  </a>
-                `)
-                .join('');
-            }
-          });
-        }
-      }
-
-      // ─── 5. FOOTER LINK COLUMNS (GROUPS) ───
-      const footerGrid = document.querySelector('.footer-grid');
-      if (footerGrid && linkGroups && linkGroups.length > 0) {
-        const brandBlock = footerGrid.querySelector('.footer-brand');
-        if (brandBlock) {
-          // Remove existing sibling column divs
-          while (brandBlock.nextElementSibling) {
-            brandBlock.nextElementSibling.remove();
-          }
-
-          // Append CMS-defined columns
-          const visibleGroups = linkGroups.filter((g) => g.visible !== false);
-          visibleGroups.forEach((grp) => {
-            const colDiv = document.createElement('div');
-            const colLinks = (grp.links || []).filter((l) => l.visible !== false);
-            colDiv.innerHTML = `
-              <h4>${grp.title}</h4>
-              <ul>
-                ${colLinks.map((l) => `<li><a href="${l.url}">${l.label}</a></li>`).join('')}
-              </ul>
-            `;
-            footerGrid.appendChild(colDiv);
-          });
-        }
-      }
-
-      // ─── 6. FOOTER COPYRIGHT & CREDIT ───
-      let finalCopyText = copyright.text || '© 2026 Ashwa Riders. All rights reserved.';
-      if (copyright.autoYear !== false) {
-        const curYear = new Date().getFullYear();
-        finalCopyText = finalCopyText.replace(/\b(20\d{2})\b/, curYear);
-      }
-
-      const copySpan = document.querySelector('.footer-bottom span:first-child, .copyright-text, .footer-mini p:first-child');
-      if (copySpan) copySpan.textContent = finalCopyText;
-
-      const builtBySpan = document.querySelector('.footer-bottom span:last-child');
-      if (builtBySpan && builtBySpan !== copySpan) {
-        if (appearance.footerCreditEnabled === false || credit.visible === false) {
-          builtBySpan.style.display = 'none';
-        } else {
-          builtBySpan.style.display = '';
-          if (credit.url && credit.url.trim() && credit.url !== '#') {
-            builtBySpan.innerHTML = `<a href="${credit.url}" style="color:inherit; text-decoration:none;">${credit.text}</a>`;
-          } else {
-            builtBySpan.textContent = credit.text || 'Built by the Ashwa Riders Team';
-          }
-        }
-      }
-
-      console.log('[CMS NAV FOOTER] Successfully hydrated global navigation and footer across page:', {
-        brandTitle: branding.brandTitle,
-        navCount: navItems.length,
-        cta: headerCta.label,
-        groupsCount: linkGroups.length,
-      });
+      renderNavDom(nav);
     } catch (err) {
       console.error('[CMS NAV FOOTER] Error hydrating navigation/footer:', err);
     }

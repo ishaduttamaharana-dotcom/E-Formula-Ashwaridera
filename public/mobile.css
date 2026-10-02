@@ -1754,7 +1754,43 @@ a, button, input, select, textarea {
     font-size: .88rem !important;
   }
 
-  .mobile-nav-brand img {
-    height: 28px !important;
+}
+
+/* ============================================================
+   AUTHORITATIVE NAVBAR LOADING SKELETON
+   Prevents content flash / layout shifts before CMS hydration
+   ============================================================ */
+.nav-links[data-cms-nav="pending"] {
+  display: flex !important;
+  align-items: center;
+  gap: 18px;
+}
+.nav-skeleton-item {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+.nav-skeleton-pill {
+  display: inline-block;
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.10) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: navShimmer 1.4s infinite;
+}
+.nav-skeleton-pill.nav-skeleton-cta {
+  height: 32px;
+  border-radius: 100px;
+  background: rgba(242, 89, 18, 0.12);
+}
+@keyframes navShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 900px) {
+  .nav-links[data-cms-nav="pending"] {
+    display: none !important;
   }
 }
+

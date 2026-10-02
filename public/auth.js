@@ -579,12 +579,14 @@
   //  INJECT NAVBAR BUTTON
   // ============================================================
   const injectNavButton = () => {
-    const navLinks = document.getElementById('navLinks');
-    if (!navLinks) return;
-
-    const li = document.createElement('li');
-    li.id = 'arNavItem';
-    navLinks.appendChild(li);
+    let li = document.getElementById('arNavItem');
+    if (!li) {
+      const navLinks = document.getElementById('navLinks');
+      if (!navLinks) return;
+      li = document.createElement('li');
+      li.id = 'arNavItem';
+      navLinks.appendChild(li);
+    }
 
     updateNavButton();
   };
@@ -905,6 +907,16 @@
 
     // Verify existing session silently
     verifySession();
+  };
+
+  // Expose global auth helpers for coordinated navbar rendering
+  window.AshwaAuth = {
+    injectNavButton,
+    updateNavButton,
+    openModal,
+    closeModal,
+    getStoredUser,
+    currentUser: () => currentUser,
   };
 
   // Run after DOM is ready
