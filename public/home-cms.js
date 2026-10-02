@@ -606,10 +606,10 @@
 
     statsWrap.classList.add('in');
 
-    // Trigger counter animation for numeric stats
+    // Trigger counter animation for numeric stats without thousands separators
     statsWrap.querySelectorAll('.stat-number').forEach(el => {
-      const str = el.getAttribute('data-count') || '';
-      const numMatch = str.match(/^(\d+)(.*)$/);
+      const rawVal = el.getAttribute('data-count') || '';
+      const numMatch = rawVal.match(/^(\d+)(.*)$/);
       if (numMatch) {
         const targetNum = parseInt(numMatch[1], 10);
         const suffix = numMatch[2] || '';
@@ -618,11 +618,16 @@
         function update(now) {
           const progress = Math.min((now - start) / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
-          el.textContent = Math.round(eased * targetNum).toLocaleString() + suffix;
-          if (progress < 1) requestAnimationFrame(update);
-          else el.textContent = targetNum.toLocaleString() + suffix;
+          el.textContent = Math.round(eased * targetNum) + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = rawVal;
+          }
         }
         requestAnimationFrame(update);
+      } else {
+        el.textContent = rawVal;
       }
     });
   };

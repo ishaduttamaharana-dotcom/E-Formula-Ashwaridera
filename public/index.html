@@ -3527,6 +3527,7 @@
         const trigger = window.innerHeight * 0.9;
         counters.forEach(el => {
           if (done.has(el)) return;
+          if (el.closest('#heroStats')) return; // Quick Stats are handled authoritatively by home-cms.js without thousands separators
           if (el.getBoundingClientRect().top < trigger) {
             done.add(el);
             const target = parseInt(el.getAttribute('data-count'));
