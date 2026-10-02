@@ -43,6 +43,23 @@ const submitSponsorRequest = async (req, res, next) => {
       return sendError(res, 400, 'Sponsorship type is required.');
     }
 
+    const isObsoleteCategory = (str) => {
+      if (!str || typeof str !== 'string') return false;
+      const s = str.toLowerCase().trim();
+      return (
+        s.includes('technical') ||
+        s.includes('education') ||
+        s.includes('educational') ||
+        s.includes('media partner') ||
+        s.includes('media-partner') ||
+        s === 'media'
+      );
+    };
+
+    if (isObsoleteCategory(sponsorshipType)) {
+      return sendError(res, 400, 'The requested sponsorship category is no longer supported.');
+    }
+
     let companyLogoUrl = '';
     let companyLogoPublicId = '';
     let documentUrl = '';

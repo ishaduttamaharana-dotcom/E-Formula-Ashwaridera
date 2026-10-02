@@ -1374,7 +1374,7 @@ window.AdminHomeModule = (function () {
           <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:260px;">
             <span class="hcms-tier-badge" style="font-family:monospace; font-size:0.75rem; font-weight:800; background:rgba(242,89,18,0.12); color:#F25912; border:1px solid rgba(242,89,18,0.3); padding:4px 8px; border-radius:4px;">TIER ${String(tIdx + 1).padStart(2, '0')}</span>
             <input type="text" class="hcms-tier-name-input tier-name-input" data-tidx="${tIdx}"
-              value="${escapeHtml(tier.name || 'Tier ' + (tIdx + 1))}" placeholder="e.g. Gold Tier, Technical Partners" style="font-weight:700; font-size:0.95rem; color:#FFFFFF; background:#1C1C24; border:1px solid #333; padding:5px 10px; border-radius:4px; flex:1;" />
+              value="${escapeHtml(tier.name || 'Tier ' + (tIdx + 1))}" placeholder="e.g. Gold Tier, Silver Tier, Bronze Tier" style="font-weight:700; font-size:0.95rem; color:#FFFFFF; background:#1C1C24; border:1px solid #333; padding:5px 10px; border-radius:4px; flex:1;" />
           </div>
 
           <!-- Controls: Visible Toggle, Reorder, Delete -->

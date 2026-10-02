@@ -14,7 +14,7 @@ const sponsorSchema = new mongoose.Schema(
     },
     tier: {
       type: String,
-      enum: ['Title', 'Platinum', 'Gold', 'Silver', 'Bronze', 'Associate', 'Technical Partner', 'Equipment Partner'],
+      enum: ['Title', 'Platinum', 'Gold', 'Silver', 'Bronze', 'Associate', 'Equipment Partner'],
       default: 'Gold',
       required: true,
       index: true,

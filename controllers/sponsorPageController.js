@@ -24,14 +24,9 @@ const DEFAULT_SPONSORS = [
   { id: 'sp-3', name: 'MATLAB', tier: 'Gold', logoUrl: '', altText: 'MATLAB', websiteUrl: '', icon: 'fas fa-chart-simple', order: 3, visible: true },
   { id: 'sp-4', name: 'Carbonext', tier: 'Silver', logoUrl: '', altText: 'Carbonext', websiteUrl: '', icon: 'fas fa-leaf', order: 4, visible: true },
   { id: 'sp-5', name: 'EIPRISM', tier: 'Silver', logoUrl: '', altText: 'EIPRISM', websiteUrl: '', icon: 'fas fa-cube', order: 5, visible: true },
-  { id: 'sp-6', name: 'CIRCUITRONICS LLP', tier: 'Technical Partner', logoUrl: '', altText: 'CIRCUITRONICS LLP', websiteUrl: '', icon: 'fas fa-microchip', order: 6, visible: true },
-  { id: 'sp-7', name: 'Maharashtra Bear & Belting Co.', tier: 'Technical Partner', logoUrl: '', altText: 'Maharashtra Bear & Belting Co.', websiteUrl: '', icon: 'fas fa-industry', order: 7, visible: true },
-  { id: 'sp-8', name: 'ALTAIR', tier: 'Technical Partner', logoUrl: '', altText: 'ALTAIR', websiteUrl: '', icon: 'fas fa-chart-line', order: 8, visible: true },
-  { id: 'sp-9', name: 'ANSYS', tier: 'Technical Partner', logoUrl: '', altText: 'ANSYS', websiteUrl: '', icon: 'fas fa-cubes', order: 9, visible: true },
-  { id: 'sp-10', name: 'BENDER', tier: 'Technical Partner', logoUrl: '', altText: 'BENDER', websiteUrl: '', icon: 'fas fa-shield', order: 10, visible: true },
-  { id: 'sp-11', name: 'Vashi INTEGRATE SOLUTIONS', tier: 'Associate', logoUrl: '', altText: 'Vashi INTEGRATE SOLUTIONS', websiteUrl: '', icon: 'fas fa-wave-square', order: 11, visible: true },
-  { id: 'sp-12', name: 'PERFECTIO', tier: 'Associate', logoUrl: '', altText: 'PERFECTIO', websiteUrl: '', icon: 'fas fa-star', order: 12, visible: true },
-  { id: 'sp-13', name: 'ADAPT.IMPROVISE.OVERCOME', tier: 'Associate', logoUrl: '', altText: 'ADAPT.IMPROVISE.OVERCOME', websiteUrl: '', icon: 'fas fa-arrows-rotate', order: 13, visible: true },
+  { id: 'sp-11', name: 'Vashi INTEGRATE SOLUTIONS', tier: 'Associate', logoUrl: '', altText: 'Vashi INTEGRATE SOLUTIONS', websiteUrl: '', icon: 'fas fa-wave-square', order: 6, visible: true },
+  { id: 'sp-12', name: 'PERFECTIO', tier: 'Associate', logoUrl: '', altText: 'PERFECTIO', websiteUrl: '', icon: 'fas fa-star', order: 7, visible: true },
+  { id: 'sp-13', name: 'ADAPT.IMPROVISE.OVERCOME', tier: 'Associate', logoUrl: '', altText: 'ADAPT.IMPROVISE.OVERCOME', websiteUrl: '', icon: 'fas fa-arrows-rotate', order: 8, visible: true },
 ];
 
 const DEFAULT_TIERS = [
@@ -56,7 +51,7 @@ const DEFAULT_TIERS = [
   {
     id: 'tier-silver',
     name: 'Silver',
-    title: 'Technical Partner',
+    title: 'Silver Sponsor',
     description: 'Cash, components, or services',
     benefits: [
       'Everything in Bronze',
@@ -114,12 +109,54 @@ const DEFAULT_TIERS = [
   },
 ];
 
+const isObsoleteCategory = (str) => {
+  if (!str || typeof str !== 'string') return false;
+  const s = str.toLowerCase().trim();
+  return (
+    s.includes('technical') ||
+    s.includes('education') ||
+    s.includes('educational') ||
+    s.includes('media partner') ||
+    s.includes('media-partner') ||
+    s === 'media'
+  );
+};
+
 /**
  * Retrieve or initialize the singleton SponsorPageContent document.
  */
 const getOrSeedSponsorDoc = async () => {
   let doc = await SponsorPageContent.findOne();
-  if (doc) return doc;
+  if (doc) {
+    let needsSave = false;
+    // Clean obsolete rail items
+    if (doc.rail && Array.isArray(doc.rail.items)) {
+      const filtered = doc.rail.items.filter((item) => !isObsoleteCategory(item.tier));
+      if (filtered.length !== doc.rail.items.length) {
+        doc.rail.items = filtered;
+        needsSave = true;
+      }
+    }
+    // Clean obsolete tier titles if any
+    if (doc.tiersSection && Array.isArray(doc.tiersSection.tiers)) {
+      doc.tiersSection.tiers.forEach((t) => {
+        if (isObsoleteCategory(t.title)) {
+          t.title = 'Silver Sponsor';
+          needsSave = true;
+        }
+      });
+    }
+    if (needsSave) {
+      doc.draftVersion = JSON.parse(JSON.stringify(doc.toObject()));
+      doc.publishedVersion = JSON.parse(JSON.stringify(doc.toObject()));
+      doc.markModified('rail');
+      doc.markModified('tiersSection');
+      doc.markModified('draftVersion');
+      doc.markModified('publishedVersion');
+      await doc.save();
+    }
+    return doc;
+  }
 
   console.log('⚡ Initializing Sponsor Page Control Center document with authentic defaults...');
 
@@ -224,12 +261,18 @@ const getPublicSponsorContent = async (req, res) => {
     // Filter rail items by visibility and sort by order
     const rawRailItems = source.rail?.items || DEFAULT_SPONSORS;
     const railItems = rawRailItems
+      .filter((item) => !isObsoleteCategory(item.tier))
       .filter((item) => isPreview || item.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     // Filter tiers by visibility and sort by order
     const rawTiers = source.tiersSection?.tiers || DEFAULT_TIERS;
     const tiers = rawTiers
+      .filter((tier) => !isObsoleteCategory(tier.name))
+      .map((tier) => ({
+        ...tier,
+        title: isObsoleteCategory(tier.title) ? 'Silver Sponsor' : tier.title,
+      }))
       .filter((tier) => isPreview || tier.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -307,6 +350,19 @@ const updateSponsorDraft = async (req, res) => {
   try {
     const doc = await getOrSeedSponsorDoc();
     const payload = req.body || {};
+
+    if (payload.rail?.items && Array.isArray(payload.rail.items)) {
+      const hasObsolete = payload.rail.items.some((i) => isObsoleteCategory(i.tier));
+      if (hasObsolete) {
+        return sendError(res, 400, 'Technical, Education, and Media partner categories are permanently removed and cannot be added.');
+      }
+    }
+    if (payload.tiersSection?.tiers && Array.isArray(payload.tiersSection.tiers)) {
+      const hasObsolete = payload.tiersSection.tiers.some((t) => isObsoleteCategory(t.name) || isObsoleteCategory(t.title));
+      if (hasObsolete) {
+        return sendError(res, 400, 'Technical, Education, and Media partner categories are permanently removed and cannot be added.');
+      }
+    }
 
     // Build clean draft object (only metadata and string URLs)
     const newDraft = {
@@ -404,6 +460,10 @@ const submitPublicSponsorEnquiry = async (req, res) => {
 
     if (!finalName || !finalOrg || !finalEmail) {
       return sendError(res, 400, 'Please provide your full name, company/organisation, and email address.');
+    }
+
+    if (isObsoleteCategory(finalTier)) {
+      return sendError(res, 400, 'The selected sponsorship category is no longer supported.');
     }
 
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;

@@ -666,11 +666,27 @@
       return orderA - orderB;
     });
 
+    const isObsoleteTier = (t) => {
+      const name = (t.name || '').toLowerCase();
+      const slug = (t.slug || '').toLowerCase();
+      const id = (t.id || '').toLowerCase();
+      return name.includes('technical') || name.includes('education') || name.includes('media') ||
+             slug.includes('technical') || slug.includes('education') || slug.includes('media') ||
+             id.includes('technical') || id.includes('education') || id.includes('media');
+    };
+    const isObsoleteSponsor = (s) => {
+      const tier = (s.tier || '').toLowerCase();
+      const name = (s.name || '').toLowerCase();
+      return tier.includes('technical') || tier.includes('education') || tier.includes('media') ||
+             ['bosch', 'zuken', 'iit bombay', 'bms college', 'ev reporter', 'sportskeeda'].includes(name);
+    };
+
     // Level 1: Filter out hidden tiers (visible === false)
     // Empty tier behavior: Filter out tiers that have 0 visible sponsors
     const activeTiers = sortedTiers.filter((tier) => {
       if (tier.visible === false) return false;
-      const visibleSponsors = (tier.sponsors || []).filter((s) => s.visible !== false);
+      if (isObsoleteTier(tier)) return false;
+      const visibleSponsors = (tier.sponsors || []).filter((s) => s.visible !== false && !isObsoleteSponsor(s));
       return visibleSponsors.length > 0;
     });
 
@@ -698,7 +714,7 @@
 
       // Level 2: Filter and sort individual sponsors
       const sponsors = (tier.sponsors || [])
-        .filter((s) => s.visible !== false)
+        .filter((s) => s.visible !== false && !isObsoleteSponsor(s))
         .sort((a, b) => {
           const ordA = a.order !== undefined ? a.order : (a.displayOrder !== undefined ? a.displayOrder : 0);
           const ordB = b.order !== undefined ? b.order : (b.displayOrder !== undefined ? b.displayOrder : 0);
@@ -758,7 +774,7 @@
     if (!marquees || marquees.length === 0) return;
 
     const gold = sponsorsList.filter((s) => s.tier === 'Gold' || s.tier === 'Title' || s.tier === 'Platinum' || (s.tier && s.tier.includes('Gold')));
-    const silver = sponsorsList.filter((s) => s.tier === 'Silver' || (s.tier && s.tier.includes('Technical')));
+    const silver = sponsorsList.filter((s) => s.tier === 'Silver');
     const bronze = sponsorsList.filter((s) => s.tier === 'Bronze' || (s.tier && s.tier.includes('Associate')) || (s.tier && s.tier.includes('Equipment')));
 
     const updateMarquee = (track, list) => {

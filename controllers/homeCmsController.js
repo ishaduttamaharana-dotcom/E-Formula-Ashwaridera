@@ -329,10 +329,26 @@ const getSponsors = async (req, res, next) => {
   }
 };
 
+const isObsoleteTier = (str) => {
+  if (!str || typeof str !== 'string') return false;
+  const s = str.toLowerCase().trim();
+  return (
+    s.includes('technical') ||
+    s.includes('education') ||
+    s.includes('educational') ||
+    s.includes('media partner') ||
+    s.includes('media-partner') ||
+    s === 'media'
+  );
+};
+
 const createSponsor = async (req, res, next) => {
   try {
     const { name, tier, imageUrl, publicId, websiteLink, icon, order } = req.body;
     if (!name) return sendError(res, 400, 'Sponsor name is required.');
+    if (isObsoleteTier(tier)) {
+      return sendError(res, 400, 'Technical, Education, and Media partner categories are permanently removed.');
+    }
 
     const sponsor = await HomeSponsor.create({
       name:        name.trim(),
@@ -354,6 +370,10 @@ const updateSponsor = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, tier, imageUrl, publicId, websiteLink, icon, order } = req.body;
+
+    if (isObsoleteTier(tier)) {
+      return sendError(res, 400, 'Technical, Education, and Media partner categories are permanently removed.');
+    }
 
     const updates = {};
     if (name !== undefined)        updates.name        = name.trim();

@@ -103,10 +103,7 @@ module.exports = {
     },
   ],
   partners: [
-    { name: 'IIT Bombay', icon: '🏛️' },
-    { name: 'BMS College', icon: '🏫' },
     { name: 'ResearchLab', icon: '🔬' },
-    { name: 'Bosch', icon: '🏭' },
     { name: 'Tata Elxsi', icon: '⚡' },
     { name: 'ISRO', icon: '📡' },
   ],

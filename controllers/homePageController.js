@@ -65,49 +65,27 @@ const DEFAULT_SPONSOR_TIERS = [
       { id: 'sp-10', name: 'GripWorks', logoUrl: '', icon: 'fas fa-tools', websiteUrl: 'sponsors.html', altText: 'GripWorks', tier: 'Bronze Tier', description: '', visible: true, featured: false, order: 2 },
     ],
   },
-  {
-    id: 'tier-technical',
-    name: 'Technical Partners',
-    slug: 'technical-partners',
-    direction: 'reverse',
-    visible: true,
-    animationEnabled: true,
-    animationSpeed: 'normal',
-    order: 3,
-    sponsors: [
-      { id: 'sp-11', name: 'Bosch', logoUrl: '', icon: 'fas fa-cogs', websiteUrl: 'sponsors.html', altText: 'Bosch', tier: 'Technical Partners', description: '', visible: true, featured: false, order: 0 },
-      { id: 'sp-12', name: 'Zuken', logoUrl: '', icon: 'fas fa-microchip', websiteUrl: 'sponsors.html', altText: 'Zuken', tier: 'Technical Partners', description: '', visible: true, featured: false, order: 1 },
-    ],
-  },
-  {
-    id: 'tier-education',
-    name: 'Education Partners',
-    slug: 'education-partners',
-    direction: 'forward',
-    visible: true,
-    animationEnabled: true,
-    animationSpeed: 'normal',
-    order: 4,
-    sponsors: [
-      { id: 'sp-13', name: 'IIT Bombay', logoUrl: '', icon: 'fas fa-university', websiteUrl: 'sponsors.html', altText: 'IIT Bombay', tier: 'Education Partners', description: '', visible: true, featured: false, order: 0 },
-      { id: 'sp-14', name: 'BMS College', logoUrl: '', icon: 'fas fa-school', websiteUrl: 'sponsors.html', altText: 'BMS College', tier: 'Education Partners', description: '', visible: true, featured: false, order: 1 },
-    ],
-  },
-  {
-    id: 'tier-media',
-    name: 'Media Partners',
-    slug: 'media-partners',
-    direction: 'reverse',
-    visible: true,
-    animationEnabled: true,
-    animationSpeed: 'normal',
-    order: 5,
-    sponsors: [
-      { id: 'sp-15', name: 'EV Reporter', logoUrl: '', icon: 'fas fa-newspaper', websiteUrl: 'sponsors.html', altText: 'EV Reporter', tier: 'Media Partners', description: '', visible: true, featured: false, order: 0 },
-      { id: 'sp-16', name: 'Sportskeeda', logoUrl: '', icon: 'fas fa-video', websiteUrl: 'sponsors.html', altText: 'Sportskeeda', tier: 'Media Partners', description: '', visible: true, featured: false, order: 1 },
-    ],
-  },
 ];
+
+const isObsoleteCategory = (str) => {
+  if (!str || typeof str !== 'string') return false;
+  const s = str.toLowerCase().trim();
+  return (
+    s.includes('technical') ||
+    s.includes('education') ||
+    s.includes('educational') ||
+    s.includes('media partner') ||
+    s.includes('media-partner') ||
+    s === 'media'
+  );
+};
+
+const isObsoleteSponsorRecord = (s) => {
+  if (!s || typeof s !== 'object') return false;
+  if (isObsoleteCategory(s.tier) || isObsoleteCategory(s.tierName)) return true;
+  const name = (s.name || '').toLowerCase().trim();
+  return ['bosch', 'zuken', 'iit bombay', 'bms college', 'ev reporter', 'sportskeeda'].includes(name);
+};
 
 /**
  * Initialize default or migrated Home Document if not present.
@@ -124,14 +102,27 @@ const getOrSeedHomeDoc = async () => {
       doc.footerSponsors.sponsorSection = {};
       needsSave = true;
     }
-    const currentTiers = doc.footerSponsors.sponsorSection.tiers || [];
-    if (currentTiers.length < 5) {
-      const existingNames = new Set(currentTiers.map(t => (t.name || '').toLowerCase().trim()));
-      DEFAULT_SPONSOR_TIERS.forEach(defTier => {
-        if (!existingNames.has((defTier.name || '').toLowerCase().trim())) {
-          currentTiers.push({ ...defTier, order: currentTiers.length });
-          needsSave = true;
-        }
+
+    // Filter out obsolete partner tiers & records from stored document
+    let currentTiers = doc.footerSponsors.sponsorSection.tiers || [];
+    const cleanedTiers = currentTiers
+      .filter((t) => !isObsoleteCategory(t.name) && !isObsoleteCategory(t.slug) && !isObsoleteCategory(t.id))
+      .map((t, idx) => ({
+        ...t,
+        order: idx,
+        sponsors: (t.sponsors || []).filter((s) => !isObsoleteSponsorRecord(s)),
+      }));
+
+    if (cleanedTiers.length !== currentTiers.length || JSON.stringify(cleanedTiers) !== JSON.stringify(currentTiers)) {
+      currentTiers = cleanedTiers;
+      doc.footerSponsors.sponsorSection.tiers = currentTiers;
+      needsSave = true;
+    }
+
+    if (currentTiers.length === 0) {
+      DEFAULT_SPONSOR_TIERS.forEach((defTier) => {
+        currentTiers.push({ ...defTier, order: currentTiers.length });
+        needsSave = true;
       });
       doc.footerSponsors.sponsorSection.tiers = currentTiers;
     }
@@ -589,6 +580,15 @@ const updateHomeDraft = async (req, res) => {
     if (body.carStory) doc.carStory = Object.assign(doc.carStory || {}, body.carStory);
     if (body.news) doc.news = Object.assign(doc.news || {}, body.news);
     if (body.footerSponsors) {
+      if (body.footerSponsors.sponsorSection?.tiers) {
+        const hasObsolete = body.footerSponsors.sponsorSection.tiers.some(
+          (t) => isObsoleteCategory(t.name) || isObsoleteCategory(t.slug) || isObsoleteCategory(t.id) ||
+                 (t.sponsors || []).some((s) => isObsoleteCategory(s.tier) || isObsoleteCategory(s.tierName))
+        );
+        if (hasObsolete) {
+          return sendError(res, 400, 'Technical, Education, and Media partner categories are permanently removed and cannot be added.');
+        }
+      }
       doc.footerSponsors = Object.assign(doc.footerSponsors || {}, body.footerSponsors);
       doc.markModified('footerSponsors');
     }
@@ -681,7 +681,12 @@ const getPublicHome = async (req, res) => {
 
     // Clean internal audit fields
     const rawSection = data.footerSponsors?.sponsorSection || {};
-    const rawTiers = rawSection.tiers || [];
+    const rawTiers = (rawSection.tiers || [])
+      .filter((t) => !isObsoleteCategory(t.name) && !isObsoleteCategory(t.slug) && !isObsoleteCategory(t.id))
+      .map((t) => ({
+        ...t,
+        sponsors: (t.sponsors || []).filter((s) => !isObsoleteSponsorRecord(s)),
+      }));
     let publicTiers;
 
     if (isPreview) {

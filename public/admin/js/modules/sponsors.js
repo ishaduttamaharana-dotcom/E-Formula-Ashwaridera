@@ -838,7 +838,6 @@
                 <option value="Gold" ${sponsor.tier === 'Gold' ? 'selected' : ''}>Gold Tier</option>
                 <option value="Silver" ${sponsor.tier === 'Silver' ? 'selected' : ''}>Silver Tier</option>
                 <option value="Bronze" ${sponsor.tier === 'Bronze' ? 'selected' : ''}>Bronze Tier</option>
-                <option value="Technical Partner" ${sponsor.tier === 'Technical Partner' ? 'selected' : ''}>Technical Partner</option>
                 <option value="Equipment Partner" ${sponsor.tier === 'Equipment Partner' ? 'selected' : ''}>Equipment Partner</option>
                 <option value="Associate" ${sponsor.tier === 'Associate' ? 'selected' : ''}>Associate Partner</option>
               </select>

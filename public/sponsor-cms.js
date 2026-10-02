@@ -141,7 +141,7 @@
           </div>
           <h4>3. Sponsorship Details</h4>
           <div class="ar-cms-form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div><label>Sponsorship Type *</label><select name="sponsorshipType" required><option value="">Select Category...</option><option value="Title Sponsor">Title Sponsor</option><option value="Platinum Sponsor">Platinum Sponsor</option><option value="Gold Sponsor">Gold Sponsor</option><option value="Silver Sponsor">Silver Sponsor</option><option value="Technical Partner">Technical Partner</option><option value="Equipment Partner">Equipment Partner</option><option value="Media Partner">Media Partner</option><option value="Knowledge Partner">Knowledge Partner</option><option value="Other">Other</option></select></div>
+            <div><label>Sponsorship Type *</label><select name="sponsorshipType" required><option value="">Select Category...</option><option value="Title Sponsor">Title Sponsor</option><option value="Platinum Sponsor">Platinum Sponsor</option><option value="Gold Sponsor">Gold Sponsor</option><option value="Silver Sponsor">Silver Sponsor</option><option value="Equipment Partner">Equipment Partner</option><option value="Knowledge Partner">Knowledge Partner</option><option value="Other">Other</option></select></div>
             <div><label>Sponsorship Amount / Value (Optional)</label><input type="text" name="sponsorshipAmount" placeholder="e.g. ₹5,00,000 or In-Kind Software" /></div>
           </div>
           <h4>4. Proposal & Message</h4>

@@ -76,7 +76,6 @@
                 <option value="gold" style="background:#181820; color:#fff;">Gold Sponsor</option>
                 <option value="silver" style="background:#181820; color:#fff;">Silver Sponsor</option>
                 <option value="bronze" style="background:#181820; color:#fff;">Bronze Sponsor</option>
-                <option value="technical" style="background:#181820; color:#fff;">Technical Partner</option>
               </select>
             </div>
 
