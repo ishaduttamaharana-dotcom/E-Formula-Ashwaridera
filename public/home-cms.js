@@ -123,8 +123,13 @@
 
     // Badge
     const badgeEl = heroSection.querySelector('.hero-badge');
-    if (badgeEl && heroData.badgeText) {
-      badgeEl.innerHTML = `<span class="dot"></span> ${heroData.badgeText}`;
+    if (badgeEl) {
+      if (heroData.badgeText) {
+        badgeEl.innerHTML = `<span class="dot"></span> ${heroData.badgeText}`;
+        badgeEl.style.display = '';
+      } else {
+        badgeEl.style.display = 'none';
+      }
     }
 
     // Kinetic Headline (Split words cleanly to prevent duplication)
@@ -143,18 +148,48 @@
       tagline.classList.add('in');
     }
 
+    // Slide Description
+    let descEl = heroSection.querySelector('#heroDesc');
+    if (heroData.description) {
+      if (!descEl) {
+        descEl = document.createElement('p');
+        descEl.id = 'heroDesc';
+        descEl.className = 'hero-description';
+        descEl.style.cssText = 'color: rgba(255,255,255,0.72); max-width: 680px; font-size: 0.95rem; margin-top: -12px; margin-bottom: 28px; line-height: 1.6; font-family: var(--font-body, sans-serif); opacity: 0; transform: translateY(14px); transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;';
+        if (tagline && tagline.nextElementSibling) {
+          tagline.parentNode.insertBefore(descEl, tagline.nextElementSibling);
+        } else if (tagline) {
+          tagline.parentNode.appendChild(descEl);
+        }
+      }
+      descEl.textContent = heroData.description;
+      descEl.style.display = '';
+      requestAnimationFrame(() => {
+        descEl.style.opacity = '1';
+        descEl.style.transform = 'translateY(0)';
+      });
+    } else if (descEl) {
+      descEl.style.display = 'none';
+    }
+
     // Buttons
     const actions = heroSection.querySelector('#heroActions');
     if (actions) {
+      const pVisible = heroData.primaryBtnVisible !== false;
+      const sVisible = heroData.secondaryBtnVisible !== false;
       const pText = heroData.primaryBtnText || 'Explore Our Car';
       const pLink = heroData.primaryBtnLink || 'car.html';
       const sText = heroData.secondaryBtnText || 'Become a Sponsor';
       const sLink = heroData.secondaryBtnLink || 'sponsors.html';
 
-      actions.innerHTML = `
-        <a href="${pLink}" class="btn btn-primary"><i class="fas fa-car"></i> ${pText}</a>
-        <a href="${sLink}" class="btn btn-secondary"><i class="fas fa-handshake"></i> ${sText}</a>
-      `;
+      let btnsHtml = '';
+      if (pVisible) {
+        btnsHtml += `<a href="${pLink}" class="btn btn-primary"><i class="fas fa-car"></i> ${pText}</a> `;
+      }
+      if (sVisible) {
+        btnsHtml += `<a href="${sLink}" class="btn btn-secondary"><i class="fas fa-handshake"></i> ${sText}</a>`;
+      }
+      actions.innerHTML = btnsHtml;
       actions.classList.add('in');
     }
   };
@@ -541,24 +576,53 @@
     if (!statsWrap) return;
 
     statsWrap.innerHTML = '';
+    if (!Array.isArray(statsList) || statsList.length === 0) {
+      statsWrap.style.display = 'none';
+      return;
+    }
+    statsWrap.style.display = '';
+
     statsList.forEach((stat) => {
+      const rawVal = String(stat.value != null ? stat.value : '');
       const itemDiv = document.createElement('div');
       itemDiv.className = 'stat-item';
       itemDiv.innerHTML = `
-        <div class="stat-number" data-count="${stat.value}">${stat.value}</div>
-        <div class="stat-label">${stat.label}</div>
+        <div class="stat-number" data-count="${rawVal}">${rawVal}</div>
+        <div class="stat-label">${stat.label || ''}</div>
       `;
       statsWrap.appendChild(itemDiv);
 
       if (isAdmin() && window.ARCms) {
         const controls = document.createElement('div');
         controls.className = 'ar-cms-controls';
-        controls.innerHTML = window.ARCms.renderEditButton(stat._id, 'Edit');
+        controls.innerHTML = window.ARCms.renderEditButton(stat._id || stat.id, 'Edit');
         itemDiv.appendChild(controls);
 
         controls.querySelector('.ar-cms-btn--edit').addEventListener('click', () => {
           openStatEditModal(stat);
         });
+      }
+    });
+
+    statsWrap.classList.add('in');
+
+    // Trigger counter animation for numeric stats
+    statsWrap.querySelectorAll('.stat-number').forEach(el => {
+      const str = el.getAttribute('data-count') || '';
+      const numMatch = str.match(/^(\d+)(.*)$/);
+      if (numMatch) {
+        const targetNum = parseInt(numMatch[1], 10);
+        const suffix = numMatch[2] || '';
+        const duration = 1200;
+        const start = performance.now();
+        function update(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * targetNum).toLocaleString() + suffix;
+          if (progress < 1) requestAnimationFrame(update);
+          else el.textContent = targetNum.toLocaleString() + suffix;
+        }
+        requestAnimationFrame(update);
       }
     });
   };
@@ -994,9 +1058,11 @@
       const storyCards = data.carStory.cards || [];
       if (storyCards.length > 0) {
         const cardsInDom = document.querySelectorAll('.g2g-card');
-        storyCards.forEach((card, idx) => {
-          const targetCard = cardsInDom[idx];
-          if (targetCard) {
+        cardsInDom.forEach((targetCard, idx) => {
+          if (idx < storyCards.length) {
+            const card = storyCards[idx];
+            targetCard.style.display = '';
+
             const stepNum = card.stepNumber || ('0' + (idx + 1));
             const stepEl = targetCard.querySelector('.g2g-card-step');
             if (stepEl) stepEl.textContent = stepNum;
@@ -1011,6 +1077,25 @@
             if (eyebrowEl && card.eyebrow) {
               eyebrowEl.innerHTML = `<span class="g2g-card-step">${stepNum}</span> ${card.eyebrow}`;
             }
+
+            // Bind card statistics
+            const statsEl = targetCard.querySelector('.g2g-card-stats');
+            if (statsEl) {
+              if (Array.isArray(card.stats) && card.stats.length > 0) {
+                statsEl.innerHTML = card.stats.map(st => `
+                  <div class="g2g-card-stat">
+                    <div class="g2g-card-stat-val">${st.value || ''}${st.unit ? `<sup>${st.unit}</sup>` : ''}</div>
+                    <div class="g2g-card-stat-lbl">${st.label || ''}</div>
+                  </div>
+                `).join('');
+                statsEl.style.display = '';
+              } else {
+                statsEl.innerHTML = '';
+              }
+            }
+          } else {
+            // Hide excess cards if CMS has fewer cards than HTML template
+            targetCard.style.display = 'none';
           }
         });
       }
@@ -1208,10 +1293,6 @@
       renderSponsors(data.sponsors);
     }
 
-    if (!isPreview && data) {
-      try { sessionStorage.setItem('ar_home_cache', JSON.stringify(data)); } catch (e) {}
-    }
-
     document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
       el.setAttribute('data-cms-pending', 'false');
     });
@@ -1226,17 +1307,6 @@
     if (isPreview) {
       renderPreviewBanner();
     }
-
-    // 0. Fast-path: instant 0ms paint from session cache
-    try {
-      const cached = sessionStorage.getItem('ar_home_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object') {
-          hydrateFromUnifiedData(parsed);
-        }
-      }
-    } catch (e) {}
 
     try {
       const url = isPreview ? `${HOME_API}?preview=true` : HOME_API;
