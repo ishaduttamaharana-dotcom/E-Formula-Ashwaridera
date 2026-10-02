@@ -55,6 +55,7 @@
       const res = await fetch(API_ENDPOINT, {
         headers: { 'Accept': 'application/json' },
         credentials: 'include',
+        cache: 'no-store',
       });
       const data = await res.json();
       if (data && data.success && data.data) {

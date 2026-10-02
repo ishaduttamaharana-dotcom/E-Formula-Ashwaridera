@@ -428,8 +428,37 @@
             font-size: 0.84rem; color: rgba(255,255,255,0.65);
             display: flex; gap: 10px; align-items: flex-start; font-weight: 300;
         }
-        .tier-card ul li i { color: var(--signal-bright); margin-top: 3px; font-size: 0.78rem; }
         .tier-card .btn { width: 100%; justify-content: center; }
+
+        /* ═══ SKELETON LOADING ═══ */
+        .tier-skeleton-card {
+            background: rgba(17, 17, 17, 0.85);
+            border: 1px solid var(--hairline);
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 420px;
+            position: relative;
+            overflow: hidden;
+        }
+        .tier-skeleton-line {
+            height: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .tier-skeleton-shimmer {
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            animation: tierShimmer 1.8s infinite;
+        }
+        @keyframes tierShimmer {
+            100% { transform: translateX(100%); }
+        }
 
         /* ─── SPONSOR FORM ─── */
         .sponsor-form-section {
@@ -621,39 +650,7 @@
     ══════════════════════════════════════════════ -->
     <section class="sponsor-scroll-section" id="sponsorRailSection">
         <div class="container">
-            <div class="sponsor-scroll-wrapper" id="sponsorScrollWrapper">
-                <!-- dynamically rendered: two sets for infinite seamless loop -->
-                <div class="sponsor-track">
-                    <div class="sponsor-item"><i class="fas fa-bolt"></i> E-Formula Ashwa Riders</div>
-                    <div class="sponsor-item"><i class="fas fa-cog"></i> MORP</div>
-                    <div class="sponsor-item"><i class="fas fa-chart-simple"></i> MATLAB</div>
-                    <div class="sponsor-item"><i class="fas fa-leaf"></i> Carbonext</div>
-                    <div class="sponsor-item"><i class="fas fa-cube"></i> EIPRISM</div>
-                    <div class="sponsor-item"><i class="fas fa-microchip"></i> CIRCUITRONICS LLP</div>
-                    <div class="sponsor-item"><i class="fas fa-industry"></i> Maharashtra Bear &amp; Belting Co.</div>
-                    <div class="sponsor-item"><i class="fas fa-chart-line"></i> ALTAIR</div>
-                    <div class="sponsor-item"><i class="fas fa-cubes"></i> ANSYS</div>
-                    <div class="sponsor-item"><i class="fas fa-shield"></i> BENDER</div>
-                    <div class="sponsor-item"><i class="fas fa-wave-square"></i> Vashi INTEGRATE SOLUTIONS</div>
-                    <div class="sponsor-item"><i class="fas fa-star"></i> PERFECTIO</div>
-                    <div class="sponsor-item"><i class="fas fa-arrows-rotate"></i> ADAPT.IMPROVISE.OVERCOME</div>
-                </div>
-                <div class="sponsor-track">
-                    <div class="sponsor-item"><i class="fas fa-bolt"></i> E-Formula Ashwa Riders</div>
-                    <div class="sponsor-item"><i class="fas fa-cog"></i> MORP</div>
-                    <div class="sponsor-item"><i class="fas fa-chart-simple"></i> MATLAB</div>
-                    <div class="sponsor-item"><i class="fas fa-leaf"></i> Carbonext</div>
-                    <div class="sponsor-item"><i class="fas fa-cube"></i> EIPRISM</div>
-                    <div class="sponsor-item"><i class="fas fa-microchip"></i> CIRCUITRONICS LLP</div>
-                    <div class="sponsor-item"><i class="fas fa-industry"></i> Maharashtra Bear &amp; Belting Co.</div>
-                    <div class="sponsor-item"><i class="fas fa-chart-line"></i> ALTAIR</div>
-                    <div class="sponsor-item"><i class="fas fa-cubes"></i> ANSYS</div>
-                    <div class="sponsor-item"><i class="fas fa-shield"></i> BENDER</div>
-                    <div class="sponsor-item"><i class="fas fa-wave-square"></i> Vashi INTEGRATE SOLUTIONS</div>
-                    <div class="sponsor-item"><i class="fas fa-star"></i> PERFECTIO</div>
-                    <div class="sponsor-item"><i class="fas fa-arrows-rotate"></i> ADAPT.IMPROVISE.OVERCOME</div>
-                </div>
-            </div>
+            <div class="sponsor-scroll-wrapper" id="sponsorScrollWrapper"></div>
         </div>
     </section>
 
@@ -669,58 +666,29 @@
             </div>
 
             <div class="tiers-grid" id="tiersGrid">
-                <div class="tier-card reveal">
-                    <div class="tier-name">Bronze</div>
-                    <h3>Associate Sponsor</h3>
-                    <div class="tier-range">Cash or in-kind support</div>
-                    <ul>
-                        <li><i class="fas fa-check"></i> Logo on team website</li>
-                        <li><i class="fas fa-check"></i> Mention in social media posts</li>
-                        <li><i class="fas fa-check"></i> Certificate of association</li>
-                    </ul>
-                    <a href="#sponsor-form" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: #fff;">Get In Touch</a>
+                <div class="tier-skeleton-card">
+                    <div class="tier-skeleton-line" style="width: 30%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 70%; height: 22px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 50%; height: 14px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 90%; height: 12px; margin-top: 16px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 80%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 85%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
                 </div>
-
-                <div class="tier-card reveal">
-                    <div class="tier-name">Silver</div>
-                    <h3>Silver Sponsor</h3>
-                    <div class="tier-range">Cash, components, or services</div>
-                    <ul>
-                        <li><i class="fas fa-check"></i> Everything in Bronze</li>
-                        <li><i class="fas fa-check"></i> Logo on car bodywork</li>
-                        <li><i class="fas fa-check"></i> Logo on team kit</li>
-                        <li><i class="fas fa-check"></i> Dedicated social media feature</li>
-                    </ul>
-                    <a href="#sponsor-form" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: #fff;">Get In Touch</a>
+                <div class="tier-skeleton-card">
+                    <div class="tier-skeleton-line" style="width: 30%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 75%; height: 22px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 55%; height: 14px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 90%; height: 12px; margin-top: 16px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 85%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 80%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
                 </div>
-
-                <div class="tier-card featured reveal">
-                    <div class="tier-ribbon">Popular</div>
-                    <div class="tier-name">Gold</div>
-                    <h3>Powertrain Partner</h3>
-                    <div class="tier-range">Larger cash or component sponsorship</div>
-                    <ul>
-                        <li><i class="fas fa-check"></i> Everything in Silver</li>
-                        <li><i class="fas fa-check"></i> Prominent logo placement on car</li>
-                        <li><i class="fas fa-check"></i> Invitation to workshop visits</li>
-                        <li><i class="fas fa-check"></i> Priority access to recruiting events</li>
-                        <li><i class="fas fa-check"></i> Feature in competition press kit</li>
-                    </ul>
-                    <a href="#sponsor-form" class="btn btn-primary">Get In Touch</a>
-                </div>
-
-                <div class="tier-card reveal">
-                    <div class="tier-name">Title</div>
-                    <h3>Title Sponsor</h3>
-                    <div class="tier-range">Full-season primary partnership</div>
-                    <ul>
-                        <li><i class="fas fa-check"></i> Everything in Gold</li>
-                        <li><i class="fas fa-check"></i> Primary logo position on car and livery</li>
-                        <li><i class="fas fa-check"></i> Co-branding across all team materials</li>
-                        <li><i class="fas fa-check"></i> First right of refusal next season</li>
-                        <li><i class="fas fa-check"></i> On-site presence at Formula Bharat</li>
-                    </ul>
-                    <a href="#sponsor-form" class="btn btn-outline" style="border-color: rgba(255,255,255,0.3); color: #fff;">Get In Touch</a>
+                <div class="tier-skeleton-card">
+                    <div class="tier-skeleton-line" style="width: 30%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 65%; height: 22px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 45%; height: 14px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 90%; height: 12px; margin-top: 16px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 75%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
+                    <div class="tier-skeleton-line" style="width: 85%; height: 12px;"><div class="tier-skeleton-shimmer"></div></div>
                 </div>
             </div>
         </div>
@@ -1057,7 +1025,15 @@
 
                 initReveal();
             } catch (err) {
-                console.warn('Could not load dynamic Sponsor CMS data, using static template fallback:', err);
+                console.warn('Could not load dynamic Sponsor CMS data:', err);
+                const tiersGrid = document.getElementById('tiersGrid');
+                if (tiersGrid && !tiersGrid.querySelector('.tier-card:not(.tier-skeleton-card)')) {
+                    tiersGrid.innerHTML = `
+                        <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: rgba(255,255,255,0.5); font-family: var(--font-mono, monospace);">
+                            <p>Sponsorship tiers temporarily unavailable.</p>
+                        </div>
+                    `;
+                }
             }
         }
 

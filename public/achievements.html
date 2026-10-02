@@ -558,9 +558,33 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* ── Per-item connector lines are removed.
-       The single .timeline-modern::before spine is already continuous
-       from top:0 to bottom:0 — no need for per-item segments. ── */
+    /* ═══ SKELETON / LOADING STATES ═══ */
+    @keyframes achShimmer {
+      0% { opacity: 0.35; }
+      50% { opacity: 0.75; }
+      100% { opacity: 0.35; }
+    }
+    .ach-skeleton-card {
+      min-height: 280px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line-dark, rgba(255, 255, 255, 0.08));
+      border-radius: 4px;
+      padding: 24px;
+      box-sizing: border-box;
+      animation: achShimmer 1.8s ease-in-out infinite;
+      display: flex;
+      flex-direction: column;
+    }
+    .ach-skeleton-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background-size: 200% 100%;
+      animation: achShimmer 2s infinite;
+      border-radius: 4px;
+    }
+    .tl-skeleton-item {
+      padding-bottom: 40px;
+      animation: achShimmer 1.8s ease-in-out infinite;
+    }
 
     /* ── Timeline responsive ── */
     @media (max-width: 768px) {
@@ -863,202 +887,25 @@
 
       <!-- Achievements Grid -->
       <div class="achievement-grid" id="achievementGrid">
-
-        <!-- Competition 1 -->
-        <div class="achievement-card reveal-scale" data-category="competition">
-          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483846/SAVE_20260111_173616.jpg_1_srifam.jpg" alt="Formula Ashwariders at Formula Bharat 2024" /></div>
-          <div class="card-year">2024</div>
-          <h3>Formula Bharat — AIR 8 Overall</h3>
-          <p>Formula Ashwariders, our combustion team, secured an overall All India Rank of 8 at Formula Bharat 2024, its best national result to date.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
-            <span class="result">AIR 8</span>
-          </div>
+        <!-- Dynamic achievement cards hydrated atomically by CMS -->
+        <div class="ach-skeleton-card">
+          <div class="ach-skeleton-shimmer" style="height: 140px; margin-bottom: 16px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 16px; width: 30%; margin-bottom: 12px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 22px; width: 80%; margin-bottom: 10px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 14px; width: 65%;"></div>
         </div>
-
-        <!-- Competition 2 -->
-        <div class="achievement-card reveal-scale" data-category="competition">
-          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483829/1768116510403.jpg_1_ibfo5t.jpg" alt="E-Formula Ashwariders team at Formula Bharat" /></div>
-          <div class="card-year">2024</div>
-          <h3>Formula Bharat — AIR 19 (Electric)</h3>
-          <p>E-Formula Ashwariders finished AIR 19 overall out of 45 electric teams nationwide, clearing technical inspection with an in-house manufactured accumulator container.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
-            <span class="result cyan">AIR 19</span>
-          </div>
+        <div class="ach-skeleton-card">
+          <div class="ach-skeleton-shimmer" style="height: 140px; margin-bottom: 16px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 16px; width: 30%; margin-bottom: 12px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 22px; width: 80%; margin-bottom: 10px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 14px; width: 65%;"></div>
         </div>
-
-        <!-- Competition 3 -->
-        <div class="achievement-card reveal-scale" data-category="competition">
-          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483764/2026011201302668.jpg_1_vlfcsb.jpg" alt="E-Formula Ashwa Riders at Kari Motor Speedway" /></div>
-          <div class="card-year">2023</div>
-          <h3>Formula Bharat — First On-Site Podium Push</h3>
-          <p>In its first on-site competition, E-Formula Ashwa Riders finished 10th out of 37 electric teams at Kari Motor Speedway, Coimbatore.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Coimbatore, India</span>
-            <span class="result cyan">AIR 10</span>
-          </div>
+        <div class="ach-skeleton-card">
+          <div class="ach-skeleton-shimmer" style="height: 140px; margin-bottom: 16px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 16px; width: 30%; margin-bottom: 12px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 22px; width: 80%; margin-bottom: 10px;"></div>
+          <div class="ach-skeleton-shimmer" style="height: 14px; width: 65%;"></div>
         </div>
-
-        <!-- Competition 4 -->
-        <div class="achievement-card reveal-scale" data-category="competition">
-          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
-          <div class="card-icon"><i class="fas fa-flag-checkered"></i></div>
-          <div class="card-year">2023</div>
-          <h3>Formula Bharat — Combustion Category</h3>
-          <p>Formula Ashwa Riders, our combustion team, finished 14th out of 49 registered teams at Formula Bharat 2023, held at Kari Motor Speedway.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Coimbatore, India</span>
-            <span class="result">AIR 14</span>
-          </div>
-        </div>
-
-        <!-- Competition 5 -->
-        <div class="achievement-card reveal-scale" data-category="competition">
-          <span class="card-badge competition"><i class="fas fa-flag-checkered"></i> Competition</span>
-          <div class="card-icon"><i class="fas fa-desktop"></i></div>
-          <div class="card-year">2022</div>
-          <h3>Formula Bharat (Virtual) — Vehicle ZEUS</h3>
-          <p>In the virtual edition of Formula Bharat, the team competed with vehicle ZEUS, finishing 11th of 13 teams overall and reaching the semi-finals of the Endurance Event.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Virtual Event</span>
-            <span class="result silver">AIR 11</span>
-          </div>
-        </div>
-
-        <!-- Award 1 -->
-        <div class="achievement-card reveal-scale" data-category="award">
-          <span class="card-badge award"><i class="fas fa-star"></i> Award</span>
-          <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-          <div class="card-year">2023</div>
-          <h3>MathWorks Modelling Award</h3>
-          <p>E-Formula Ashwa Riders ranked 5th nationally out of 86 registered teams in the MathWorks Modelling special award category at Formula Bharat 2023.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
-            <span class="result">Rank 5 of 86</span>
-          </div>
-        </div>
-
-        <!-- Award 2 -->
-        <div class="achievement-card reveal-scale" data-category="award">
-          <span class="card-badge award"><i class="fas fa-star"></i> Award</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483677/IMG-20260227-WA0016.jpg_n48hsu.jpg" alt="Ashwa Riders team feature" /></div>
-          <div class="card-year">2023</div>
-          <h3>Featured in Autocar India</h3>
-          <p>The team's electric Formula Student journey was featured in Autocar India's March 2023 issue, covering the debut of central India's first electric race car.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
-            <span class="result">Media Feature</span>
-          </div>
-        </div>
-
-        <!-- Award 3 -->
-        <div class="achievement-card reveal-scale" data-category="award">
-          <span class="card-badge award"><i class="fas fa-star"></i> Award</span>
-          <div class="card-icon"><i class="fas fa-drafting-compass"></i></div>
-          <div class="card-year">2023</div>
-          <h3>Engineering Design — 10th of 37</h3>
-          <p>E-Formula Ashwa Riders placed 10th nationally in the Engineering Design Presentation at Formula Bharat 2023, competing against 37 electric teams.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
-            <span class="result">10th of 37</span>
-          </div>
-        </div>
-
-        <!-- Milestone 1 -->
-        <div class="achievement-card reveal-scale" data-category="record">
-          <span class="card-badge record"><i class="fas fa-flag"></i> Milestone</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483679/WhatsApp_Image_2026-06-14_at_12.16.57_AM_1_ohzzaa.jpg" alt="Formula Ashwa Riders founding team" /></div>
-          <div class="card-year">2015</div>
-          <h3>Formula Ashwa Riders Founded</h3>
-          <p>Founded by Captain Nilay Akre and Vice Captain Akshay Deotale with a vision to build a motorsport culture and engineering talent across central India.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
-            <span class="result cyan">Founded</span>
-          </div>
-        </div>
-
-        <!-- Milestone 2 -->
-        <div class="achievement-card reveal-scale" data-category="record">
-          <span class="card-badge record"><i class="fas fa-bolt"></i> Milestone</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483675/WhatsApp_Image_2026-06-14_at_12.16.57_AM_dzrwqz.jpg" alt="E-Formula Ashwa Riders electric team" /></div>
-          <div class="card-year">2020</div>
-          <h3>E-Formula Ashwa Riders Founded</h3>
-          <p>The team's electric wing was established, making it the first Formula Student Electric team from central India.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
-            <span class="result cyan">First in Region</span>
-          </div>
-        </div>
-
-        <!-- Milestone 3 -->
-        <div class="achievement-card reveal-scale" data-category="record">
-          <span class="card-badge record"><i class="fas fa-car-side"></i> Milestone</span>
-          <div class="card-icon"><i class="fas fa-car-battery"></i></div>
-          <div class="card-year">2023</div>
-          <h3>Central India's First Electric FS Car</h3>
-          <p>The team designed and manufactured central India's first electric Formula Student race car ahead of its 2023 Formula Bharat debut.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
-            <span class="result cyan">First EV</span>
-          </div>
-        </div>
-
-        <!-- Milestone 4 -->
-        <div class="achievement-card reveal-scale" data-category="record">
-          <span class="card-badge record"><i class="fas fa-car-side"></i> Milestone</span>
-          <div class="card-media"><img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784445596/WhatsApp_Image_2026-07-19_at_11.46.38_AM_1_b6kp8z.jpg" alt="Tarkshya electric race car unveiling" /></div>
-          <div class="card-year">2023-24</div>
-          <h3>Tarkshya Unveiled</h3>
-          <p>The team unveiled its second-generation electric race car, Tarkshya, for the 2023-24 competition season.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
-            <span class="result cyan">2nd Generation</span>
-          </div>
-        </div>
-
-        <!-- Recognition 1 -->
-        <div class="achievement-card reveal-scale" data-category="certificate">
-          <span class="card-badge certificate"><i class="fas fa-handshake"></i> Recognition</span>
-          <div class="card-icon"><i class="fas fa-people-group"></i></div>
-          <div class="card-year">2023</div>
-          <h3>Formula Bharat Roadshow Host</h3>
-          <p>The team co-hosted a Formula Bharat roadshow session at GEC Barton Hill, Trivandrum, helping new and aspiring teams understand the competition.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Trivandrum, Kerala</span>
-            <span class="result">Roadshow Host</span>
-          </div>
-        </div>
-
-        <!-- Recognition 2 -->
-        <div class="achievement-card reveal-scale" data-category="certificate">
-          <span class="card-badge certificate"><i class="fas fa-clipboard-check"></i> Recognition</span>
-          <div class="card-icon"><i class="fas fa-battery-full"></i></div>
-          <div class="card-year">2024</div>
-          <h3>Technical Inspection Cleared</h3>
-          <p>E-Formula Ashwariders passed the demanding technical inspection at Formula Bharat 2024 with its in-house manufactured accumulator container.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> India</span>
-            <span class="result">Inspection Passed</span>
-          </div>
-        </div>
-
-        <!-- Recognition 3 -->
-        <div class="achievement-card reveal-scale" data-category="certificate">
-          <span class="card-badge certificate"><i class="fas fa-award"></i> Recognition</span>
-          <div class="card-icon"><i class="fas fa-bolt"></i></div>
-          <div class="card-year">Ongoing</div>
-          <h3>Central India's First Electric FS Team</h3>
-          <p>The team continues to be recognised as the pioneering Formula Student Electric programme from central India.</p>
-          <div class="card-footer">
-            <span class="location"><i class="fas fa-map-marker-alt"></i> Nagpur, India</span>
-            <span class="result">Pioneer Status</span>
-          </div>
-        </div>
-
       </div>
 
       <!-- Empty state -->
@@ -1152,95 +999,13 @@
       </div>
 
       <div class="timeline-modern" id="timelineModern">
-        <!-- 2015 -->
-        <div class="timeline-item-modern" data-delay="0">
+        <!-- Dynamic timeline events hydrated atomically by CMS -->
+        <div class="timeline-item-modern tl-skeleton-item">
           <div class="tl-card">
-            <div class="tl-year"><span class="year-line"></span> 2015</div>
-            <div class="tl-title">The <span class="highlight">Beginning</span></div>
-            <div class="tl-desc">Formula Ashwa Riders was founded by Captain Nilay Akre and Vice Captain Akshay Deotale to promote motorsport engineering in central India.</div>
-            <div class="tl-tags">
-              <span>Foundation</span>
-              <span>Combustion Team</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2020 -->
-        <div class="timeline-item-modern" data-delay="100">
-          <div class="tl-card">
-            <div class="tl-year"><span class="year-line"></span> 2020</div>
-            <div class="tl-title">The <span class="highlight">Electric Wing</span> Begins</div>
-            <div class="tl-desc">E-Formula Ashwa Riders was established, becoming the first Formula Student Electric team from central India.</div>
-            <div class="tl-tags">
-              <span class="gold-tag">First in Region</span>
-              <span>Electric Team</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2022 -->
-        <div class="timeline-item-modern" data-delay="200">
-          <div class="tl-card">
-            <div class="tl-year"><span class="year-line"></span> 2022</div>
-            <div class="tl-title">First <span class="highlight">Formula Bharat</span> Entry</div>
-            <div class="tl-desc">Competed with vehicle ZEUS in the virtual edition of Formula Bharat, finishing 11th of 13 teams and reaching the Endurance Event semi-finals.</div>
-            <div class="tl-tags">
-              <span>Virtual Event</span>
-              <span class="gold-tag">AIR 11</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2023 -->
-        <div class="timeline-item-modern" data-delay="300">
-          <div class="tl-card">
-            <div class="tl-year"><span class="year-line"></span> 2023</div>
-            <div class="tl-title">First On-Site Competition &amp; <span class="highlight">First EV</span></div>
-            <div class="tl-desc">Manufactured central India's first electric Formula Student car and competed on-site at Kari Motor Speedway, Coimbatore, finishing AIR 10 of 37 electric teams. Also ranked 5th of 86 teams for the MathWorks Modelling Award and was featured in Autocar India.</div>
-            <div class="tl-tags">
-              <span class="gold-tag">AIR 10</span>
-              <span class="gold-tag">MathWorks Award — Rank 5</span>
-              <span>Autocar India Feature</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2023-24 -->
-        <div class="timeline-item-modern" data-delay="400">
-          <div class="tl-card">
-            <div class="tl-year"><span class="year-line"></span> 2023-24</div>
-            <div class="tl-title"><span class="highlight">Tarkshya</span> Takes Shape</div>
-            <div class="tl-desc">Unveiled Tarkshya, the team's second-generation electric race car, ahead of the new competition season.</div>
-            <div class="tl-tags">
-              <span>2nd Generation Vehicle</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2024 -->
-        <div class="timeline-item-modern" data-delay="500">
-          <div class="tl-card">
-            <div class="tl-year"><span class="year-line"></span> 2024</div>
-            <div class="tl-title">Best Results <span class="highlight">Yet</span></div>
-            <div class="tl-desc">Formula Ashwariders secured overall AIR 8 with the combustion car, while E-Formula Ashwariders finished AIR 19 out of 45 electric teams nationwide.</div>
-            <div class="tl-tags">
-              <span class="gold-tag">AIR 8 — Combustion</span>
-              <span class="gold-tag">AIR 19 — Electric</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Future -->
-        <div class="timeline-item-modern" data-delay="600">
-          <div class="tl-card" style="border-color: rgba(227, 183, 63, 0.25);">
-            <div class="tl-year"><span class="year-line"></span> 2025 &amp; Beyond</div>
-            <div class="tl-title">The <span class="highlight">Next Chapter</span></div>
-            <div class="tl-desc">With two generations of electric vehicles, a growing alumni network, and a proven track record, the team is pushing for podium finishes and engineering excellence at Formula Bharat and beyond.</div>
-            <div class="tl-tags">
-              <span class="gold-tag">⚡ Future Ready</span>
-              <span>Podium Push</span>
-              <span>Innovation</span>
-            </div>
+            <div class="ach-skeleton-shimmer" style="height: 18px; width: 25%; margin-bottom: 12px;"></div>
+            <div class="ach-skeleton-shimmer" style="height: 24px; width: 60%; margin-bottom: 14px;"></div>
+            <div class="ach-skeleton-shimmer" style="height: 16px; width: 90%; margin-bottom: 8px;"></div>
+            <div class="ach-skeleton-shimmer" style="height: 16px; width: 75%;"></div>
           </div>
         </div>
       </div>

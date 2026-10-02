@@ -264,6 +264,45 @@
     .team-card .card-body .social-links a { color: var(--ink-faint); transition: color var(--ease); font-size: 1rem; text-decoration: none; }
     .team-card .card-body .social-links a:hover { color: var(--signal); }
 
+    /* ═══ SKELETON LOADING ═══ */
+    .team-skeleton-card {
+      background: var(--paper);
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .team-skeleton-img {
+      height: 210px;
+      background: rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .team-skeleton-body {
+      padding: 24px 22px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .team-skeleton-line {
+      height: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .team-skeleton-shimmer {
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      animation: teamShimmer 1.8s infinite;
+    }
+    @keyframes teamShimmer {
+      100% { transform: translateX(100%); }
+    }
+
     /* ═══ CTA ═══ */
     .cta-rider { background: var(--void); color: #fff; padding: 90px 0; text-align: center; position: relative; overflow: hidden; }
     .cta-rider::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 56px 56px; }
@@ -431,99 +470,28 @@
 
       <!-- TEAM CARDS HYDRATED DYNAMICALLY VIA CMS -->
       <div class="team-grid" id="teamGrid">
-        <!-- Rohan Mehta -->
-        <div class="team-card reveal-scale visible" data-department="leadership" data-id="6a6a6c9ec90a2ab471a1fe5b">
-          <div class="card-image">
-            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png" alt="Rohan Mehta" loading="lazy" style="object-fit:cover;" />
-          </div>
-          <div class="card-body">
-            <h3>Rohan Mehta</h3>
-            <div class="role">Team Captain • Leadership</div>
-            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Final Year • Mechanical Engineering</div>
-            <p class="bio">Leading the technical and strategic development of Ashwa Riders Formula Student Electric racing vehicle.</p>
-            <div class="social-links">
-              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Rohan Mehta"><i class="fab fa-linkedin-in"></i></a>
-            </div>
+        <div class="team-skeleton-card">
+          <div class="team-skeleton-img"><div class="team-skeleton-shimmer"></div></div>
+          <div class="team-skeleton-body">
+            <div class="team-skeleton-line" style="width: 60%; height: 16px;"><div class="team-skeleton-shimmer"></div></div>
+            <div class="team-skeleton-line" style="width: 40%;"><div class="team-skeleton-shimmer"></div></div>
+            <div class="team-skeleton-line" style="width: 80%;"><div class="team-skeleton-shimmer"></div></div>
           </div>
         </div>
-
-        <!-- Aarav Sharma -->
-        <div class="team-card reveal-scale visible" data-department="leadership" data-id="6a6a6c9dc90a2ab471a1fe5a">
-          <div class="card-image">
-            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Vice_Captain_noclxg.png" alt="Aarav Sharma" loading="lazy" style="object-fit:cover;" />
-          </div>
-          <div class="card-body">
-            <h3>Aarav Sharma</h3>
-            <div class="role">Vice Captain • Leadership</div>
-            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Electrical Engineering</div>
-            <p class="bio">Overseeing powertrain integration, system telemetry, and project execution across engineering verticals.</p>
-            <div class="social-links">
-              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Aarav Sharma"><i class="fab fa-linkedin-in"></i></a>
-            </div>
+        <div class="team-skeleton-card">
+          <div class="team-skeleton-img"><div class="team-skeleton-shimmer"></div></div>
+          <div class="team-skeleton-body">
+            <div class="team-skeleton-line" style="width: 65%; height: 16px;"><div class="team-skeleton-shimmer"></div></div>
+            <div class="team-skeleton-line" style="width: 45%;"><div class="team-skeleton-shimmer"></div></div>
+            <div class="team-skeleton-line" style="width: 85%;"><div class="team-skeleton-shimmer"></div></div>
           </div>
         </div>
-
-        <!-- Vedant Ghodkande -->
-        <div class="team-card reveal-scale visible" data-department="electrical" data-id="6a6a6c9ec90a2ab471a1fe5c">
-          <div class="card-image">
-            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Vice_Captain_noclxg.png" alt="Vedant Ghodkande" loading="lazy" style="object-fit:cover;" />
-          </div>
-          <div class="card-body">
-            <h3>Vedant Ghodkande</h3>
-            <div class="role">Powertrain Lead • Electrical</div>
-            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Electrical Engineering</div>
-            <p class="bio">Design and optimization of electric powertrain, motor controller calibration, and high-voltage safety.</p>
-            <div class="social-links">
-              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Vedant Ghodkande"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dev Kulkarni -->
-        <div class="team-card reveal-scale visible" data-department="electrical" data-id="6ab27e8d788c381faea6d8e7">
-          <div class="card-image">
-            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png" alt="Dev Kulkarni" loading="lazy" style="object-fit:cover;" />
-          </div>
-          <div class="card-body">
-            <h3>Dev Kulkarni</h3>
-            <div class="role">Battery Management Lead • Electrical</div>
-            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Electronics & Telecommunication</div>
-            <p class="bio">Lithium-ion battery pack architecture, BMS development, thermal management and tractive system safety.</p>
-            <div class="social-links">
-              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Dev Kulkarni"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Aditya Verma -->
-        <div class="team-card reveal-scale visible" data-department="mechanical">
-          <div class="card-image">
-            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png" alt="Aditya Verma" loading="lazy" style="object-fit:cover;" />
-          </div>
-          <div class="card-body">
-            <h3>Aditya Verma</h3>
-            <div class="role">Chassis & Suspension Lead • Mechanical</div>
-            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Mechanical Engineering</div>
-            <p class="bio">Chassis torsional rigidity optimization, double-wishbone suspension kinematics, and lightweight uprights design.</p>
-            <div class="social-links">
-              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Aditya Verma"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ananya Deshmukh -->
-        <div class="team-card reveal-scale visible" data-department="management">
-          <div class="card-image">
-            <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Vice_Captain_noclxg.png" alt="Ananya Deshmukh" loading="lazy" style="object-fit:cover;" />
-          </div>
-          <div class="card-body">
-            <h3>Ananya Deshmukh</h3>
-            <div class="role">Operations & Sponsorship Lead • Management</div>
-            <div style="font-family:var(--font-mono, monospace); font-size:0.72rem; color:var(--ink-faint, #715A5A); margin-top:4px;">Third Year • Computer Science & Engineering</div>
-            <p class="bio">Corporate partnerships, budget allocation, team logistics, media outreach, and Formula Bharat statutory compliance.</p>
-            <div class="social-links">
-              <a href="#" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn profile of Ananya Deshmukh"><i class="fab fa-linkedin-in"></i></a>
-            </div>
+        <div class="team-skeleton-card">
+          <div class="team-skeleton-img"><div class="team-skeleton-shimmer"></div></div>
+          <div class="team-skeleton-body">
+            <div class="team-skeleton-line" style="width: 55%; height: 16px;"><div class="team-skeleton-shimmer"></div></div>
+            <div class="team-skeleton-line" style="width: 35%;"><div class="team-skeleton-shimmer"></div></div>
+            <div class="team-skeleton-line" style="width: 75%;"><div class="team-skeleton-shimmer"></div></div>
           </div>
         </div>
       </div>

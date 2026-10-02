@@ -33,6 +33,7 @@
 
   const apiFetch = async (url, options = {}) => {
     const res = await fetch(url, {
+      cache: 'no-store',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       ...options,
@@ -1050,6 +1051,15 @@
       const articles = data.news.articles || (Array.isArray(data.news) ? data.news : []);
       if (articles.length > 0) {
         renderNews(articles);
+      } else {
+        const newsTrack = document.getElementById('newsTrack');
+        if (newsTrack) {
+          newsTrack.innerHTML = `
+            <div style="padding: 40px; text-align: center; color: var(--ink-faint, #9696A0); font-family: var(--font-mono, monospace); width: 100%;">
+              <p>No news articles published yet.</p>
+            </div>
+          `;
+        }
       }
     }
 
@@ -1082,6 +1092,9 @@
         renderSponsorsFromTiers(tiers);
       } else if (data.sponsors && data.sponsors.length > 0) {
         renderSponsors(data.sponsors);
+      } else {
+        const container = document.getElementById('homeSponsorTiersContainer');
+        if (container) container.innerHTML = '';
       }
 
       // Sponsor CTA Banner

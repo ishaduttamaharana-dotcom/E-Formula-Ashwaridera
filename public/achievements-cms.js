@@ -33,6 +33,7 @@
 
   const apiFetch = async (url, options = {}) => {
     const res = await fetch(url, {
+      cache: 'no-store',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       ...options,
@@ -61,60 +62,20 @@
     }
   };
 
-  // Initial default seed achievements if collection is empty
-  const defaultAchievements = [
-    {
-      title: 'Formula Bharat — AIR 8 Overall',
-      competitionName: 'Formula Bharat 2024',
-      position: 'AIR 8',
-      category: 'competition',
-      date: '2024',
-      description: 'Formula Ashwariders, our combustion team, secured an overall All India Rank of 8 at Formula Bharat 2024, its best national result to date.',
-      imageUrl: 'https://res.cloudinary.com/frjck4sc/image/upload/v1784483846/SAVE_20260111_173616.jpg_1_srifam.jpg',
-      displayOrder: 1,
-    },
-    {
-      title: 'Formula Bharat — AIR 19 (Electric)',
-      competitionName: 'Formula Bharat 2024 EV',
-      position: 'AIR 19',
-      category: 'competition',
-      date: '2024',
-      description: 'E-Formula Ashwariders finished AIR 19 overall out of 45 electric teams nationwide, clearing technical inspection with an in-house manufactured accumulator container.',
-      imageUrl: 'https://res.cloudinary.com/frjck4sc/image/upload/v1784483829/1768116510403.jpg_1_ibfo5t.jpg',
-      displayOrder: 2,
-    },
-    {
-      title: 'Formula Bharat — First On-Site Podium Push',
-      competitionName: 'Formula Bharat 2023',
-      position: 'AIR 10',
-      category: 'competition',
-      date: '2023',
-      description: 'In its first on-site competition, E-Formula Ashwa Riders finished 10th out of 37 electric teams at Kari Motor Speedway, Coimbatore.',
-      imageUrl: 'https://res.cloudinary.com/frjck4sc/image/upload/v1784483764/2026011201302668.jpg_1_vlfcsb.jpg',
-      displayOrder: 3,
-    },
-  ];
-
   // ============================================================
   //  HYDRATE & RENDER ACHIEVEMENTS
   // ============================================================
   const hydrateAchievements = async () => {
     try {
       const res = await apiFetch(ACHIEVEMENTS_API);
-      if (res.success && res.data && res.data.length > 0) {
+      if (res && res.success && Array.isArray(res.data)) {
         renderAchievementsGrid(res.data);
-      } else if (isAdmin()) {
-        // Seed defaults if MongoDB collection is empty
-        for (const a of defaultAchievements) {
-          await apiFetch(ACHIEVEMENTS_API, { method: 'POST', body: JSON.stringify(a) });
-        }
-        const freshRes = await apiFetch(ACHIEVEMENTS_API);
-        renderAchievementsGrid(freshRes.data || []);
       } else {
         renderAchievementsGrid([]);
       }
     } catch (err) {
       console.warn('Achievements hydration notice:', err.message);
+      renderAchievementsGrid([]);
     }
   };
 

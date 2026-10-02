@@ -12,7 +12,7 @@
   const ADMIN_ABOUT_API = '/admin/about';
 
   const apiFetch = async (url) => {
-    const res = await fetch(url, { credentials: 'include' });
+    const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
     return res.json();
   };
 

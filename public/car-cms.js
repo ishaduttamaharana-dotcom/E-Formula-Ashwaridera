@@ -372,7 +372,7 @@
     try {
       showPreviewBanner();
 
-      const res = await fetch(CAR_API, { credentials: 'include' });
+      const res = await fetch(CAR_API, { credentials: 'include', cache: 'no-store' });
       const json = await res.json();
 
       if (json && json.success && json.data) {

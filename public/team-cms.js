@@ -389,6 +389,14 @@
       }
     } catch (err) {
       console.warn('Team CMS dynamic hydration note:', err.message);
+      const teamGrid = document.getElementById('teamGrid');
+      if (teamGrid && !teamGrid.querySelector('.team-card:not(.team-skeleton-card)')) {
+        teamGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: var(--ink-faint, #9696A0); font-family: var(--font-mono, monospace);">
+            <p>Team roster temporarily unavailable.</p>
+          </div>
+        `;
+      }
     }
   }
 

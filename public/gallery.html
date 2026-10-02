@@ -288,6 +288,24 @@
     .gallery-item .gallery-info h4 { font-size: 0.86rem; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; }
     .gallery-item .gallery-info p { font-family: var(--font-mono); font-size: 0.68rem; opacity: 0.6; font-weight: 400; }
 
+    /* ═══ SKELETON LOADING ═══ */
+    .gallery-skeleton-item {
+      aspect-ratio: 4/3;
+      background: rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .gallery-skeleton-shimmer {
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      animation: galleryShimmer 1.8s infinite;
+    }
+    @keyframes galleryShimmer {
+      100% { transform: translateX(100%); }
+    }
+
     /* ── Lightbox ── */
     .lightbox { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(24px); padding: 40px; }
     .lightbox.open { display: flex; }
@@ -482,86 +500,12 @@
       </div>
 
       <div class="gallery-grid" id="galleryGrid">
-        <!-- 10 image cards from cloudinary + 1 video placeholder -->
-        <div class="gallery-item reveal-scale" data-type="image" data-category="hero">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png" alt="car hero" loading="lazy">
-          <span class="badge">Hero</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>Car Hero</h4><p>Main image • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483846/SAVE_20260111_173616.jpg_1_srifam.jpg" alt="SAVE_20260111" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>SAVE 20260111</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483829/1768116510403.jpg_1_ibfo5t.jpg" alt="1768116510403" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>1768116510403</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483764/2026011201302668.jpg_1_vlfcsb.jpg" alt="2026011201302668" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>2026011201302668</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483702/WhatsApp_Image_2026-06-14_at_12.13.28_AM_h0tl39.jpg" alt="WhatsApp 2026-06-14" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>WhatsApp 2026-06-14</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483677/IMG-20260227-WA0016.jpg_n48hsu.jpg" alt="IMG-20260227" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>IMG-20260227</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483679/WhatsApp_Image_2026-06-14_at_12.16.57_AM_1_ohzzaa.jpg" alt="WhatsApp 2026-06-14 1" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>WhatsApp 2026-06-14 1</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784483675/WhatsApp_Image_2026-06-14_at_12.16.57_AM_dzrwqz.jpg" alt="WhatsApp 2026-06-14 2" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>WhatsApp 2026-06-14 2</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <div class="gallery-item reveal-scale" data-type="image" data-category="event">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784445596/WhatsApp_Image_2026-07-19_at_11.46.38_AM_1_b6kp8z.jpg" alt="WhatsApp 2026-07-19" loading="lazy">
-          <span class="badge event">Event</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>WhatsApp 2026-07-19</h4><p>Event • Cloudinary</p></div>
-        </div>
-
-        <!-- one extra image to have 10 images -->
-        <div class="gallery-item reveal-scale" data-type="image" data-category="hero">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png" alt="car hero 2" loading="lazy">
-          <span class="badge">Hero</span>
-          <div class="overlay"><i class="fas fa-expand"></i></div>
-          <div class="gallery-info"><h4>Car Hero (duplicate)</h4><p>Hero • Cloudinary</p></div>
-        </div>
-
-        <!-- Video placeholder (1 video) -->
-        <div class="gallery-item reveal-scale" data-type="video" data-category="video">
-          <img src="https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png" alt="video placeholder" loading="lazy" style="filter: brightness(0.6);">
-          <span class="badge video">Video</span>
-          <span class="play-icon"><i class="fas fa-play"></i></span>
-          <div class="overlay"><i class="fas fa-play"></i></div>
-          <div class="gallery-info"><h4>Team Recap 2025</h4><p>Video • 3:24 min</p></div>
-        </div>
+        <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
+        <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
+        <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
+        <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
+        <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
+        <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
       </div>
 
       <!-- Empty state -->

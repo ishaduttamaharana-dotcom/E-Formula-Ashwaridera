@@ -450,6 +450,14 @@
       }
     } catch (err) {
       console.warn('Background gallery data fetch note:', err.message);
+      const grid = document.getElementById('galleryGrid');
+      if (grid && !grid.querySelector('.gallery-item')) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; padding:70px 20px; text-align:center; color:var(--ink-faint, #9696A0); font-family: var(--font-mono, monospace);">
+            <p>Gallery media temporarily unavailable.</p>
+          </div>
+        `;
+      }
     }
   }
 
