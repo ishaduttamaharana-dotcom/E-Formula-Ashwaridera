@@ -442,6 +442,10 @@ const getPublicAbout = async (req, res) => {
       data = doc.publishedVersion || doc.toObject();
     }
 
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     const publicPayload = {
       settings: data.settings,
       hero: data.hero,

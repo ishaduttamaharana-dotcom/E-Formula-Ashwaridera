@@ -407,6 +407,8 @@ window.AdminAboutModule = (function () {
     const leadVal = d.leadParagraph || d.primaryParagraph || '';
     const imgVal = d.imageUrl || d.media?.image || '';
 
+    const paragraphsVal = Array.isArray(d.paragraphs) ? d.paragraphs.join('\n\n') : (d.paragraphs || '');
+
     return `
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
         <div>
@@ -421,6 +423,10 @@ window.AdminAboutModule = (function () {
       <div style="margin-top:12px;">
         <label class="form-label">Primary / Lead Paragraph</label>
         <textarea class="form-input" rows="3" onchange="window.AdminAboutModule.updateMultiFields(['whoWeAre.leadParagraph', 'whoWeAre.primaryParagraph'], this.value)">${escapeHtml(leadVal)}</textarea>
+      </div>
+      <div style="margin-top:12px;">
+        <label class="form-label">Body Paragraphs (Separated by blank line)</label>
+        <textarea class="form-input" rows="3" placeholder="Enter additional paragraphs separated by empty lines..." onchange="window.AdminAboutModule.updateField('whoWeAre.paragraphs', this.value.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean))">${escapeHtml(paragraphsVal)}</textarea>
       </div>
       <div style="margin-top:12px;">
         <label class="form-label">Closing Statement</label>
@@ -1229,7 +1235,9 @@ window.AdminAboutModule = (function () {
         visible: cleanBool(data.whoWeAre?.visible),
         eyebrow: cleanString(data.whoWeAre?.eyebrow),
         title: cleanString(data.whoWeAre?.title || data.whoWeAre?.heading),
+        highlightText: cleanString(data.whoWeAre?.highlightText),
         leadParagraph: cleanString(data.whoWeAre?.leadParagraph || data.whoWeAre?.primaryParagraph),
+        paragraphs: (Array.isArray(data.whoWeAre?.paragraphs) ? data.whoWeAre.paragraphs : (typeof data.whoWeAre?.paragraphs === 'string' ? data.whoWeAre.paragraphs.split(/\n\s*\n/) : [])).map(cleanString).filter(Boolean),
         closingStatement: cleanString(data.whoWeAre?.closingStatement),
         imageUrl: cleanUrl(data.whoWeAre?.imageUrl || data.whoWeAre?.media?.image),
         altText: cleanString(data.whoWeAre?.altText),
@@ -1238,9 +1246,13 @@ window.AdminAboutModule = (function () {
         visible: cleanBool(data.story?.visible),
         eyebrow: cleanString(data.story?.eyebrow),
         title: cleanString(data.story?.title || data.story?.heading),
+        highlightText: cleanString(data.story?.highlightText),
         description: cleanString(data.story?.description),
         blocks: (Array.isArray(data.story?.blocks) ? data.story.blocks : []).map((b, i) => ({
+          id: cleanString(b.id || ('story-block-' + (i + 1))),
+          title: cleanString(b.title),
           content: cleanString(b.content),
+          year: cleanString(b.year),
           order: cleanNum(b.order, i),
           visible: cleanBool(b.visible),
         })),
