@@ -1170,6 +1170,492 @@
       font-weight: 300;
     }
 
+    .news-card {
+      cursor: pointer;
+    }
+
+    /* ══════════════════════════════════════════════════════════ */
+    /*  FULL NEWS / ARTICLE DETAIL BLOCK MODAL                   */
+    /* ══════════════════════════════════════════════════════════ */
+    body.ar-news-modal-open {
+      overflow: hidden !important;
+      touch-action: none;
+    }
+
+    .ar-news-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      background: rgba(8, 9, 13, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+    }
+
+    .ar-news-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .ar-news-modal-dialog {
+      background: var(--paper, #14161d);
+      color: var(--ink, #fff);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      max-width: 880px;
+      width: 100%;
+      max-height: calc(100vh - 48px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 90, 0, 0.15);
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s;
+    }
+
+    .ar-news-modal-overlay.active .ar-news-modal-dialog {
+      transform: translateY(0) scale(1);
+    }
+
+    .ar-news-modal-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: rgba(18, 20, 27, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 12px;
+    }
+
+    .ar-news-modal-back-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--ink, #fff);
+      font-family: var(--font-mono, monospace);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .ar-news-modal-back-btn:hover {
+      border-color: var(--signal, #ff5a00);
+      color: var(--signal, #ff5a00);
+      transform: translateX(-3px);
+    }
+
+    .ar-news-modal-badge {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--signal-bright, #ff6b1a);
+      background: rgba(255, 90, 0, 0.12);
+      border: 1px solid rgba(255, 90, 0, 0.3);
+      padding: 4px 14px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .ar-news-modal-close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .ar-news-modal-close-btn:hover {
+      background: rgba(255, 90, 0, 0.25);
+      border-color: var(--signal, #ff5a00);
+      color: var(--signal, #ff5a00);
+      transform: rotate(90deg);
+    }
+
+    .ar-news-modal-scroll {
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ar-news-modal-scroll::-webkit-scrollbar {
+      width: 7px;
+    }
+    .ar-news-modal-scroll::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.15);
+    }
+    .ar-news-modal-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 4px;
+    }
+    .ar-news-modal-scroll::-webkit-scrollbar-thumb:hover {
+      background: var(--signal, #ff5a00);
+    }
+
+    /* Media slot (Image OR Video) */
+    .ar-news-modal-media-slot {
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ar-news-modal-media--image {
+      position: relative;
+      width: 100%;
+      max-height: 420px;
+      overflow: hidden;
+    }
+
+    .ar-news-modal-img-el {
+      width: 100%;
+      height: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+
+    .ar-news-modal-media-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(20, 22, 29, 0.95) 100%);
+      pointer-events: none;
+    }
+
+    .ar-news-modal-media--video {
+      position: relative;
+      width: 100%;
+      background: #000;
+    }
+
+    .ar-news-modal-video-el {
+      width: 100%;
+      max-height: 460px;
+      display: block;
+      outline: none;
+      background: #000;
+    }
+
+    .ar-news-modal-media--video-embed {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .ar-news-modal-media--video-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .ar-news-modal-media--placeholder {
+      height: 220px;
+      background: linear-gradient(135deg, #181a24 0%, #0d0f14 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .ar-news-placeholder-bg {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .ar-news-placeholder-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .ar-news-placeholder-icon {
+      font-size: 3rem;
+      color: var(--signal, #ff5a00);
+      margin-bottom: 8px;
+      display: block;
+      opacity: 0.85;
+    }
+
+    .ar-news-placeholder-tag {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink-faint, #94a3b8);
+    }
+
+    /* Content Slot */
+    .ar-news-modal-content-slot {
+      padding: 32px 36px 40px;
+    }
+
+    .ar-news-modal-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.78rem;
+      color: var(--ink-faint, #94a3b8);
+      margin-bottom: 18px;
+    }
+
+    .ar-news-modal-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ar-news-modal-meta-item i {
+      color: var(--signal, #ff5a00);
+    }
+
+    .ar-news-modal-team-tag {
+      color: var(--signal-bright, #ff6b1a);
+      background: rgba(255, 90, 0, 0.08);
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .ar-news-modal-title {
+      font-size: clamp(1.4rem, 3.2vw, 2.2rem);
+      line-height: 1.25;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 18px;
+      letter-spacing: -0.015em;
+      text-transform: none;
+    }
+
+    .ar-news-modal-lead {
+      font-size: 1.1rem;
+      line-height: 1.65;
+      color: #e2e8f0;
+      font-weight: 400;
+      padding-bottom: 22px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .ar-news-modal-body p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #cbd5e1;
+      margin-bottom: 18px;
+      font-weight: 300;
+    }
+
+    .ar-news-modal-list {
+      margin: 14px 0 22px 22px;
+      color: #cbd5e1;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      list-style-type: square;
+    }
+
+    .ar-news-modal-list li {
+      margin-bottom: 6px;
+    }
+
+    .ar-news-modal-footer {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.09);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .ar-news-modal-author-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ar-news-author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 90, 0, 0.15);
+      border: 1px solid rgba(255, 90, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--signal, #ff5a00);
+      font-size: 1rem;
+    }
+
+    .ar-news-author-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ar-news-author-role {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.7rem;
+      color: var(--ink-faint, #94a3b8);
+    }
+
+    .ar-news-modal-bottom-back-btn {
+      background: linear-gradient(135deg, rgba(255, 90, 0, 0.16) 0%, rgba(255, 90, 0, 0.04) 100%);
+      border: 1px solid rgba(255, 90, 0, 0.35);
+      color: #fff;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+    }
+
+    .ar-news-modal-bottom-back-btn:hover {
+      background: var(--signal, #ff5a00);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 90, 0, 0.35);
+    }
+
+    /* Light Theme Adaptation */
+    body.light .ar-news-modal-dialog {
+      background: #ffffff;
+      color: #111827;
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 90, 0, 0.2);
+    }
+
+    body.light .ar-news-modal-topbar {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+    }
+
+    body.light .ar-news-modal-back-btn {
+      border-color: rgba(0, 0, 0, 0.18);
+      color: #111827;
+    }
+
+    body.light .ar-news-modal-close-btn {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.15);
+      color: #111827;
+    }
+
+    body.light .ar-news-modal-title {
+      color: #0f172a;
+    }
+
+    body.light .ar-news-modal-lead {
+      color: #1e293b;
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+    }
+
+    body.light .ar-news-modal-body p,
+    body.light .ar-news-modal-list {
+      color: #334155;
+    }
+
+    body.light .ar-news-modal-footer {
+      border-top-color: rgba(0, 0, 0, 0.08);
+    }
+
+    body.light .ar-news-author-name {
+      color: #0f172a;
+    }
+
+    body.light .ar-news-modal-bottom-back-btn {
+      color: #0f172a;
+    }
+
+    /* Mobile Responsive Adaptation */
+    @media (max-width: 768px) {
+      .ar-news-modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+      }
+
+      .ar-news-modal-dialog {
+        border-radius: 16px 16px 0 0;
+        max-height: 94vh;
+        width: 100%;
+      }
+
+      .ar-news-modal-topbar {
+        padding: 12px 16px;
+      }
+
+      .ar-news-modal-content-slot {
+        padding: 20px 18px 28px;
+      }
+
+      .ar-news-modal-title {
+        font-size: 1.35rem;
+      }
+
+      .ar-news-modal-lead {
+        font-size: 0.98rem;
+      }
+
+      .ar-news-modal-body p {
+        font-size: 0.92rem;
+      }
+
+      .ar-news-modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .ar-news-modal-bottom-back-btn {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+
     .carousel-controls {
       display: flex;
       align-items: center;
@@ -3051,7 +3537,6 @@
           <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
           <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
           <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-          <li id="arNavItem"></li>
         </ul>
         <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
           <i class="fas fa-bars"></i>
@@ -3297,6 +3782,65 @@
                 id="newsCounterTotal">--</span></span>
           </div>
         </div>
+
+        <!-- ════════════════════════════════════════════════════ -->
+        <!--  FULL ARTICLE / DETAIL VIEW MODAL                  -->
+        <!-- ════════════════════════════════════════════════════ -->
+        <div id="arNewsArticleModal" class="ar-news-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="arNewsModalTitle">
+          <div class="ar-news-modal-dialog">
+            <!-- Sticky Modal Topbar -->
+            <div class="ar-news-modal-topbar">
+              <button type="button" class="ar-news-modal-back-btn" id="arNewsModalTopBackBtn" aria-label="Back to news">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to News</span>
+              </button>
+              <div class="ar-news-modal-badge" id="arNewsModalBadge">News</div>
+              <button type="button" class="ar-news-modal-close-btn" id="arNewsModalCloseBtn" aria-label="Close article modal">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <!-- Scrollable Modal Content -->
+            <div class="ar-news-modal-scroll">
+              <div class="ar-news-modal-media-slot" id="arNewsModalMediaSlot"></div>
+
+              <div class="ar-news-modal-content-slot">
+                <div class="ar-news-modal-meta-row">
+                  <span class="ar-news-modal-meta-item" id="arNewsModalDate">
+                    <i class="far fa-calendar-alt"></i> <span>--</span>
+                  </span>
+                  <span class="ar-news-modal-meta-item" id="arNewsModalReadTime">
+                    <i class="far fa-clock"></i> <span>3 min read</span>
+                  </span>
+                  <span class="ar-news-modal-meta-item ar-news-modal-team-tag">
+                    <i class="fas fa-flag-checkered"></i> <span>Ashwa Riders EV</span>
+                  </span>
+                </div>
+
+                <h2 class="ar-news-modal-title" id="arNewsModalTitle">Article Title</h2>
+
+                <div class="ar-news-modal-lead" id="arNewsModalLead" style="display:none;"></div>
+
+                <div class="ar-news-modal-body" id="arNewsModalBody">
+                  <!-- Dynamic article paragraphs -->
+                </div>
+
+                <div class="ar-news-modal-footer">
+                  <div class="ar-news-modal-author-strip">
+                    <div class="ar-news-author-avatar"><i class="fas fa-bolt"></i></div>
+                    <div>
+                      <div class="ar-news-author-name">E-Formula Ashwa Riders</div>
+                      <div class="ar-news-author-role">Engineering &amp; Racing Team • Formula Bharat</div>
+                    </div>
+                  </div>
+                  <button type="button" class="ar-news-modal-bottom-back-btn" id="arNewsModalBottomBackBtn">
+                    <i class="fas fa-arrow-left"></i> Back to News
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -3370,7 +3914,6 @@
             <h4>Team</h4>
             <ul>
               <li><a href="team.html">Members</a></li>
-              <li><a href="index.html#recruitment">Join Us</a></li>
               <li><a href="car.html">Our Car</a></li>
               <li><a href="achievements.html">Achievements</a></li>
             </ul>
@@ -3731,14 +4274,17 @@
       const cards = track.querySelectorAll('.news-card');
       totalEl.textContent = String(cards.length).padStart(2, '0');
       function cardStep() {
-        const c = cards[0];
+        const c = track.querySelector('.news-card');
+        if (!c) return 320;
         const style = getComputedStyle(track);
         const gap = parseFloat(style.columnGap || style.gap || 24);
         return c.offsetWidth + gap;
       }
       function updateCounter() {
+        const currentCards = track.querySelectorAll('.news-card');
+        const count = currentCards.length || 1;
         const idx = Math.round(track.scrollLeft / cardStep());
-        curEl.textContent = String(Math.min(idx + 1, cards.length)).padStart(2, '0');
+        curEl.textContent = String(Math.min(idx + 1, count)).padStart(2, '0');
       }
       prev.addEventListener('click', () => track.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
       next.addEventListener('click', () => track.scrollBy({ left: cardStep(), behavior: 'smooth' }));
@@ -3865,11 +4411,9 @@
     setTimeout(() => { showToast('Welcome to Ashwa Riders!', 'fa-flag-checkered'); }, 800);
   </script>
 
-  <script src="/auth.js"></script>
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/home-cms.js"></script>
-  <script src="/join-cms.js"></script>
   <script src="/sponsor-cms.js"></script>
 </body>
 

@@ -19,6 +19,12 @@ const homeNewsSchema = new mongoose.Schema(
       default: '',
     },
 
+    content: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+
     date: {
       type: String,
       trim: true,
@@ -37,6 +43,12 @@ const homeNewsSchema = new mongoose.Schema(
     },
 
     imageUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+
+    videoUrl: {
       type: String,
       trim: true,
       default: '',

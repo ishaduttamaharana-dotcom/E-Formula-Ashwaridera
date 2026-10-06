@@ -476,12 +476,268 @@
     }
   };
 
+  // ============================================================
+  //  NEWS DETAIL MODAL CONTROLLER (FULL ARTICLE / DETAIL BLOCK)
+  // ============================================================
+  let activeNewsModalArticle = null;
+  let lastActiveFocusElement = null;
+
+  const escapeHtml = (str) => {
+    if (!str && str !== 0) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  const getEmbedVideoHtml = (url) => {
+    if (!url) return null;
+    const trimmed = String(url).trim();
+    if (!trimmed) return null;
+
+    // YouTube matches
+    const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/i);
+    if (ytMatch) {
+      return `
+        <div class="ar-news-modal-media--video-embed">
+          <iframe src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Article Video"></iframe>
+        </div>`;
+    }
+
+    // Vimeo match
+    const vimeoMatch = trimmed.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    if (vimeoMatch) {
+      return `
+        <div class="ar-news-modal-media--video-embed">
+          <iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Article Video"></iframe>
+        </div>`;
+    }
+
+    // HTML5 Video (mp4, webm, mov, or Cloudinary video url)
+    const isDirectVideo = /\.(mp4|webm|ogg|mov)($|\?)/i.test(trimmed) || trimmed.includes('/video/upload/');
+    if (isDirectVideo || trimmed.startsWith('http')) {
+      return `
+        <div class="ar-news-modal-media--video">
+          <video controls autoplay playsinline preload="metadata" class="ar-news-modal-video-el">
+            <source src="${escapeHtml(trimmed)}" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+        </div>`;
+    }
+
+    return null;
+  };
+
+  const openNewsDetail = (item) => {
+    if (!item) return;
+    initNewsModalEvents();
+    const modal = document.getElementById('arNewsArticleModal');
+    if (!modal) return;
+
+    activeNewsModalArticle = item;
+    lastActiveFocusElement = document.activeElement;
+
+    // 1. Badge & Category
+    const badgeEl = modal.querySelector('#arNewsModalBadge');
+    if (badgeEl) {
+      badgeEl.textContent = item.category || 'News';
+    }
+
+    // 2. Media Slot (Video OR Image OR Placeholder)
+    const mediaSlot = modal.querySelector('#arNewsModalMediaSlot');
+    if (mediaSlot) {
+      mediaSlot.innerHTML = '';
+      const videoHtml = getEmbedVideoHtml(item.videoUrl);
+      if (videoHtml) {
+        mediaSlot.innerHTML = videoHtml;
+      } else if (item.imageUrl) {
+        mediaSlot.innerHTML = `
+          <div class="ar-news-modal-media--image">
+            <img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title || 'Ashwa Riders')}" class="ar-news-modal-img-el" />
+            <div class="ar-news-modal-media-overlay"></div>
+          </div>
+        `;
+      } else {
+        mediaSlot.innerHTML = `
+          <div class="ar-news-modal-media--placeholder">
+            <div class="ar-news-placeholder-bg"></div>
+            <div class="ar-news-placeholder-content">
+              <span class="ar-news-placeholder-icon"><i class="${escapeHtml(item.icon || 'fas fa-newspaper')}"></i></span>
+              <span class="ar-news-placeholder-tag">${escapeHtml(item.category || 'Ashwa Riders')}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 3. Meta Row (Date, Read Time, Team Tag)
+    const dateEl = modal.querySelector('#arNewsModalDate span');
+    if (dateEl) {
+      dateEl.textContent = item.date || 'Latest News';
+    }
+
+    const readTimeEl = modal.querySelector('#arNewsModalReadTime span');
+    if (readTimeEl) {
+      const fullText = `${item.title || ''} ${item.description || ''} ${item.content || ''}`;
+      const wordCount = fullText.trim().split(/\s+/).filter(Boolean).length;
+      const readMins = Math.max(1, Math.ceil(wordCount / 180));
+      readTimeEl.textContent = `${readMins} min read`;
+    }
+
+    // 4. Title
+    const titleEl = modal.querySelector('#arNewsModalTitle');
+    if (titleEl) {
+      titleEl.textContent = item.title || 'Untitled Article';
+    }
+
+    // 5. Lead Summary (if present and distinct from content)
+    const leadEl = modal.querySelector('#arNewsModalLead');
+    const descText = (item.description || item.excerpt || '').trim();
+    const contentText = (item.content || '').trim();
+
+    if (leadEl) {
+      if (descText && descText !== contentText) {
+        leadEl.textContent = descText;
+        leadEl.style.display = 'block';
+      } else {
+        leadEl.style.display = 'none';
+        leadEl.textContent = '';
+      }
+    }
+
+    // 6. Full Body Content
+    const bodyEl = modal.querySelector('#arNewsModalBody');
+    if (bodyEl) {
+      const textToRender = contentText || descText || 'Stay tuned for more updates from the Ashwa Riders engineering team as vehicle testing and validation continue.';
+      const paragraphs = textToRender.split(/\n{2,}|\r\n\r\n/).map(p => p.trim()).filter(Boolean);
+
+      bodyEl.innerHTML = paragraphs.map(p => {
+        const lines = p.split(/\n|\r\n/).map(l => l.trim()).filter(Boolean);
+        const isBulletList = lines.length > 1 && lines.every(l => l.startsWith('•') || l.startsWith('-') || l.startsWith('*'));
+        if (isBulletList) {
+          const listItems = lines.map(l => `<li>${escapeHtml(l.replace(/^[•\-\*]\s*/, ''))}</li>`).join('');
+          return `<ul class="ar-news-modal-list">${listItems}</ul>`;
+        }
+        return `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`;
+      }).join('');
+    }
+
+    // 7. Show Modal & Lock Body Scroll
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('ar-news-modal-open');
+
+    // Reset scroll to top
+    const scrollContainer = modal.querySelector('.ar-news-modal-scroll');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
+
+    // Focus close button for accessibility
+    const closeBtn = modal.querySelector('#arNewsModalCloseBtn');
+    if (closeBtn) closeBtn.focus();
+
+    // Browser back button support
+    try {
+      history.pushState({ arNewsModalOpen: true }, '', '#news-detail');
+    } catch (_) {}
+  };
+
+  const closeNewsDetail = () => {
+    const modal = document.getElementById('arNewsArticleModal');
+    if (!modal || !modal.classList.contains('active')) return;
+
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('ar-news-modal-open');
+
+    // Stop playing video / clear iframes
+    const mediaSlot = modal.querySelector('#arNewsModalMediaSlot');
+    if (mediaSlot) {
+      const videos = mediaSlot.querySelectorAll('video');
+      videos.forEach(v => { try { v.pause(); v.src = ''; } catch (_) {} });
+      mediaSlot.innerHTML = '';
+    }
+
+    activeNewsModalArticle = null;
+
+    // Restore focus
+    if (lastActiveFocusElement && typeof lastActiveFocusElement.focus === 'function') {
+      try { lastActiveFocusElement.focus(); } catch (_) {}
+    }
+
+    // Clear hash if it was set
+    if (window.location.hash === '#news-detail') {
+      try {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (_) {}
+    }
+  };
+
+  // Wire Modal Global Event Listeners
+  const initNewsModalEvents = () => {
+    const modal = document.getElementById('arNewsArticleModal');
+    if (!modal || modal._wired) return;
+    modal._wired = true;
+
+    // Top close & back buttons
+    modal.querySelector('#arNewsModalCloseBtn')?.addEventListener('click', closeNewsDetail);
+    modal.querySelector('#arNewsModalTopBackBtn')?.addEventListener('click', closeNewsDetail);
+    modal.querySelector('#arNewsModalBottomBackBtn')?.addEventListener('click', closeNewsDetail);
+
+    // Backdrop click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeNewsDetail();
+      }
+    });
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeNewsDetail();
+      }
+    });
+
+    // Popstate (browser back)
+    window.addEventListener('popstate', (e) => {
+      if (modal.classList.contains('active')) {
+        closeNewsDetail();
+      }
+    });
+  };
+
+  // Expose global controller
+  window.ARNewsModal = {
+    open: openNewsDetail,
+    close: closeNewsDetail,
+  };
+
   const renderNews = (items) => {
     const newsTrack = document.getElementById('newsTrack');
     if (!newsTrack) return;
 
+    initNewsModalEvents();
+
     const newsCarousel = newsTrack.closest('.news-carousel');
     const adminActive  = isAdmin();
+
+    // Wire View All News button to scroll to track or open top article
+    const viewAllBtn = newsCarousel ? newsCarousel.closest('section')?.querySelector('.view-all') : null;
+    if (viewAllBtn && (!viewAllBtn._wired)) {
+      viewAllBtn._wired = true;
+      viewAllBtn.addEventListener('click', (e) => {
+        const href = viewAllBtn.getAttribute('href');
+        if (!href || href === 'blog.html' || href === '#') {
+          e.preventDefault();
+          if (items && items.length > 0) {
+            openNewsDetail(items[0]);
+          } else {
+            newsTrack.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    }
 
     // Admin Add Button for News Section
     if (adminActive && newsCarousel) {
@@ -515,9 +771,13 @@
       items.forEach((item) => {
         const card = document.createElement('a');
         card.className = 'news-card';
-        card.href = item.ctaUrl || item.link || 'blog.html';
+        card.href = 'javascript:void(0);';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `Read full article: ${item.title || 'News'}`);
         card.style.display = 'block';
         card.style.textDecoration = 'none';
+        card.style.cursor = 'pointer';
 
         const tagText = item.category || 'News';
         const imgHtml = item.imageUrl
@@ -528,10 +788,27 @@
           ${imgHtml}
           <div class="news-body">
             <div class="meta">${item.date || ''}</div>
-            <h4 class="ar-cms-field-title">${item.title}</h4>
-            <p class="ar-cms-field-desc">${item.description || item.excerpt || ''}</p>
+            <h4 class="ar-cms-field-title">${escapeHtml(item.title)}</h4>
+            <p class="ar-cms-field-desc">${escapeHtml(item.description || item.excerpt || '')}</p>
           </div>
         `;
+
+        // Card Click & Keyboard Interaction — Open Full Article Block
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.ar-cms-btn, .ar-cms-btn--edit, .ar-cms-btn--delete, .ar-cms-controls, #arCmsAddBtn')) {
+            return;
+          }
+          e.preventDefault();
+          openNewsDetail(item);
+        });
+
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            if (e.target.closest('.ar-cms-btn, .ar-cms-btn--edit, .ar-cms-btn--delete, .ar-cms-controls, #arCmsAddBtn')) return;
+            e.preventDefault();
+            openNewsDetail(item);
+          }
+        });
 
         newsTrack.appendChild(card);
 
@@ -1307,6 +1584,7 @@
   //  INITIALIZATION FOR HOME PAGE CMS
   // ============================================================
   const initHomeCms = async () => {
+    initNewsModalEvents();
     const isPreview = window.location.search.includes('preview=true');
 
     if (isPreview) {

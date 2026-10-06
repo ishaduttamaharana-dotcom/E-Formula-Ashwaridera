@@ -130,7 +130,9 @@ window.AdminHomeModule = (function () {
           category: a.category || 'News',
           date: a.date || '',
           excerpt: a.description || a.excerpt || '',
+          content: a.content || '',
           imageUrl: a.imageUrl || '',
+          videoUrl: a.videoUrl || '',
           readTime: a.readTime || '3 min read',
           link: a.ctaUrl || a.link || 'news.html',
           featured: a.featured || false,
@@ -241,7 +243,9 @@ window.AdminHomeModule = (function () {
           category: a.category,
           date: a.date,
           description: a.excerpt,
+          content: a.content || '',
           imageUrl: a.imageUrl,
+          videoUrl: a.videoUrl || '',
           readTime: a.readTime,
           ctaUrl: a.link,
           featured: a.featured,
@@ -1194,11 +1198,16 @@ window.AdminHomeModule = (function () {
                   <textarea id="art_excerpt_${idx}" class="hcms-textarea article-field" data-idx="${idx}" data-key="excerpt"
                     placeholder="Short description...">${escapeHtml(article.excerpt || '')}</textarea>
                 </div>
+                <div class="hcms-field-group">
+                  <label class="hcms-label" for="art_content_${idx}">Full Article Content (Detail View)</label>
+                  <textarea id="art_content_${idx}" class="hcms-textarea article-field" data-idx="${idx}" data-key="content" style="min-height:90px;"
+                    placeholder="Full article content shown when user clicks the card...">${escapeHtml(article.content || '')}</textarea>
+                </div>
               </div>
             </div>
 
             <div class="hcms-editor-group">
-              <div class="hcms-editor-group-header"><i class="fas fa-image"></i> Cover Image</div>
+              <div class="hcms-editor-group-header"><i class="fas fa-image"></i> Media (Image & Video)</div>
               <div class="hcms-editor-group-body">
                 <div class="hcms-media-block">
                   <div class="hcms-media-preview-area">
@@ -1214,6 +1223,11 @@ window.AdminHomeModule = (function () {
                     <input type="text" id="artImg_${idx}" class="article-field" data-idx="${idx}" data-key="imageUrl"
                       value="${escapeHtml(article.imageUrl || '')}" style="display:none;" />
                   </div>
+                </div>
+                <div class="hcms-field-group" style="margin-top:14px;">
+                  <label class="hcms-label" for="art_video_${idx}">Article Video URL (Optional — MP4, Cloudinary or YouTube)</label>
+                  <input type="text" id="art_video_${idx}" class="hcms-input article-field" data-idx="${idx}" data-key="videoUrl"
+                    value="${escapeHtml(article.videoUrl || '')}" placeholder="https://res.cloudinary.com/... or https://youtube.com/..." />
                 </div>
               </div>
             </div>

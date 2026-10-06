@@ -177,17 +177,19 @@ const getNews = async (req, res, next) => {
 
 const createNewsCard = async (req, res, next) => {
   try {
-    const { title, description, date, category, icon, imageUrl, publicId, buttonText, buttonLink, order } = req.body;
+    const { title, description, content, date, category, icon, imageUrl, videoUrl, publicId, buttonText, buttonLink, order } = req.body;
 
     if (!title) return sendError(res, 400, 'News title is required.');
 
     const article = await HomeNews.create({
       title:       title.trim(),
       description: description ? description.trim() : '',
+      content:     content ? content.trim() : '',
       date:        date ? date.trim() : new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       category:    category ? category.trim() : 'News',
       icon:        icon || 'fas fa-newspaper',
       imageUrl:    imageUrl ? imageUrl.trim() : '',
+      videoUrl:    videoUrl ? videoUrl.trim() : '',
       publicId:    publicId ? publicId.trim() : '',
       buttonText:  buttonText ? buttonText.trim() : 'Read Article',
       buttonLink:  buttonLink ? buttonLink.trim() : 'blog.html',
@@ -203,15 +205,17 @@ const createNewsCard = async (req, res, next) => {
 const updateNewsCard = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, date, category, icon, imageUrl, publicId, buttonText, buttonLink, order, isActive } = req.body;
+    const { title, description, content, date, category, icon, imageUrl, videoUrl, publicId, buttonText, buttonLink, order, isActive } = req.body;
 
     const updates = {};
     if (title !== undefined)       updates.title       = title.trim();
     if (description !== undefined) updates.description = description.trim();
+    if (content !== undefined)     updates.content     = content.trim();
     if (date !== undefined)        updates.date        = date.trim();
     if (category !== undefined)    updates.category    = category.trim();
     if (icon !== undefined)        updates.icon        = icon.trim();
     if (imageUrl !== undefined)    updates.imageUrl    = imageUrl.trim();
+    if (videoUrl !== undefined)    updates.videoUrl    = videoUrl.trim();
     if (publicId !== undefined)    updates.publicId    = publicId.trim();
     if (buttonText !== undefined)  updates.buttonText  = buttonText.trim();
     if (buttonLink !== undefined)  updates.buttonLink  = buttonLink.trim();

@@ -42,6 +42,11 @@ const newsArticleSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    videoUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     publicId: {
       type: String,
       trim: true,

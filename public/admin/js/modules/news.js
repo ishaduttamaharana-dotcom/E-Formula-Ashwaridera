@@ -164,6 +164,11 @@
         </div>
 
         <div class="form-group">
+          <label>Article Video URL (Optional — MP4, Cloudinary or YouTube)</label>
+          <input type="text" name="videoUrl" class="form-input" value="${article.videoUrl || ''}" placeholder="https://res.cloudinary.com/... or https://youtube.com/..." />
+        </div>
+
+        <div class="form-group">
           <label>Card Icon</label>
           <input type="text" name="icon" class="form-input" value="${article.icon || 'fas fa-newspaper'}" placeholder="fas fa-newspaper" />
         </div>

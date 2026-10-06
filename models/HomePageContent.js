@@ -184,6 +184,7 @@ const homePageContentSchema = new mongoose.Schema(
           description: { type: String, default: '' },
           content: { type: String, default: '' },
           imageUrl: { type: String, default: '' },
+          videoUrl: { type: String, default: '' },
           ctaText: { type: String, default: 'Read More' },
           ctaUrl: { type: String, default: 'blog.html' },
           status: { type: String, enum: ['published', 'draft', 'hidden'], default: 'published' },
