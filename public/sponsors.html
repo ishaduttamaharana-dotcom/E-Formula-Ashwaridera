@@ -593,7 +593,7 @@
                 <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
                 <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
                 <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-                <li id="arNavItem"></li>
+
             </ul>
             <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
                 <i class="fas fa-bars"></i>
@@ -635,12 +635,12 @@
         <div class="hero-glow g1"></div>
         <div class="container hero-content">
             <div class="reveal">
-                <span class="eyebrow" id="heroEyebrow"><i class="fas fa-handshake"></i> Partner With Us</span>
-                <h1 id="heroHeading">Become A <span class="text-gradient">Sponsor</span></h1>
-                <p id="heroDescription">Put your brand on Tarkshya, our electric Formula Student car. Every season we race at Formula Bharat — your support drives us forward.</p>
+                <span class="eyebrow" id="heroEyebrow"></span>
+                <h1 id="heroHeading"></h1>
+                <p id="heroDescription"></p>
                 <div class="hero-actions">
-                    <a href="#sponsor-form" class="btn btn-primary" id="heroBtnPrimary"><i class="fas fa-handshake"></i> Start Here</a>
-                    <a href="#" class="btn btn-outline" id="heroBtnBrochure" style="border-color: rgba(255,255,255,0.3); color: #fff;"><i class="fas fa-file-arrow-down"></i> Brochure</a>
+                    <a href="#sponsor-form" class="btn btn-primary" id="heroBtnPrimary"></a>
+                    <a href="#" class="btn btn-outline" id="heroBtnBrochure" style="display:none; border-color: rgba(255,255,255,0.3); color: #fff;"></a>
                 </div>
             </div>
         </div>
@@ -661,9 +661,9 @@
     <section class="tiers-section" id="tiers">
         <div class="container">
             <div class="reveal text-center">
-                <span class="eyebrow" id="tiersEyebrow"><i class="fas fa-layer-group"></i> Sponsorship Tiers</span>
-                <h2 class="section-title" id="tiersTitle">Choose Your <span class="text-gradient">Level</span></h2>
-                <p class="section-subtitle" id="tiersSubtitle" style="color: rgba(255,255,255,0.55); margin: 0 auto;">A starting point for a conversation — every partnership is tailored to what you and the team need.</p>
+                <span class="eyebrow" id="tiersEyebrow"></span>
+                <h2 class="section-title" id="tiersTitle"></h2>
+                <p class="section-subtitle" id="tiersSubtitle" style="color: rgba(255,255,255,0.55); margin: 0 auto;"></p>
             </div>
 
             <div class="tiers-grid" id="tiersGrid">
@@ -701,19 +701,19 @@
     <section class="sponsor-form-section" id="sponsor-form">
         <div class="container">
             <div class="reveal">
-                <span class="eyebrow" id="enquiryEyebrow"><i class="fas fa-paper-plane"></i> Get Started</span>
-                <h2 class="section-title" id="enquiryHeading">Become A <span class="text-gradient">Sponsor</span></h2>
-                <p class="section-subtitle" id="enquirySubtitle">Tell us about your organisation and we'll get back to you with a custom proposal.</p>
+                <span class="eyebrow" id="enquiryEyebrow"></span>
+                <h2 class="section-title" id="enquiryHeading"></h2>
+                <p class="section-subtitle" id="enquirySubtitle"></p>
             </div>
 
             <div class="form-shell reveal">
                 <div class="form-info">
-                    <h3 id="contactHeading">Let's Talk</h3>
-                    <p id="contactDescription">Cash, components, services, or expertise — if it helps us build a better car, we want to hear from you. Fill out the form and our sponsorship team will follow up within a few days.</p>
-                    <div class="contact-row" id="contactEmailRow"><i class="fas fa-envelope"></i> <a href="mailto:sponsors@ashwariders.in" style="color:inherit; text-decoration:none;">sponsors@ashwariders.in</a></div>
-                    <div class="contact-row" id="contactPhoneRow"><i class="fas fa-phone"></i> +91 00000 00000</div>
-                    <div class="contact-row" id="contactAddressRow"><i class="fas fa-location-dot"></i> St. Vincent Pallotti CET, Nagpur</div>
-                    <div class="contact-row" id="contactBrochureRow"><i class="fas fa-file-arrow-down"></i> <a href="#" id="contactBrochureLink" style="color: var(--signal-bright); text-decoration: none;">Download sponsorship brochure</a></div>
+                    <h3 id="contactHeading"></h3>
+                    <p id="contactDescription"></p>
+                    <div class="contact-row" id="contactEmailRow"></div>
+                    <div class="contact-row" id="contactPhoneRow"></div>
+                    <div class="contact-row" id="contactAddressRow"></div>
+                    <div class="contact-row" id="contactBrochureRow"></div>
                 </div>
                 <div class="form-panel">
                     <form id="sponsorForm">
@@ -818,17 +818,70 @@
         }
         initReveal();
 
+        const escapeHtml = (str) => {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
+
+        function showPreviewBanner() {
+            if (document.getElementById('cmsPreviewBanner')) return;
+            const banner = document.createElement('div');
+            banner.id = 'cmsPreviewBanner';
+            banner.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(90deg, #F25912, #FF751F);
+                color: #FFFFFF;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                padding: 6px 16px;
+                text-align: center;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            `;
+            banner.innerHTML = `
+                <span><i class="fas fa-eye" style="margin-right:8px;"></i> PREVIEW MODE: Viewing Unpublished Sponsors Draft</span>
+                <a href="/admin/#/sponsors" style="color:#FFFFFF; text-decoration:underline; font-size:0.7rem;">Return to Control Center</a>
+            `;
+            document.body.prepend(banner);
+            const navbar = document.getElementById('navbar');
+            if (navbar) navbar.style.top = '30px';
+        }
+
         // ─── DYNAMIC SPONSOR CMS CONTENT LOADER ────────
         function applySponsorData(data) {
             if (!data) return;
-            const hero = data.hero || {};
-            const rail = data.rail || {};
-            const tiersSection = data.tiersSection || {};
-            const enquirySection = data.enquirySection || {};
-            const settings = data.settings || {};
+            try {
+                const hero = data.hero || {};
+                const rail = data.rail || {};
+                const tiersSection = data.tiersSection || {};
+                const enquirySection = data.enquirySection || {};
+                const settings = data.settings || {};
 
-            // 1. Title & Meta
-            if (settings.pageTitle) document.title = settings.pageTitle;
+                // 1. Title & Meta
+                if (settings.pageTitle) document.title = settings.pageTitle;
+                if (settings.seoDescription) {
+                    let metaDesc = document.querySelector('meta[name="description"]');
+                    if (!metaDesc) {
+                        metaDesc = document.createElement('meta');
+                        metaDesc.name = 'description';
+                        document.head.appendChild(metaDesc);
+                    }
+                    metaDesc.content = settings.seoDescription;
+                }
 
                 // 2. Hero Section
                 const heroSec = document.getElementById('sponsorHeroSection');
@@ -841,10 +894,18 @@
                             heroSec.style.backgroundImage = `url('${hero.bgImageUrl}')`;
                         }
                         const eyebrowEl = document.getElementById('heroEyebrow');
-                        if (eyebrowEl) eyebrowEl.innerHTML = `<i class="${hero.eyebrowIcon || 'fas fa-handshake'}"></i> ${hero.eyebrow || 'Partner With Us'}`;
+                        if (eyebrowEl) {
+                            const iconClass = escapeHtml(hero.eyebrowIcon || 'fas fa-handshake');
+                            const eyeText = escapeHtml(hero.eyebrow || 'Partner With Us');
+                            eyebrowEl.innerHTML = `<i class="${iconClass}"></i> ${eyeText}`;
+                        }
 
                         const headingEl = document.getElementById('heroHeading');
-                        if (headingEl) headingEl.innerHTML = `${hero.headingLine1 || 'Become A'} <span class="text-gradient">${hero.headingHighlight || 'Sponsor'}</span>`;
+                        if (headingEl) {
+                            const line1 = escapeHtml(hero.headingLine1 || 'Become A');
+                            const highlight = escapeHtml(hero.headingHighlight || 'Sponsor');
+                            headingEl.innerHTML = `${line1} <span class="text-gradient">${highlight}</span>`;
+                        }
 
                         const descEl = document.getElementById('heroDescription');
                         if (descEl) descEl.textContent = hero.description || '';
@@ -852,7 +913,9 @@
                         const btnPrimary = document.getElementById('heroBtnPrimary');
                         if (btnPrimary) {
                             btnPrimary.href = hero.buttonPrimaryUrl || '#sponsor-form';
-                            btnPrimary.innerHTML = `<i class="${hero.buttonPrimaryIcon || 'fas fa-handshake'}"></i> ${hero.buttonPrimaryText || 'Start Here'}`;
+                            const pIcon = escapeHtml(hero.buttonPrimaryIcon || 'fas fa-handshake');
+                            const pText = escapeHtml(hero.buttonPrimaryText || 'Start Here');
+                            btnPrimary.innerHTML = `<i class="${pIcon}"></i> ${pText}`;
                         }
 
                         const btnBrochure = document.getElementById('heroBtnBrochure');
@@ -863,7 +926,9 @@
                                 btnBrochure.style.display = 'inline-flex';
                                 btnBrochure.href = hero.buttonBrochureUrl;
                                 btnBrochure.target = '_blank';
-                                btnBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> ${hero.buttonBrochureText || 'Brochure'}`;
+                                btnBrochure.rel = 'noopener noreferrer';
+                                const bText = escapeHtml(hero.buttonBrochureText || 'Brochure');
+                                btnBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> ${bText}`;
                             }
                         }
                     }
@@ -893,11 +958,13 @@
                                 const renderTrack = () => `
                                     <div class="sponsor-track">
                                         ${railItems.map(item => {
+                                            const safeName = escapeHtml(item.name || 'Sponsor');
+                                            const safeAlt = escapeHtml(item.altText || item.name || 'Sponsor');
                                             const content = item.logoUrl
-                                                ? `<img src="${item.logoUrl}" alt="${item.altText || item.name}" style="max-height:48px; max-width:140px; object-fit:contain;" />`
-                                                : `<i class="${item.icon || 'fas fa-bolt'}"></i> ${item.name}`;
+                                                ? `<img src="${item.logoUrl}" alt="${safeAlt}" style="max-height:48px; max-width:140px; object-fit:contain;" />`
+                                                : `<i class="${escapeHtml(item.icon || 'fas fa-bolt')}"></i> ${safeName}`;
                                             if (item.websiteUrl) {
-                                                return `<div class="sponsor-item"><a href="${item.websiteUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none; display:flex; align-items:center;">${content}</a></div>`;
+                                                return `<div class="sponsor-item"><a href="${escapeHtml(item.websiteUrl)}" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none; display:flex; align-items:center;">${content}</a></div>`;
                                             }
                                             return `<div class="sponsor-item">${content}</div>`;
                                         }).join('')}
@@ -921,10 +988,18 @@
                             tiersSec.style.backgroundImage = `url('${tiersSection.bgImageUrl}')`;
                         }
                         const tEye = document.getElementById('tiersEyebrow');
-                        if (tEye) tEye.innerHTML = `<i class="${tiersSection.eyebrowIcon || 'fas fa-layer-group'}"></i> ${tiersSection.eyebrow || 'Sponsorship Tiers'}`;
+                        if (tEye) {
+                            const eyeIcon = escapeHtml(tiersSection.eyebrowIcon || 'fas fa-layer-group');
+                            const eyeText = escapeHtml(tiersSection.eyebrow || 'Sponsorship Tiers');
+                            tEye.innerHTML = `<i class="${eyeIcon}"></i> ${eyeText}`;
+                        }
 
                         const tTitle = document.getElementById('tiersTitle');
-                        if (tTitle) tTitle.innerHTML = `${tiersSection.headingLine1 || 'Choose Your'} <span class="text-gradient">${tiersSection.headingHighlight || 'Level'}</span>`;
+                        if (tTitle) {
+                            const tLine1 = escapeHtml(tiersSection.headingLine1 || 'Choose Your');
+                            const tHigh = escapeHtml(tiersSection.headingHighlight || 'Level');
+                            tTitle.innerHTML = `${tLine1} <span class="text-gradient">${tHigh}</span>`;
+                        }
 
                         const tSub = document.getElementById('tiersSubtitle');
                         if (tSub) tSub.textContent = tiersSection.description || '';
@@ -934,24 +1009,31 @@
                         if (tiers.length > 0 && tiersGrid) {
                             tiersGrid.innerHTML = tiers.map(tier => {
                                 const benefitsHtml = (tier.benefits || []).map(b => `
-                                    <li><i class="fas fa-check"></i> ${b}</li>
+                                    <li><i class="fas fa-check"></i> ${escapeHtml(b)}</li>
                                 `).join('');
 
                                 const isPopular = Boolean(tier.isPopular);
                                 const ribbonHtml = isPopular
-                                    ? `<div class="tier-ribbon">${tier.popularRibbonText || 'Popular'}</div>`
+                                    ? `<div class="tier-ribbon">${escapeHtml(tier.popularRibbonText || 'Popular')}</div>`
                                     : '';
+
+                                const badgeColor = escapeHtml(tier.badgeColor || 'var(--signal-bright)');
+                                const tierName = escapeHtml(tier.name || 'Tier');
+                                const tierTitle = escapeHtml(tier.title || '');
+                                const tierDesc = escapeHtml(tier.description || '');
+                                const btnText = escapeHtml(tier.buttonText || 'Get In Touch');
+                                const btnUrl = escapeHtml(tier.buttonUrl || '#sponsor-form');
 
                                 return `
                                     <div class="tier-card ${isPopular ? 'featured' : ''} reveal visible">
                                         ${ribbonHtml}
-                                        <div class="tier-name" style="color:${tier.badgeColor || 'var(--signal-bright)'};">${tier.name || 'Tier'}</div>
-                                        <h3>${tier.title || ''}</h3>
-                                        <div class="tier-range">${tier.description || ''}</div>
+                                        <div class="tier-name" style="color:${badgeColor};">${tierName}</div>
+                                        <h3>${tierTitle}</h3>
+                                        <div class="tier-range">${tierDesc}</div>
                                         <ul>
                                             ${benefitsHtml}
                                         </ul>
-                                        <a href="${tier.buttonUrl || '#sponsor-form'}" class="btn ${isPopular ? 'btn-primary' : 'btn-outline'}" ${isPopular ? '' : 'style="border-color: rgba(255,255,255,0.3); color: #fff;"'}>${tier.buttonText || 'Get In Touch'}</a>
+                                        <a href="${btnUrl}" class="btn ${isPopular ? 'btn-primary' : 'btn-outline'}" ${isPopular ? '' : 'style="border-color: rgba(255,255,255,0.3); color: #fff;"'}>${btnText}</a>
                                     </div>
                                 `;
                             }).join('');
@@ -961,7 +1043,7 @@
                         const tierSelect = document.getElementById('fTier');
                         if (tierSelect && tiers.length > 0) {
                             tierSelect.innerHTML = tiers.map((t, idx) => {
-                                const label = `${t.name} – ${t.title}`;
+                                const label = `${escapeHtml(t.name)} – ${escapeHtml(t.title)}`;
                                 return `<option value="${label}" ${t.isPopular || idx === 1 ? 'selected' : ''}>${label}</option>`;
                             }).join('') + `<option value="In-Kind / Other">In-Kind / Not Sure Yet</option>`;
                         }
@@ -976,10 +1058,18 @@
                     } else {
                         enquirySec.style.display = 'block';
                         const eEye = document.getElementById('enquiryEyebrow');
-                        if (eEye) eEye.innerHTML = `<i class="${enquirySection.eyebrowIcon || 'fas fa-paper-plane'}"></i> ${enquirySection.eyebrow || 'Get Started'}`;
+                        if (eEye) {
+                            const eeIcon = escapeHtml(enquirySection.eyebrowIcon || 'fas fa-paper-plane');
+                            const eeText = escapeHtml(enquirySection.eyebrow || 'Get Started');
+                            eEye.innerHTML = `<i class="${eeIcon}"></i> ${eeText}`;
+                        }
 
                         const eHead = document.getElementById('enquiryHeading');
-                        if (eHead) eHead.innerHTML = `${enquirySection.headingLine1 || 'Become A'} <span class="text-gradient">${enquirySection.headingHighlight || 'Sponsor'}</span>`;
+                        if (eHead) {
+                            const eLine1 = escapeHtml(enquirySection.headingLine1 || 'Become A');
+                            const eHigh = escapeHtml(enquirySection.headingHighlight || 'Sponsor');
+                            eHead.innerHTML = `${eLine1} <span class="text-gradient">${eHigh}</span>`;
+                        }
 
                         const eSub = document.getElementById('enquirySubtitle');
                         if (eSub) eSub.textContent = enquirySection.description || '';
@@ -991,13 +1081,22 @@
                         if (cDesc) cDesc.textContent = enquirySection.contactDescription || '';
 
                         const cEmail = document.getElementById('contactEmailRow');
-                        if (cEmail) cEmail.innerHTML = `<i class="fas fa-envelope"></i> <a href="mailto:${enquirySection.email || 'sponsors@ashwariders.in'}" style="color:inherit; text-decoration:none;">${enquirySection.email || 'sponsors@ashwariders.in'}</a>`;
+                        if (cEmail) {
+                            const emailVal = escapeHtml(enquirySection.email || 'sponsors@ashwariders.in');
+                            cEmail.innerHTML = `<i class="fas fa-envelope"></i> <a href="mailto:${emailVal}" style="color:inherit; text-decoration:none;">${emailVal}</a>`;
+                        }
 
                         const cPhone = document.getElementById('contactPhoneRow');
-                        if (cPhone) cPhone.innerHTML = `<i class="fas fa-phone"></i> ${enquirySection.phone || '+91 00000 00000'}`;
+                        if (cPhone) {
+                            const phoneVal = escapeHtml(enquirySection.phone || '+91 00000 00000');
+                            cPhone.innerHTML = `<i class="fas fa-phone"></i> ${phoneVal}`;
+                        }
 
                         const cAddr = document.getElementById('contactAddressRow');
-                        if (cAddr) cAddr.innerHTML = `<i class="fas fa-location-dot"></i> ${enquirySection.address || 'St. Vincent Pallotti CET, Nagpur'}`;
+                        if (cAddr) {
+                            const addrVal = escapeHtml(enquirySection.address || 'St. Vincent Pallotti CET, Nagpur');
+                            cAddr.innerHTML = `<i class="fas fa-location-dot"></i> ${addrVal}`;
+                        }
 
                         const cBrochure = document.getElementById('contactBrochureRow');
                         if (cBrochure) {
@@ -1005,13 +1104,15 @@
                                 cBrochure.style.display = 'none';
                             } else {
                                 cBrochure.style.display = 'flex';
-                                cBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> <a href="${enquirySection.brochureUrl}" target="_blank" style="color: var(--signal-bright); text-decoration: none;">${enquirySection.brochureText || 'Download sponsorship brochure'}</a>`;
+                                const bText = escapeHtml(enquirySection.brochureText || 'Download sponsorship brochure');
+                                cBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> <a href="${enquirySection.brochureUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--signal-bright); text-decoration: none;">${bText}</a>`;
                             }
                         }
 
                         const submitBtn = document.getElementById('sponsorSubmitBtn');
                         if (submitBtn) {
-                            submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${enquirySection.submitButtonText || 'Send Enquiry'}`;
+                            const sText = escapeHtml(enquirySection.submitButtonText || 'Send Enquiry');
+                            submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${sText}`;
                         }
                     }
                 }
@@ -1027,33 +1128,29 @@
 
         async function loadSponsorPageContent() {
             const isPreview = window.location.search.includes('preview=true') || window.location.search.includes('draft=true');
-            const endpoint = '/api/v1/sponsors' + (isPreview ? '?preview=true' : '');
+            if (isPreview) showPreviewBanner();
 
-            // 0. Fast-path: instant 0ms paint from session cache
-            try {
-                const cached = sessionStorage.getItem('ar_sponsors_cache');
-                if (cached) {
-                    const parsed = JSON.parse(cached);
-                    if (parsed && typeof parsed === 'object') applySponsorData(parsed);
-                }
-            } catch (e) {}
+            const endpoint = `/api/v1/sponsors?_t=${Date.now()}` + (isPreview ? '&preview=true' : '');
 
             try {
                 const res = await fetch(endpoint, { cache: 'no-store' });
                 const json = await res.json();
                 if (json && json.success && json.data) {
                     applySponsorData(json.data);
-                    if (!isPreview) {
-                        try { sessionStorage.setItem('ar_sponsors_cache', JSON.stringify(json.data)); } catch (e) {}
-                    }
+                } else {
+                    throw new Error(json?.message || 'Failed to load sponsorship data.');
                 }
             } catch (err) {
                 console.warn('Could not load dynamic Sponsor CMS data:', err);
                 const tiersGrid = document.getElementById('tiersGrid');
-                if (tiersGrid && !tiersGrid.querySelector('.tier-card:not(.tier-skeleton-card)')) {
+                if (tiersGrid) {
                     tiersGrid.innerHTML = `
-                        <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: rgba(255,255,255,0.5); font-family: var(--font-mono, monospace);">
-                            <p>Sponsorship tiers temporarily unavailable.</p>
+                        <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: rgba(255,255,255,0.6); font-family: var(--font-mono, monospace);">
+                            <i class="fas fa-circle-exclamation" style="font-size: 2rem; color: var(--signal-bright, #f25912); margin-bottom: 12px; display: block;"></i>
+                            <p style="margin-bottom: 16px;">Sponsorship tiers temporarily unavailable.</p>
+                            <button type="button" class="btn btn-primary" onclick="loadSponsorPageContent()" style="margin: 0 auto;">
+                                <i class="fas fa-rotate-right"></i> Retry Connection
+                            </button>
                         </div>
                     `;
                 }
@@ -1115,10 +1212,15 @@
         }
 
         // Initialize CMS dynamic content
-        document.addEventListener('DOMContentLoaded', loadSponsorPageContent);
+        // Note: Script is at bottom of body so DOMContentLoaded has already fired — call directly.
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadSponsorPageContent);
+        } else {
+            loadSponsorPageContent();
+        }
     </script>
 
-  <script src="/auth.js"></script>
+
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/sponsor-cms.js"></script>
