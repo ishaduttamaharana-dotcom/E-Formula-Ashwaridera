@@ -259,14 +259,78 @@ const getPublicSponsorContent = async (req, res) => {
       : (doc.publishedVersion || doc.toObject());
 
     // Filter rail items by visibility and sort by order
-    const rawRailItems = source.rail?.items || DEFAULT_SPONSORS;
+    let rawRailItems = [...(source.rail?.items || DEFAULT_SPONSORS)];
+
+    // Check standalone Sponsor collection to bridge any direct resource additions
+    try {
+      const Sponsor = require('../models/Sponsor');
+      const standaloneSponsors = await Sponsor.find(
+        isPreview ? { status: { $ne: 'archived' } } : { status: 'published' }
+      ).lean();
+
+      standaloneSponsors.forEach((sp) => {
+        const existingIdx = rawRailItems.findIndex(
+          (r) => (r.id && String(r.id) === String(sp._id)) || (r.name && r.name.toLowerCase() === sp.name.toLowerCase())
+        );
+        const isItemVisible = sp.visible !== false && sp.showOnHomepage !== false && sp.status !== 'archived';
+        const itemObj = {
+          id: String(sp._id),
+          name: sp.name,
+          tier: sp.tier || 'Gold',
+          logoUrl: sp.logoUrl || '',
+          altText: sp.name,
+          websiteUrl: sp.websiteUrl || '',
+          icon: sp.icon || 'fas fa-bolt',
+          order: sp.order !== undefined ? sp.order : 99,
+          visible: isItemVisible,
+        };
+
+        if (existingIdx >= 0) {
+          rawRailItems[existingIdx] = {
+            ...rawRailItems[existingIdx],
+            ...itemObj,
+            visible: isItemVisible && rawRailItems[existingIdx].visible !== false,
+          };
+        } else {
+          rawRailItems.push(itemObj);
+        }
+      });
+    } catch (e) {}
+
     const railItems = rawRailItems
       .filter((item) => !isObsoleteCategory(item.tier))
       .filter((item) => isPreview || item.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    // Filter tiers by visibility and sort by order
-    const rawTiers = source.tiersSection?.tiers || DEFAULT_TIERS;
+    // Filter tiers by visibility and sort by order.
+    // IMPORTANT: [] is truthy in JS, so || DEFAULT_TIERS won't fire for an empty array.
+    // We must check .length explicitly to fall back to defaults.
+    let rawTiers = (source.tiersSection?.tiers && source.tiersSection.tiers.length > 0)
+      ? source.tiersSection.tiers
+      : null;
+
+    // If publishedVersion has no tiers but the live doc root does, use the live tiers
+    // and repair the publishedVersion snapshot in the DB so future calls are correct.
+    if (!rawTiers) {
+      const liveTiers = doc.tiersSection?.tiers;
+      if (liveTiers && liveTiers.length > 0) {
+        rawTiers = liveTiers;
+        // Repair: patch publishedVersion with the live tiersSection
+        try {
+          const snapshot = JSON.parse(JSON.stringify(doc.toObject()));
+          doc.publishedVersion = snapshot;
+          doc.markModified('publishedVersion');
+          await doc.save();
+          console.log('⚡ Auto-repaired publishedVersion.tiersSection.tiers from live doc.');
+        } catch (repairErr) {
+          console.warn('Could not auto-repair publishedVersion:', repairErr.message);
+        }
+      } else {
+        rawTiers = DEFAULT_TIERS;
+        console.log('⚡ Using DEFAULT_TIERS as fallback — DB has no tiers in either snapshot or live doc.');
+      }
+    }
+
     const tiers = rawTiers
       .filter((tier) => !isObsoleteCategory(tier.name))
       .map((tier) => ({
@@ -282,6 +346,7 @@ const getPublicSponsorContent = async (req, res) => {
         ...(source.rail || {}),
         items: railItems,
       },
+      sponsors: railItems,
       hero: source.hero || {},
       tiersSection: {
         ...(source.tiersSection || {}),

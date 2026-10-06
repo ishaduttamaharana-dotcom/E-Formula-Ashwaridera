@@ -1006,37 +1006,47 @@
 
                         const tiers = (tiersSection.tiers || []).filter(t => t.visible !== false);
                         const tiersGrid = document.getElementById('tiersGrid');
-                        if (tiers.length > 0 && tiersGrid) {
-                            tiersGrid.innerHTML = tiers.map(tier => {
-                                const benefitsHtml = (tier.benefits || []).map(b => `
-                                    <li><i class="fas fa-check"></i> ${escapeHtml(b)}</li>
-                                `).join('');
+                        if (tiersGrid) {
+                            if (tiers.length > 0) {
+                                tiersGrid.innerHTML = tiers.map(tier => {
+                                    const benefitsHtml = (tier.benefits || []).map(b => `
+                                        <li><i class="fas fa-check"></i> ${escapeHtml(b)}</li>
+                                    `).join('');
 
-                                const isPopular = Boolean(tier.isPopular);
-                                const ribbonHtml = isPopular
-                                    ? `<div class="tier-ribbon">${escapeHtml(tier.popularRibbonText || 'Popular')}</div>`
-                                    : '';
+                                    const isPopular = Boolean(tier.isPopular);
+                                    const ribbonHtml = isPopular
+                                        ? `<div class="tier-ribbon">${escapeHtml(tier.popularRibbonText || 'Popular')}</div>`
+                                        : '';
 
-                                const badgeColor = escapeHtml(tier.badgeColor || 'var(--signal-bright)');
-                                const tierName = escapeHtml(tier.name || 'Tier');
-                                const tierTitle = escapeHtml(tier.title || '');
-                                const tierDesc = escapeHtml(tier.description || '');
-                                const btnText = escapeHtml(tier.buttonText || 'Get In Touch');
-                                const btnUrl = escapeHtml(tier.buttonUrl || '#sponsor-form');
+                                    const badgeColor = escapeHtml(tier.badgeColor || 'var(--signal-bright)');
+                                    const tierName = escapeHtml(tier.name || 'Tier');
+                                    const tierTitle = escapeHtml(tier.title || '');
+                                    const tierDesc = escapeHtml(tier.description || '');
+                                    const btnText = escapeHtml(tier.buttonText || 'Get In Touch');
+                                    const btnUrl = escapeHtml(tier.buttonUrl || '#sponsor-form');
 
-                                return `
-                                    <div class="tier-card ${isPopular ? 'featured' : ''} reveal visible">
-                                        ${ribbonHtml}
-                                        <div class="tier-name" style="color:${badgeColor};">${tierName}</div>
-                                        <h3>${tierTitle}</h3>
-                                        <div class="tier-range">${tierDesc}</div>
-                                        <ul>
-                                            ${benefitsHtml}
-                                        </ul>
-                                        <a href="${btnUrl}" class="btn ${isPopular ? 'btn-primary' : 'btn-outline'}" ${isPopular ? '' : 'style="border-color: rgba(255,255,255,0.3); color: #fff;"'}>${btnText}</a>
+                                    return `
+                                        <div class="tier-card ${isPopular ? 'featured' : ''} reveal visible">
+                                            ${ribbonHtml}
+                                            <div class="tier-name" style="color:${badgeColor};">${tierName}</div>
+                                            <h3>${tierTitle}</h3>
+                                            <div class="tier-range">${tierDesc}</div>
+                                            <ul>
+                                                ${benefitsHtml}
+                                            </ul>
+                                            <a href="${btnUrl}" class="btn ${isPopular ? 'btn-primary' : 'btn-outline'}" ${isPopular ? '' : 'style="border-color: rgba(255,255,255,0.3); color: #fff;"'}>${btnText}</a>
+                                        </div>
+                                    `;
+                                }).join('');
+                            } else {
+                                // Empty state — no tiers available yet
+                                tiersGrid.innerHTML = `
+                                    <div style="grid-column: 1 / -1; padding: 60px 24px; text-align: center; color: rgba(255,255,255,0.55); font-family: var(--font-mono, monospace);">
+                                        <i class="fas fa-layer-group" style="font-size: 2.4rem; color: rgba(242,89,18,0.5); margin-bottom: 16px; display: block;"></i>
+                                        <p style="font-size: 0.9rem; line-height: 1.7;">Sponsorship opportunities are currently being updated.<br>Please check back shortly or <a href="#sponsor-form" style="color: var(--signal-bright); text-decoration: none;">contact us directly</a>.</p>
                                     </div>
                                 `;
-                            }).join('');
+                            }
                         }
 
                         // Auto-populate the Interested Tier dropdown in Enquiry Form
@@ -1142,14 +1152,15 @@
                 }
             } catch (err) {
                 console.warn('Could not load dynamic Sponsor CMS data:', err);
+                // Always clear skeletons — never leave loading state permanently
                 const tiersGrid = document.getElementById('tiersGrid');
                 if (tiersGrid) {
                     tiersGrid.innerHTML = `
                         <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: rgba(255,255,255,0.6); font-family: var(--font-mono, monospace);">
                             <i class="fas fa-circle-exclamation" style="font-size: 2rem; color: var(--signal-bright, #f25912); margin-bottom: 12px; display: block;"></i>
-                            <p style="margin-bottom: 16px;">Sponsorship tiers temporarily unavailable.</p>
+                            <p style="margin-bottom: 16px;">Unable to load sponsorship tiers. Please try again.</p>
                             <button type="button" class="btn btn-primary" onclick="loadSponsorPageContent()" style="margin: 0 auto;">
-                                <i class="fas fa-rotate-right"></i> Retry Connection
+                                <i class="fas fa-rotate-right"></i> Retry
                             </button>
                         </div>
                     `;
