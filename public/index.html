@@ -1459,7 +1459,7 @@
       font-size: clamp(1.4rem, 3.2vw, 2.2rem);
       line-height: 1.25;
       font-weight: 800;
-      color: #fff;
+      color: #000000;
       margin-bottom: 18px;
       letter-spacing: -0.015em;
       text-transform: none;
@@ -1468,24 +1468,34 @@
     .ar-news-modal-lead {
       font-size: 1.1rem;
       line-height: 1.65;
-      color: #e2e8f0;
+      color: var(--signal, #ff6600);
       font-weight: 400;
       padding-bottom: 22px;
       margin-bottom: 22px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+      border-bottom: 1px solid var(--line-dark, rgba(34, 33, 38, 0.12));
+    }
+
+    .ar-news-modal-body,
+    .ar-news-modal-body p,
+    .ar-news-modal-body span,
+    .ar-news-modal-body li,
+    .ar-news-modal-body strong,
+    .ar-news-modal-body em,
+    .ar-news-modal-body a {
+      color: var(--signal, #ff6600);
     }
 
     .ar-news-modal-body p {
       font-size: 1rem;
       line-height: 1.8;
-      color: #cbd5e1;
+      color: var(--signal, #ff6600);
       margin-bottom: 18px;
-      font-weight: 300;
+      font-weight: 400;
     }
 
     .ar-news-modal-list {
       margin: 14px 0 22px 22px;
-      color: #cbd5e1;
+      color: var(--signal, #ff6600);
       font-size: 0.98rem;
       line-height: 1.8;
       list-style-type: square;
@@ -1493,6 +1503,7 @@
 
     .ar-news-modal-list li {
       margin-bottom: 6px;
+      color: var(--signal, #ff6600);
     }
 
     .ar-news-modal-footer {
@@ -1587,17 +1598,24 @@
     }
 
     body.light .ar-news-modal-title {
-      color: #0f172a;
+      color: #000000;
     }
 
     body.light .ar-news-modal-lead {
-      color: #1e293b;
+      color: var(--signal, #ff6600);
       border-bottom-color: rgba(0, 0, 0, 0.08);
     }
 
+    body.light .ar-news-modal-body,
     body.light .ar-news-modal-body p,
-    body.light .ar-news-modal-list {
-      color: #334155;
+    body.light .ar-news-modal-body span,
+    body.light .ar-news-modal-body li,
+    body.light .ar-news-modal-body strong,
+    body.light .ar-news-modal-body em,
+    body.light .ar-news-modal-body a,
+    body.light .ar-news-modal-list,
+    body.light .ar-news-modal-list li {
+      color: var(--signal, #ff6600);
     }
 
     body.light .ar-news-modal-footer {
