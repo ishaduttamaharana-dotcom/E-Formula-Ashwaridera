@@ -878,12 +878,8 @@
     }
 
     // ─── 3. FOOTER BRAND & DESCRIPTION ───
-    if (footerBrand.description) {
-      const footerSummaries = document.querySelectorAll('.footer-brand p, .footer-about p');
-      footerSummaries.forEach((p) => {
-        p.textContent = footerBrand.description;
-      });
-    }
+    const footerSummaries = document.querySelectorAll('.footer-brand p, .footer-about p');
+    footerSummaries.forEach((p) => p.remove());
 
     // ─── 4. FOOTER SOCIAL LINKS ───
     const socialContainers = document.querySelectorAll('.footer-brand .social-links, .footer .social-links');

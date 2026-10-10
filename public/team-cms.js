@@ -269,10 +269,8 @@
     // ─── 04. Global Footer ────────────────────────────────────
     const footerEl = document.querySelector('.footer');
     if (footerEl && footer) {
-      if (footer.slogan) {
-        const sloganEl = footerEl.querySelector('.footer-brand p');
-        if (sloganEl) sloganEl.textContent = footer.slogan;
-      }
+      const sloganEl = footerEl.querySelector('.footer-brand p');
+      if (sloganEl) sloganEl.remove();
       if (footer.copyrightText) {
         const cpEl = footerEl.querySelector('.footer-bottom span:first-child');
         if (cpEl) cpEl.textContent = footer.copyrightText;

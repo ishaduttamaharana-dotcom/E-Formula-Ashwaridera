@@ -1507,9 +1507,7 @@
       const companyData = data.footerSponsors.company || {};
       if (companyData) {
         const footerBrandP = document.querySelector('.footer-brand p');
-        if (footerBrandP && companyData.description) {
-          footerBrandP.textContent = companyData.description;
-        }
+        if (footerBrandP) footerBrandP.remove();
         const copyEl = document.querySelector('.footer-bottom span:first-child');
         if (copyEl && (companyData.copyrightText || companyData.copyright)) {
           copyEl.textContent = companyData.copyrightText || companyData.copyright;
