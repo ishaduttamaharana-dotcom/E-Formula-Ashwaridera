@@ -250,7 +250,7 @@ const homePageContentSchema = new mongoose.Schema(
         brandName: { type: String, default: 'AshwaRiders' },
         description: {
           type: String,
-          default: "Building India's most advanced Formula Student race car. Driven by excellence, fueled by passion.",
+          default: '',
         },
         copyrightText: { type: String, default: '© 2026 Ashwa Riders. All rights reserved.' },
         builtByText: { type: String, default: 'Built by the Ashwa Riders Team' },

@@ -540,7 +540,7 @@ const getOrSeedHomeDoc = async () => {
       },
       company: {
         brandName: (existingNavFooter && existingNavFooter.logo && existingNavFooter.logo.brandText) || 'AshwaRiders',
-        description: footerCompany.slogan || "Building Central India's first Formula Student Electric race car. Driven by excellence, fueled by passion.",
+        description: footerCompany.slogan || '',
         copyrightText: footerCompany.copyrightText || '© 2026 Ashwa Riders. All rights reserved.',
         builtByText: footerCompany.builtByText || 'Built by the Ashwa Riders Team',
       },
