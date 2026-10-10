@@ -920,11 +920,12 @@
 
                         const btnBrochure = document.getElementById('heroBtnBrochure');
                         if (btnBrochure) {
-                            if (hero.buttonBrochureVisible === false || !hero.buttonBrochureUrl) {
+                            if (hero.buttonBrochureVisible === false) {
                                 btnBrochure.style.display = 'none';
                             } else {
                                 btnBrochure.style.display = 'inline-flex';
-                                btnBrochure.href = hero.buttonBrochureUrl;
+                                const bUrl = hero.buttonBrochureUrl || '/api/v1/sponsors/brochure';
+                                btnBrochure.href = bUrl;
                                 btnBrochure.target = '_blank';
                                 btnBrochure.rel = 'noopener noreferrer';
                                 const bText = escapeHtml(hero.buttonBrochureText || 'Brochure');
@@ -1110,12 +1111,13 @@
 
                         const cBrochure = document.getElementById('contactBrochureRow');
                         if (cBrochure) {
-                            if (enquirySection.brochureVisible === false || !enquirySection.brochureUrl) {
+                            if (enquirySection.brochureVisible === false) {
                                 cBrochure.style.display = 'none';
                             } else {
                                 cBrochure.style.display = 'flex';
                                 const bText = escapeHtml(enquirySection.brochureText || 'Download sponsorship brochure');
-                                cBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> <a href="${enquirySection.brochureUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--signal-bright); text-decoration: none;">${bText}</a>`;
+                                const bUrl = enquirySection.brochureUrl || '/api/v1/sponsors/brochure';
+                                cBrochure.innerHTML = `<i class="fas fa-file-arrow-down"></i> <a href="${bUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--signal-bright); text-decoration: none;">${bText}</a>`;
                             }
                         }
 

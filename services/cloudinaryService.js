@@ -152,6 +152,32 @@ const uploadRawToCloudinary = (fileBuffer, folder = 'ashwa_cms/documents') => {
 };
 
 /**
+ * Generates an authenticated download URL for a Cloudinary raw document/PDF.
+ * Used to securely deliver documents without HTTP 401 when Cloudinary's
+ * account-level "PDF and ZIP files delivery" restriction is active on the CDN.
+ *
+ * @param {string} publicId
+ * @param {string} [format='pdf']
+ * @param {object} [options={}]
+ * @returns {string} Authenticated download URL
+ */
+const getCloudinaryDocumentDownloadUrl = (publicId, format = 'pdf', options = {}) => {
+  ensureConfig();
+  // Ensure publicId without duplicate extension if format is provided
+  let cleanPublicId = publicId;
+  let cleanFormat = format;
+  if (cleanPublicId.endsWith(`.${format}`)) {
+    cleanFormat = format;
+  }
+  return cloudinary.utils.private_download_url(cleanPublicId, cleanFormat, {
+    resource_type: options.resourceType || 'raw',
+    type: options.type || 'upload',
+    expires_at: options.expiresAt || Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+    ...options,
+  });
+};
+
+/**
  * Verifies that a Cloudinary asset exists and is accessible.
  *
  * @param {string} publicId
@@ -204,6 +230,8 @@ module.exports = {
   uploadBufferToCloudinary,
   uploadVideoToCloudinary,
   uploadRawToCloudinary,
+  getCloudinaryDocumentDownloadUrl,
   verifyCloudinaryAsset,
   deleteFromCloudinary,
 };
+

@@ -282,11 +282,12 @@
       if (asset.resourceType === 'video') {
         mediaPreviewHtml = `<video src="${asset.url}" controls style="width:100%; max-height:280px; border-radius:4px; background:#000;"></video>`;
       } else if (asset.resourceType === 'raw') {
+        const docViewUrl = `/api/v1/media/document/${asset._id}`;
         mediaPreviewHtml = `
           <div style="padding:30px; text-align:center; background:var(--admin-surface-card); border-radius:4px;">
             <i class="fas fa-file-pdf text-orange" style="font-size:48px; margin-bottom:12px;"></i>
             <h4>${asset.altText || 'Document Asset'}</h4>
-            <a href="${asset.url}" target="_blank" class="admin-btn admin-btn--secondary admin-btn--sm" style="margin-top:12px; display:inline-block;">
+            <a href="${docViewUrl}" target="_blank" class="admin-btn admin-btn--secondary admin-btn--sm" style="margin-top:12px; display:inline-block;">
               <i class="fas fa-download"></i> Download / View File
             </a>
           </div>

@@ -9,6 +9,7 @@ const { uploadToMemoryFields } = require('../../config/multer');
 const {
   getPublicSponsorContent,
   submitPublicSponsorEnquiry,
+  downloadBrochure,
 } = require('../../controllers/sponsorPageController');
 const {
   submitSponsorRequest,
@@ -17,7 +18,9 @@ const {
 
 const router = express.Router();
 
-// ─── Public Read Routes (Unified Sponsor Page Content) ─────────
+// ─── Public Read Routes (Unified Sponsor Page Content & Brochure) ──
+router.get('/brochure', downloadBrochure);
+router.get('/download-brochure', downloadBrochure);
 router.get('/', getPublicSponsorContent);
 router.get('/page', getPublicSponsorContent);
 router.get('/public', getPublicSponsorContent);

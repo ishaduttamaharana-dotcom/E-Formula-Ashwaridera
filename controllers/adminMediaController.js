@@ -25,9 +25,11 @@ const {
   uploadBufferToCloudinary,
   uploadVideoToCloudinary,
   uploadRawToCloudinary,
+  getCloudinaryDocumentDownloadUrl,
   verifyCloudinaryAsset,
   deleteFromCloudinary,
 } = require('../services/cloudinaryService');
+const https = require('https');
 const { generateUploadSignature, getCloudinaryConfig } = require('../config/cloudinary');
 const { sendSuccess, sendError } = require('../utils/responseHelper');
 
@@ -727,6 +729,64 @@ const auditMediaHealth = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/v1/media/document/:id
+ * Publicly downloads or streams a document asset from Media Library.
+ * Works for any PDF or document asset, proxying through Cloudinary authenticated download.
+ */
+const downloadMediaDocument = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let asset = null;
+    const mongoose = require('mongoose');
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      asset = await MediaAsset.findById(id);
+    }
+    if (!asset) {
+      asset = await MediaAsset.findOne({
+        $or: [{ publicId: id }, { storageKey: id }, { filename: id }],
+      });
+    }
+    if (!asset) {
+      return sendError(res, 404, 'Document asset not found.');
+    }
+
+    const filename = asset.originalName || asset.filename || 'document.pdf';
+    const isPdf = (asset.mimeType && asset.mimeType.includes('pdf')) || filename.endsWith('.pdf');
+    const disposition = req.query.download === 'true' ? 'attachment' : 'inline';
+
+    if (asset.url && (asset.url.includes('cloudinary.com') || asset.publicId)) {
+      const downloadUrl = getCloudinaryDocumentDownloadUrl(asset.publicId, asset.format || 'pdf');
+      const clientReq = https.get(downloadUrl, (cRes) => {
+        if (cRes.statusCode >= 400) {
+          return sendError(res, 502, `Cloudinary delivery failed with status ${cRes.statusCode}`);
+        }
+        res.writeHead(cRes.statusCode, {
+          'Content-Type': isPdf ? 'application/pdf' : (asset.mimeType || 'application/octet-stream'),
+          'Content-Disposition': `${disposition}; filename="${encodeURIComponent(filename)}"`,
+          'Content-Length': cRes.headers['content-length'] || asset.bytes,
+          'Accept-Ranges': 'bytes',
+          'Cache-Control': 'public, max-age=86400',
+        });
+        cRes.pipe(res);
+      });
+      clientReq.on('error', (err) => {
+        sendError(res, 500, `Stream error: ${err.message}`);
+      });
+    } else {
+      const localPath = path.join(__dirname, '..', asset.url.replace(/^\//, ''));
+      if (fs.existsSync(localPath)) {
+        res.setHeader('Content-Type', isPdf ? 'application/pdf' : (asset.mimeType || 'application/octet-stream'));
+        res.setHeader('Content-Disposition', `${disposition}; filename="${encodeURIComponent(filename)}"`);
+        return fs.createReadStream(localPath).pipe(res);
+      }
+      return sendError(res, 404, 'Local document file not found.');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getMediaAssets,
   getUploadSignature,
@@ -737,4 +797,5 @@ module.exports = {
   updateMediaAsset,
   deleteMediaAsset,
   auditMediaHealth,
+  downloadMediaDocument,
 };

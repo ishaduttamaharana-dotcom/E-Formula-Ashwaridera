@@ -12,11 +12,17 @@
 //  Draft / Preview / Publish lifecycle with lightweight JSON only.
 // ============================================================
 
+const path = require('path');
+const fs = require('fs');
+const https = require('https');
 const SponsorPageContent = require('../models/SponsorPageContent');
 const SponsorRequest = require('../models/SponsorRequest');
 const NavFooterSettings = require('../models/NavFooterSettings');
+const MediaAsset = require('../models/MediaAsset');
+const { getCloudinaryDocumentDownloadUrl } = require('../services/cloudinaryService');
 const { sendSuccess, sendError } = require('../utils/responseHelper');
 const { logActivity } = require('../utils/publishingHelper');
+
 
 const DEFAULT_SPONSORS = [
   { id: 'sp-1', name: 'E-Formula Ashwa Riders', tier: 'Title', logoUrl: '', altText: 'E-Formula Ashwa Riders', websiteUrl: '', icon: 'fas fa-bolt', order: 1, visible: true },
@@ -340,6 +346,21 @@ const getPublicSponsorContent = async (req, res) => {
       .filter((tier) => isPreview || tier.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+    const canonicalBrochureUrl = '/api/v1/sponsors/brochure';
+    const publicHero = { ...(source.hero || {}) };
+    if (publicHero.buttonBrochureUrl && (publicHero.buttonBrochureUrl.includes('cloudinary.com') || publicHero.buttonBrochureUrl.includes('/assets/docs/'))) {
+      publicHero.buttonBrochureUrl = canonicalBrochureUrl;
+    } else if (!publicHero.buttonBrochureUrl) {
+      publicHero.buttonBrochureUrl = canonicalBrochureUrl;
+    }
+
+    const publicEnquiry = { ...(source.enquirySection || {}) };
+    if (publicEnquiry.brochureUrl && (publicEnquiry.brochureUrl.includes('cloudinary.com') || publicEnquiry.brochureUrl.includes('/assets/docs/'))) {
+      publicEnquiry.brochureUrl = canonicalBrochureUrl;
+    } else if (!publicEnquiry.brochureUrl) {
+      publicEnquiry.brochureUrl = canonicalBrochureUrl;
+    }
+
     const responseData = {
       settings: source.settings || {},
       rail: {
@@ -347,12 +368,12 @@ const getPublicSponsorContent = async (req, res) => {
         items: railItems,
       },
       sponsors: railItems,
-      hero: source.hero || {},
+      hero: publicHero,
       tiersSection: {
         ...(source.tiersSection || {}),
         tiers,
       },
-      enquirySection: source.enquirySection || {},
+      enquirySection: publicEnquiry,
       status: doc.status,
       version: doc.version,
       lastPublishedAt: doc.lastPublishedAt,
@@ -572,6 +593,128 @@ const submitPublicSponsorEnquiry = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/v1/sponsors/brochure
+ * GET /api/v1/brochure/download
+ * Publicly delivers or streams the sponsorship brochure PDF.
+ * Eliminates Cloudinary HTTP 401 Unauthorized errors by securely proxying the PDF
+ * through the server using authenticated Cloudinary requests or local disk fallback.
+ */
+const downloadBrochure = async (req, res) => {
+  try {
+    const isDownload = req.query.download === 'true';
+    const dispositionType = isDownload ? 'attachment' : 'inline';
+    const fallbackPath = path.join(__dirname, '..', 'public', 'assets', 'docs', 'ashwa-riders-sponsorship-brochure.pdf');
+
+    // Helper to stream fallback file from disk
+    const streamFallback = () => {
+      if (fs.existsSync(fallbackPath)) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `${dispositionType}; filename="Ashwa_Riders_Sponsorship_Brochure.pdf"`);
+        return fs.createReadStream(fallbackPath).pipe(res);
+      }
+      return sendError(res, 404, 'Sponsorship brochure PDF document is not currently available.');
+    };
+
+    // 1. Check SponsorPageContent document in MongoDB
+    const doc = await SponsorPageContent.findOne({});
+    let targetUrl = (doc?.hero?.buttonBrochureUrl || doc?.enquirySection?.brochureUrl || '').trim();
+
+    // 2. If no target URL, try finding the latest PDF MediaAsset
+    let publicId = '';
+    let assetFilename = 'Ashwa_Riders_Sponsorship_Brochure.pdf';
+
+    if (!targetUrl) {
+      const latestPdf = await MediaAsset.findOne({
+        $or: [{ mimeType: /pdf/i }, { resourceType: 'raw' }, { originalName: /pdf/i }, { url: /pdf/i }],
+      }).sort({ createdAt: -1 });
+
+      if (latestPdf) {
+        targetUrl = latestPdf.url || latestPdf.secureUrl;
+        publicId = latestPdf.publicId;
+        assetFilename = latestPdf.originalName || latestPdf.filename || assetFilename;
+      }
+    }
+
+    if (!targetUrl) {
+      return streamFallback();
+    }
+
+    // 3. Handle Cloudinary document delivery
+    if (targetUrl.includes('cloudinary.com') || targetUrl.includes('/raw/upload/') || publicId) {
+      if (!publicId) {
+        const mediaMatch = await MediaAsset.findOne({
+          $or: [{ url: targetUrl }, { secureUrl: targetUrl }],
+        });
+        if (mediaMatch) {
+          publicId = mediaMatch.publicId;
+          assetFilename = mediaMatch.originalName || mediaMatch.filename || assetFilename;
+        } else {
+          // Extract publicId from Cloudinary URL pattern: .../upload/(v\d+/)?(path/to/file.ext)
+          const match = targetUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\?.*)?$/);
+          if (match && match[1]) {
+            publicId = decodeURIComponent(match[1]);
+          }
+        }
+      }
+
+      if (publicId) {
+        try {
+          const downloadUrl = getCloudinaryDocumentDownloadUrl(publicId, 'pdf');
+          const clientReq = https.get(downloadUrl, (cRes) => {
+            if (cRes.statusCode >= 400) {
+              console.warn(`[BROCHURE] Cloudinary stream returned ${cRes.statusCode}, using fallback.`);
+              return streamFallback();
+            }
+
+            res.writeHead(cRes.statusCode, {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `${dispositionType}; filename="${encodeURIComponent(assetFilename)}"`,
+              'Content-Length': cRes.headers['content-length'],
+              'Accept-Ranges': 'bytes',
+              'Cache-Control': 'public, max-age=86400',
+            });
+            cRes.pipe(res);
+          });
+
+          clientReq.on('error', (streamErr) => {
+            console.warn(`[BROCHURE] Cloudinary connection error: ${streamErr.message}, using fallback.`);
+            return streamFallback();
+          });
+          return;
+        } catch (cErr) {
+          console.warn(`[BROCHURE] Cloudinary signing error: ${cErr.message}, using fallback.`);
+          return streamFallback();
+        }
+      }
+    }
+
+    // 4. Handle local filesystem path
+    if (targetUrl.startsWith('/') || !targetUrl.startsWith('http')) {
+      const cleanPath = targetUrl.replace(/^\//, '');
+      const localFilePath = path.join(__dirname, '..', 'public', cleanPath);
+      if (fs.existsSync(localFilePath)) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `${dispositionType}; filename="${encodeURIComponent(assetFilename)}"`);
+        return fs.createReadStream(localFilePath).pipe(res);
+      }
+      return streamFallback();
+    }
+
+    // 5. External URL fallback (redirect)
+    return res.redirect(302, targetUrl);
+  } catch (error) {
+    console.error('[BROCHURE] Error serving brochure:', error);
+    const fallbackPath = path.join(__dirname, '..', 'public', 'assets', 'docs', 'ashwa-riders-sponsorship-brochure.pdf');
+    if (fs.existsSync(fallbackPath)) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="Ashwa_Riders_Sponsorship_Brochure.pdf"');
+      return fs.createReadStream(fallbackPath).pipe(res);
+    }
+    return sendError(res, 500, 'Failed to serve brochure: ' + error.message);
+  }
+};
+
 module.exports = {
   getOrSeedSponsorDoc,
   getPublicSponsorContent,
@@ -579,4 +722,5 @@ module.exports = {
   updateSponsorDraft,
   publishSponsor,
   submitPublicSponsorEnquiry,
+  downloadBrochure,
 };

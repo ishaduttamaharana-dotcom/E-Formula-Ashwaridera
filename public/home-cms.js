@@ -1546,9 +1546,9 @@
             if (ctaData.secondaryBtnText) {
               btnSecondary.innerHTML = `<i class="fas fa-file-download"></i> ${ctaData.secondaryBtnText}`;
             }
-            if (ctaData.brochureFile || ctaData.secondaryBtnUrl) {
-              btnSecondary.href = ctaData.brochureFile || ctaData.secondaryBtnUrl;
-            }
+            btnSecondary.href = ctaData.brochureFile || ctaData.secondaryBtnUrl || '/api/v1/sponsors/brochure';
+            btnSecondary.target = '_blank';
+            btnSecondary.rel = 'noopener noreferrer';
           }
         }
       }

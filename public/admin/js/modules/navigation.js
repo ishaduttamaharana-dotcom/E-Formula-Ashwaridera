@@ -626,7 +626,7 @@
                 links: [
                   { id: 'g2-1', label: 'Blog', url: 'blog.html', visible: true, order: 1 },
                   { id: 'g2-2', label: 'Press Kit', url: '#', visible: true, order: 2 },
-                  { id: 'g2-3', label: 'Brochure', url: '/assets/docs/ashwa-riders-sponsorship-brochure.pdf', visible: true, order: 3 },
+                  { id: 'g2-3', label: 'Brochure', url: '/api/v1/sponsors/brochure', visible: true, order: 3 },
                   { id: 'g2-4', label: 'Donate', url: '#', visible: true, order: 4 },
                 ],
               },

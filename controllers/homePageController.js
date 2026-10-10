@@ -449,7 +449,7 @@ const getOrSeedHomeDoc = async () => {
       links: [
         { label: 'Blog', url: 'blog.html', order: 0, visible: true },
         { label: 'Press Kit', url: '#', order: 1, visible: true },
-        { label: 'Brochure', url: '/assets/docs/ashwa-riders-sponsorship-brochure.pdf', order: 2, visible: true },
+        { label: 'Brochure', url: '/api/v1/sponsors/brochure', order: 2, visible: true },
         { label: 'Donate', url: '#', order: 3, visible: true },
       ],
     },
@@ -536,8 +536,8 @@ const getOrSeedHomeDoc = async () => {
         primaryBtnText: 'Become Our Sponsor',
         primaryBtnUrl: 'sponsors.html',
         secondaryBtnText: 'Download Sponsorship Brochure',
-        secondaryBtnUrl: '/assets/docs/ashwa-riders-sponsorship-brochure.pdf',
-        brochureFile: '',
+        secondaryBtnUrl: '/api/v1/sponsors/brochure',
+        brochureFile: '/api/v1/sponsors/brochure',
       },
       company: {
         brandName: (existingNavFooter && existingNavFooter.logo && existingNavFooter.logo.brandText) || 'AshwaRiders',
@@ -773,8 +773,19 @@ const getPublicHome = async (req, res) => {
         .sort((a, b) => (a.order || 0) - (b.order || 0));
     }
 
+    const publicSponsorCta = { ...(data.footerSponsors?.sponsorCTA || {}) };
+    if (publicSponsorCta.secondaryBtnUrl && (publicSponsorCta.secondaryBtnUrl.includes('cloudinary.com') || publicSponsorCta.secondaryBtnUrl.includes('/assets/docs/'))) {
+      publicSponsorCta.secondaryBtnUrl = '/api/v1/sponsors/brochure';
+    } else if (!publicSponsorCta.secondaryBtnUrl) {
+      publicSponsorCta.secondaryBtnUrl = '/api/v1/sponsors/brochure';
+    }
+    if (publicSponsorCta.brochureFile && (publicSponsorCta.brochureFile.includes('cloudinary.com') || publicSponsorCta.brochureFile.includes('/assets/docs/'))) {
+      publicSponsorCta.brochureFile = '/api/v1/sponsors/brochure';
+    }
+
     const publicFooterSponsors = {
       ...data.footerSponsors,
+      sponsorCTA: publicSponsorCta,
       sponsorSection: {
         ...rawSection,
         tiers: publicTiers,
