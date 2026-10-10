@@ -105,20 +105,47 @@
     const targetImage = (isMobile && heroData.mobileImageUrl) ? heroData.mobileImageUrl : heroData.imageUrl;
 
     if (heroData.mediaType === 'image' && targetImage) {
-      if (videoElement) videoElement.style.display = 'none';
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.style.display = 'none';
+      }
       heroSection.style.backgroundImage = `url('${targetImage}')`;
       heroSection.style.backgroundSize = 'cover';
       heroSection.style.backgroundPosition = 'center';
-    } else if (videoSource && heroData.videoUrl) {
+    } else if (heroData.videoUrl) {
       heroSection.style.backgroundImage = 'none';
-      if (videoElement) videoElement.style.display = 'block';
-      if (videoSource.src !== heroData.videoUrl) {
-        videoSource.src = heroData.videoUrl;
-        if (videoElement) {
+      if (videoElement) {
+        videoElement.style.display = 'block';
+        const currentSrc = videoSource ? videoSource.src : videoElement.src;
+        if (currentSrc !== heroData.videoUrl) {
+          if (videoSource) {
+            videoSource.src = heroData.videoUrl;
+          } else {
+            videoElement.src = heroData.videoUrl;
+          }
           videoElement.load();
-          videoElement.play().catch(() => {});
         }
+        videoElement.play().catch(() => {});
+
+        // Error handling fallback to target image if video fails
+        videoElement.onerror = () => {
+          console.warn('[HERO VIDEO] Failed to load hero video:', heroData.videoUrl);
+          if (targetImage) {
+            videoElement.style.display = 'none';
+            heroSection.style.backgroundImage = `url('${targetImage}')`;
+            heroSection.style.backgroundSize = 'cover';
+            heroSection.style.backgroundPosition = 'center';
+          }
+        };
       }
+    } else if (targetImage) {
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.style.display = 'none';
+      }
+      heroSection.style.backgroundImage = `url('${targetImage}')`;
+      heroSection.style.backgroundSize = 'cover';
+      heroSection.style.backgroundPosition = 'center';
     }
 
     // Badge
