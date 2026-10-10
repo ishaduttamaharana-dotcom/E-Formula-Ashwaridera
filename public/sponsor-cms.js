@@ -101,7 +101,8 @@
   const bindSponsorButtons = () => {
     const selector = ['.btn-sponsor','a[href*="sponsor"]','a[href="#sponsorship"]','#openSponsorModal'].join(',');
     document.querySelectorAll(selector).forEach((btn) => {
-      if (btn.tagName === 'A' && btn.getAttribute('href') === 'sponsors.html' && !btn.classList.contains('btn')) return;
+      const href = btn.getAttribute('href') || '';
+      if (btn.tagName === 'A' && (href === 'sponsors.html' || href.startsWith('#sponsor-form')) && !btn.classList.contains('btn-sponsor')) return;
       btn.addEventListener('click', (e) => { e.preventDefault(); openSponsorModal(); });
     });
   };

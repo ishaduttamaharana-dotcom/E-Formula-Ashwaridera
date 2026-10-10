@@ -277,7 +277,7 @@
             <h4 style="margin:0; font-size:0.9rem; color:#F5F5F5; font-weight:700;">
               Active Sponsor Logos in Marquee
             </h4>
-            <button type="button" class="btn btn-primary btn-sm" onclick="window.AdminSponsorsModule.openSponsorModal()" style="background:#F25912; border-color:#F25912;">
+            <button type="button" id="addSponsorRailBtn" data-action="add-sponsor-rail" class="btn btn-primary btn-sm" style="background:#F25912; border-color:#F25912;">
               <i class="fas fa-plus"></i> Add Sponsor to Rail
             </button>
           </div>
@@ -554,10 +554,71 @@
     // Attach Action Buttons
     document.getElementById('sponsorSaveDraftBtn')?.addEventListener('click', handleSaveDraft);
     document.getElementById('sponsorPublishBtn')?.addEventListener('click', handlePublish);
+    
+    // Add Sponsor to Rail button — pure event listener, zero inline onclick
+    const addRailBtn = document.getElementById('addSponsorRailBtn');
+    if (addRailBtn) {
+      addRailBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openAddSponsorToRailModal();
+      });
+    }
+
+    // Event delegation on sponsor cards container (single point of event binding, zero inline handlers)
+    const sponsorContainer = document.getElementById('sponsorRailCardsContainer');
+    if (sponsorContainer) {
+      sponsorContainer.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('[data-action="edit"], .edit-sponsor');
+        if (editBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const sponsorId = editBtn.getAttribute('data-sponsor-id');
+          openEditSponsorModal(sponsorId);
+          return;
+        }
+
+        const replaceBtn = e.target.closest('[data-action="replace-logo"]');
+        if (replaceBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const sponsorId = replaceBtn.getAttribute('data-sponsor-id');
+          replaceSponsorLogo(sponsorId);
+          return;
+        }
+
+        const deleteBtn = e.target.closest('[data-action="delete"], .delete-sponsor');
+        if (deleteBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const sponsorId = deleteBtn.getAttribute('data-sponsor-id');
+          deleteSponsor(sponsorId);
+          return;
+        }
+
+        const moveBtn = e.target.closest('[data-action="move"]');
+        if (moveBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const sponsorId = moveBtn.getAttribute('data-sponsor-id');
+          const dir = parseInt(moveBtn.getAttribute('data-direction'), 10) || 0;
+          moveSponsor(sponsorId, dir);
+          return;
+        }
+      });
+
+      sponsorContainer.addEventListener('change', (e) => {
+        const toggleInput = e.target.closest('[data-action="toggle-visibility"]');
+        if (toggleInput) {
+          const sponsorId = toggleInput.getAttribute('data-sponsor-id');
+          toggleSponsorVisibility(sponsorId, toggleInput.checked);
+        }
+      });
+    }
   }
 
   // ============================================================
-  //  SPONSOR RAIL ITEM RENDERING
+  //  SPONSOR RAIL ITEM RENDERING (Zero inline onclick handlers)
   // ============================================================
   function renderRailCards(items) {
     if (!items || items.length === 0) {
@@ -575,15 +636,17 @@
           ? `<img src="${escapeHtml(item.logoUrl)}" style="max-height:36px; max-width:100px; object-fit:contain;" alt="${escapeHtml(item.name)}">`
           : `<i class="${escapeHtml(item.icon || 'fas fa-bolt')}" style="color:#F25912; font-size:1.2rem;"></i>`;
 
+        const sponsorId = item.id || item._id || `sp-${index + 1}`;
+
         return `
-          <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.02); border:1px solid #282832; border-radius:8px; padding:12px 18px; gap:16px; flex-wrap:wrap;">
+          <div class="sponsor-rail-card" data-sponsor-id="${escapeHtml(sponsorId)}" style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.02); border:1px solid #282832; border-radius:8px; padding:12px 18px; gap:16px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:14px;">
               <!-- Move Up/Down Controls -->
               <div style="display:flex; flex-direction:column; gap:4px;">
-                <button type="button" class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" onclick="window.AdminSponsorsModule.moveSponsor(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3;"' : ''}>
+                <button type="button" class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" data-action="move" data-direction="-1" data-sponsor-id="${escapeHtml(sponsorId)}" ${index === 0 ? 'disabled style="opacity:0.3;"' : ''} title="Move Up">
                   <i class="fas fa-chevron-up"></i>
                 </button>
-                <button type="button" class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" onclick="window.AdminSponsorsModule.moveSponsor(${index}, 1)" ${index === items.length - 1 ? 'disabled style="opacity:0.3;"' : ''}>
+                <button type="button" class="btn btn-secondary" style="padding:2px 6px; font-size:0.65rem;" data-action="move" data-direction="1" data-sponsor-id="${escapeHtml(sponsorId)}" ${index === items.length - 1 ? 'disabled style="opacity:0.3;"' : ''} title="Move Down">
                   <i class="fas fa-chevron-down"></i>
                 </button>
               </div>
@@ -608,16 +671,16 @@
             <!-- Actions -->
             <div style="display:flex; align-items:center; gap:10px;">
               <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.8rem; color:#9696A0; margin-right:8px;">
-                <input type="checkbox" ${item.visible !== false ? 'checked' : ''} onchange="window.AdminSponsorsModule.toggleSponsorVisibility(${index}, this.checked)">
+                <input type="checkbox" data-action="toggle-visibility" data-sponsor-id="${escapeHtml(sponsorId)}" ${item.visible !== false ? 'checked' : ''}>
                 <span>${item.visible !== false ? 'Enabled' : 'Disabled'}</span>
               </label>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="window.AdminSponsorsModule.replaceSponsorLogo(${index})" title="Replace Logo via Media Library">
+              <button type="button" class="btn btn-secondary btn-sm" data-action="replace-logo" data-sponsor-id="${escapeHtml(sponsorId)}" title="Replace Logo via Media Library">
                 <i class="fas fa-image"></i> Replace Logo
               </button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="window.AdminSponsorsModule.openSponsorModal(${index})" title="Edit Details">
+              <button type="button" class="btn btn-secondary btn-sm edit-sponsor" data-action="edit" data-sponsor-id="${escapeHtml(sponsorId)}" title="Edit Details">
                 <i class="fas fa-pen"></i> Edit
               </button>
-              <button type="button" class="btn btn-danger btn-sm" onclick="window.AdminSponsorsModule.deleteSponsor(${index})" style="background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3);" title="Remove">
+              <button type="button" class="btn btn-danger btn-sm delete-sponsor" data-action="delete" data-sponsor-id="${escapeHtml(sponsorId)}" style="background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3);" title="Remove">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -790,20 +853,544 @@
   }
 
   // ─── SPONSOR RAIL ACTIONS ──────────────────────────────────
-  function openSponsorModal(index = null) {
-    const isEdit = index !== null;
-    const existing = isEdit ? (currentData.rail.items[index] || {}) : {};
 
-    const sponsor = {
-      id: existing.id || `sp-${Date.now()}`,
-      name: existing.name || '',
-      tier: existing.tier || 'Gold',
-      logoUrl: existing.logoUrl || '',
-      altText: existing.altText || '',
-      websiteUrl: existing.websiteUrl || '',
-      icon: existing.icon || 'fas fa-bolt',
-      order: existing.order !== undefined ? existing.order : ((currentData.rail?.items?.length || 0) + 1),
-      visible: existing.visible !== false,
+  /**
+   * Universal open modal router (supports both add and edit flows).
+   */
+  function openSponsorModal(sponsorIdOrIndex = null) {
+    if (sponsorIdOrIndex !== null && sponsorIdOrIndex !== undefined && sponsorIdOrIndex !== '') {
+      return openEditSponsorModal(sponsorIdOrIndex);
+    }
+    return openAddSponsorToRailModal();
+  }
+
+  /**
+   * ADD SPONSOR TO RAIL: Selection / Add Interface
+   * Supports selecting from existing eligible sponsors or creating a new sponsor.
+   */
+  async function openAddSponsorToRailModal() {
+    const modalId = 'sponsorAddRailModal';
+    const old = document.getElementById(modalId);
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = modalId;
+    overlay.className = 'ar-cms-modal-overlay ar-open';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.zIndex = '999999';
+    overlay.style.background = 'rgba(8, 8, 12, 0.85)';
+    overlay.style.backdropFilter = 'blur(8px)';
+    overlay.style.webkitBackdropFilter = 'blur(8px)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '20px';
+    overlay.style.overflowY = 'auto';
+    overlay.style.boxSizing = 'border-box';
+
+    overlay.innerHTML = `
+      <div class="ar-cms-modal" style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:#141419; border:1px solid #282832; border-radius:12px; color:#F5F5F5; box-shadow:0 30px 90px rgba(0,0,0,0.85);">
+        <!-- Modal Header -->
+        <div class="ar-cms-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #282832; padding:18px 24px; background:#181820; border-top-left-radius:12px; border-top-right-radius:12px;">
+          <div>
+            <h3 style="margin:0; font-size:1.15rem; color:#FFF; display:flex; align-items:center; gap:10px;">
+              <i class="fas fa-handshake" style="color:#F25912;"></i> Add Sponsor to Marquee Rail
+            </h3>
+            <p style="margin:4px 0 0 0; font-size:0.8rem; color:#9696A0;">
+              Select an existing eligible sponsor from your catalog or enter a new sponsor.
+            </p>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="closeAddModalBtn" title="Close"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div style="display:flex; border-bottom:1px solid #282832; background:#121217; padding:0 24px;">
+          <button type="button" id="tabSelectExistingBtn" style="padding:14px 20px; font-weight:700; font-size:0.85rem; color:#F25912; background:transparent; border:none; border-bottom:2px solid #F25912; cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-list-check"></i> Select Existing Sponsor
+          </button>
+          <button type="button" id="tabCreateNewBtn" style="padding:14px 20px; font-weight:600; font-size:0.85rem; color:#9696A0; background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-plus"></i> Create New Sponsor
+          </button>
+        </div>
+
+        <!-- Tab 1: Select Existing Eligible Sponsor -->
+        <div id="panelSelectExisting" style="padding:24px;">
+          <div style="margin-bottom:16px;">
+            <input type="text" class="form-input" id="searchExistingInput" placeholder="Filter eligible sponsors by company name..." style="background:#1C1C24; border:1px solid #2D2D3B;">
+          </div>
+
+          <div id="existingSponsorsList" style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding-right:4px;">
+            <div style="text-align:center; padding:30px; color:#9696A0;">
+              <i class="fas fa-circle-notch fa-spin" style="font-size:1.5rem; color:#F25912; margin-bottom:8px;"></i>
+              <p style="margin:0; font-size:0.85rem;">Loading sponsor catalog...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Create New Sponsor -->
+        <div id="panelCreateNew" style="display:none; padding:24px;">
+          <form id="createSponsorForm">
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Sponsor / Company Name *</label>
+              <input type="text" class="form-input" id="cNewName" required placeholder="e.g. Bosch, ANSYS, Carbonext">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+              <div>
+                <label class="form-label">Sponsorship Tier</label>
+                <select class="form-select" id="cNewTier">
+                  <option value="Title">Title Sponsor</option>
+                  <option value="Platinum">Platinum Tier</option>
+                  <option value="Gold" selected>Gold Tier</option>
+                  <option value="Silver">Silver Tier</option>
+                  <option value="Bronze">Bronze Tier</option>
+                  <option value="Equipment Partner">Equipment Partner</option>
+                  <option value="Associate">Associate Partner</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Display Order</label>
+                <input type="number" class="form-input" id="cNewOrder" value="${(currentData?.rail?.items?.length || 0) + 1}">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Sponsor Logo Image</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" class="form-input" id="cNewLogoUrl" placeholder="https://res.cloudinary.com/...">
+                <button type="button" class="btn btn-secondary btn-sm" id="cPickLogoBtn">
+                  <i class="fas fa-folder-open"></i> Pick Logo
+                </button>
+              </div>
+              <div id="cNewLogoPreview" style="margin-top:8px; width:120px; height:46px; background:#0B0B0E; border:1px solid #282832; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <i class="fas fa-bolt" style="color:#F25912;"></i>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Website URL</label>
+              <input type="text" class="form-input" id="cNewWebsite" placeholder="https://company.com">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+              <div>
+                <label class="form-label">Fallback FontAwesome Icon</label>
+                <input type="text" class="form-input" id="cNewIcon" value="fas fa-bolt" placeholder="fas fa-bolt">
+              </div>
+              <div>
+                <label class="form-label">Logo Alt Text</label>
+                <input type="text" class="form-input" id="cNewAlt" placeholder="Company Logo">
+              </div>
+            </div>
+
+            <div style="margin-bottom:18px;">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="cNewVisible" checked>
+                <span>Show in Marquee Rail</span>
+              </label>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #282832; padding-top:16px;">
+              <button type="button" class="btn btn-secondary btn-sm" id="cancelCreateNewBtn">Cancel</button>
+              <button type="submit" class="btn btn-primary btn-sm" id="submitCreateNewBtn" style="background:#F25912; border-color:#F25912;">
+                <i class="fas fa-plus"></i> Add to Rail & Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#closeAddModalBtn').addEventListener('click', close);
+    overlay.querySelector('#cancelCreateNewBtn').addEventListener('click', close);
+
+    // Tab switcher
+    const tabSelectExisting = overlay.querySelector('#tabSelectExistingBtn');
+    const tabCreateNew = overlay.querySelector('#tabCreateNewBtn');
+    const panelSelect = overlay.querySelector('#panelSelectExisting');
+    const panelCreate = overlay.querySelector('#panelCreateNew');
+
+    tabSelectExisting.addEventListener('click', () => {
+      tabSelectExisting.style.color = '#F25912';
+      tabSelectExisting.style.borderBottomColor = '#F25912';
+      tabCreateNew.style.color = '#9696A0';
+      tabCreateNew.style.borderBottomColor = 'transparent';
+      panelSelect.style.display = 'block';
+      panelCreate.style.display = 'none';
+    });
+
+    tabCreateNew.addEventListener('click', () => {
+      tabCreateNew.style.color = '#F25912';
+      tabCreateNew.style.borderBottomColor = '#F25912';
+      tabSelectExisting.style.color = '#9696A0';
+      tabSelectExisting.style.borderBottomColor = 'transparent';
+      panelCreate.style.display = 'block';
+      panelSelect.style.display = 'none';
+    });
+
+    // Wire MediaPicker in Create New tab
+    overlay.querySelector('#cPickLogoBtn').addEventListener('click', () => {
+      if (!window.MediaPicker) {
+        toast('Media Library picker is not initialized.', 'warn');
+        return;
+      }
+      window.MediaPicker.open({
+        allowedType: 'image',
+        onSelect: (asset) => {
+          const inp = overlay.querySelector('#cNewLogoUrl');
+          const prev = overlay.querySelector('#cNewLogoPreview');
+          if (inp) inp.value = asset.url;
+          if (prev) prev.innerHTML = `<img src="${asset.url}" style="max-height:38px; max-width:110px; object-fit:contain;">`;
+        },
+      });
+    });
+
+    // Fetch and render existing eligible sponsors
+    let allAvailableSponsors = [];
+
+    const loadExistingSponsors = async () => {
+      const containerEl = overlay.querySelector('#existingSponsorsList');
+      try {
+        let list = [];
+        // 1. Fetch standalone sponsors collection
+        try {
+          const res = await API().get('/admin/sponsors');
+          if (res && res.success && Array.isArray(res.data)) {
+            list = list.concat(res.data);
+          }
+        } catch (_) {}
+
+        // 2. Fetch approved sponsor requests
+        try {
+          const reqRes = await API().get('/admin/sponsor-requests');
+          if (reqRes && reqRes.success && Array.isArray(reqRes.data)) {
+            const reqItems = reqRes.data.map((r) => ({
+              id: r._id,
+              name: r.companyName,
+              tier: r.sponsorshipType?.includes('Platinum') ? 'Platinum' : (r.sponsorshipType?.includes('Silver') ? 'Silver' : 'Gold'),
+              logoUrl: r.companyLogoUrl || '',
+              websiteUrl: r.website || '',
+              icon: 'fas fa-handshake',
+            }));
+            list = list.concat(reqItems);
+          }
+        } catch (_) {}
+
+        // Fallback team partner directory if DB returned empty
+        if (list.length === 0) {
+          list = [
+            { id: 'sp-cat-1', name: 'ANSYS Inc.', tier: 'Platinum', logoUrl: '', websiteUrl: 'https://www.ansys.com', icon: 'fas fa-shield-halved' },
+            { id: 'sp-cat-2', name: 'Altair Engineering', tier: 'Gold', logoUrl: '', websiteUrl: 'https://www.altair.com', icon: 'fas fa-microchip' },
+            { id: 'sp-cat-3', name: 'SolidWorks (Dassault)', tier: 'Platinum', logoUrl: '', websiteUrl: 'https://www.solidworks.com', icon: 'fas fa-cube' },
+            { id: 'sp-cat-4', name: 'Continental AG', tier: 'Gold', logoUrl: '', websiteUrl: 'https://www.continental.com', icon: 'fas fa-car-side' },
+            { id: 'sp-cat-5', name: 'SKF Bearings', tier: 'Silver', logoUrl: '', websiteUrl: 'https://www.skf.com', icon: 'fas fa-circle-notch' },
+            { id: 'sp-cat-6', name: 'Motul', tier: 'Silver', logoUrl: '', websiteUrl: 'https://www.motul.com', icon: 'fas fa-oil-can' },
+          ];
+        }
+
+        allAvailableSponsors = list;
+        renderExistingList('');
+      } catch (err) {
+        console.error('Error fetching existing sponsors:', err);
+        containerEl.innerHTML = `
+          <div style="text-align:center; padding:20px; color:#EF4444;">
+            Failed to load sponsor catalog: ${escapeHtml(err.message)}
+          </div>
+        `;
+      }
+    };
+
+    const renderExistingList = (query = '') => {
+      const containerEl = overlay.querySelector('#existingSponsorsList');
+      if (!containerEl) return;
+
+      const currentRailItems = currentData?.rail?.items || [];
+      const isAlreadyInRail = (sp) => {
+        return currentRailItems.some(
+          (r) =>
+            (r.id && (String(r.id) === String(sp.id) || String(r.id) === String(sp._id))) ||
+            (r._id && (String(r._id) === String(sp.id) || String(r._id) === String(sp._id))) ||
+            (r.name && r.name.trim().toLowerCase() === (sp.name || sp.companyName || '').trim().toLowerCase())
+        );
+      };
+
+      const q = query.trim().toLowerCase();
+      const filtered = allAvailableSponsors.filter((sp) => {
+        const name = (sp.name || sp.companyName || '').toLowerCase();
+        return !q || name.includes(q);
+      });
+
+      if (filtered.length === 0) {
+        containerEl.innerHTML = `
+          <div style="text-align:center; padding:30px; color:#9696A0;">
+            <i class="fas fa-search" style="font-size:1.5rem; margin-bottom:8px;"></i>
+            <p style="margin:0; font-size:0.85rem;">No sponsors found matching "${escapeHtml(query)}". Use the "Create New Sponsor" tab to add them manually.</p>
+          </div>
+        `;
+        return;
+      }
+
+      containerEl.innerHTML = filtered
+        .map((sp, idx) => {
+          const inRail = isAlreadyInRail(sp);
+          const name = sp.name || sp.companyName || 'Sponsor';
+          const tier = sp.tier || 'Gold';
+          const logo = sp.logoUrl || sp.companyLogoUrl;
+          const logoHtml = logo
+            ? `<img src="${escapeHtml(logo)}" style="max-height:30px; max-width:80px; object-fit:contain;" alt="${escapeHtml(name)}">`
+            : `<i class="${escapeHtml(sp.icon || 'fas fa-award')}" style="color:#F25912; font-size:1.1rem;"></i>`;
+
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#1C1C24; border:1px solid #2D2D3B; border-radius:8px; padding:12px 16px; gap:12px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:90px; height:40px; background:#0F0F14; border:1px solid #282832; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                  ${logoHtml}
+                </div>
+                <div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <strong style="color:#FFF; font-size:0.9rem;">${escapeHtml(name)}</strong>
+                    <span class="badge" style="background:#282832; color:#F25912; font-size:0.68rem; font-weight:700;">${escapeHtml(tier)}</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:#9696A0; margin-top:2px;">
+                    ${sp.websiteUrl ? `<a href="${escapeHtml(sp.websiteUrl)}" target="_blank" style="color:#F25912;"><i class="fas fa-external-link-alt"></i> ${escapeHtml(sp.websiteUrl)}</a>` : 'Available Sponsor'}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                ${
+                  inRail
+                    ? `<span class="badge badge-success" style="padding:6px 10px; font-size:0.75rem; display:inline-flex; align-items:center; gap:5px;"><i class="fas fa-check"></i> Already in Rail</span>`
+                    : `<button type="button" class="btn btn-primary btn-sm add-eligible-sponsor-btn" data-sponsor-idx="${idx}" style="background:#F25912; border-color:#F25912; font-weight:700; padding:6px 14px;">
+                        <i class="fas fa-plus"></i> Add to Rail
+                       </button>`
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      // Attach click handlers to add buttons
+      containerEl.querySelectorAll('.add-eligible-sponsor-btn').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const sIdx = parseInt(btn.getAttribute('data-sponsor-idx'), 10);
+          const targetSponsor = filtered[sIdx];
+          if (!targetSponsor) return;
+
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+          await handleAddExistingSponsor(targetSponsor, btn);
+        });
+      });
+    };
+
+    // Filter input
+    overlay.querySelector('#searchExistingInput').addEventListener('input', (e) => {
+      renderExistingList(e.target.value);
+    });
+
+    // Helper: Add existing sponsor to rail and persist to MongoDB
+    const handleAddExistingSponsor = async (sponsorToAdd, btnElement) => {
+      if (!currentData.rail.items) currentData.rail.items = [];
+
+      // Duplicate protection: ensure not already in rail
+      const alreadyExists = currentData.rail.items.some(
+        (r) =>
+          (r.id && (String(r.id) === String(sponsorToAdd.id) || String(r.id) === String(sponsorToAdd._id))) ||
+          (r.name && r.name.trim().toLowerCase() === (sponsorToAdd.name || sponsorToAdd.companyName || '').trim().toLowerCase())
+      );
+
+      if (alreadyExists) {
+        toast(`"${sponsorToAdd.name || sponsorToAdd.companyName}" is already in the rail.`, 'warn');
+        if (btnElement) {
+          btnElement.disabled = false;
+          btnElement.innerHTML = '<i class="fas fa-plus"></i> Add to Rail';
+        }
+        return;
+      }
+
+      const newRailItem = {
+        id: sponsorToAdd.id || sponsorToAdd._id || `sp-${Date.now()}`,
+        name: (sponsorToAdd.name || sponsorToAdd.companyName || '').trim(),
+        tier: sponsorToAdd.tier || 'Gold',
+        order: (currentData.rail.items.length || 0) + 1,
+        logoUrl: (sponsorToAdd.logoUrl || sponsorToAdd.companyLogoUrl || '').trim(),
+        altText: (sponsorToAdd.name || sponsorToAdd.companyName || 'Sponsor').trim(),
+        websiteUrl: (sponsorToAdd.websiteUrl || sponsorToAdd.website || '').trim(),
+        icon: sponsorToAdd.icon || 'fas fa-bolt',
+        visible: true,
+      };
+
+      currentData.rail.items.push(newRailItem);
+      markDirty();
+
+      try {
+        const payload = {
+          settings: currentData.settings,
+          rail: currentData.rail,
+          hero: currentData.hero,
+          tiersSection: currentData.tiersSection,
+          enquirySection: currentData.enquirySection,
+        };
+
+        const res = await API().patch('/admin/sponsors/page', payload);
+        if (!res || !res.success) {
+          throw new Error(res?.message || 'Failed to update sponsor rail in MongoDB.');
+        }
+
+        currentData.status = res.data.status;
+        currentData.lastEditedAt = res.data.lastEditedAt;
+
+        toast(`Sponsor "${newRailItem.name}" added to rail without duplicates!`);
+        close();
+        renderInterface(document.getElementById('adminContent'));
+      } catch (err) {
+        console.error('Error adding sponsor to rail:', err);
+        // Rollback item from in-memory array on failure
+        currentData.rail.items = currentData.rail.items.filter((it) => it !== newRailItem);
+        toast('Failed to add sponsor: ' + err.message, 'error');
+        if (btnElement) {
+          btnElement.disabled = false;
+          btnElement.innerHTML = '<i class="fas fa-plus"></i> Add to Rail';
+        }
+      }
+    };
+
+    // Tab 2: Create new sponsor submit handler
+    overlay.querySelector('#createSponsorForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = overlay.querySelector('#submitCreateNewBtn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+      }
+
+      const name = overlay.querySelector('#cNewName').value.trim();
+      if (!name) {
+        toast('Sponsor Name is required.', 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add to Rail & Save';
+        }
+        return;
+      }
+
+      if (!currentData.rail.items) currentData.rail.items = [];
+
+      // Duplicate protection
+      const isDuplicate = currentData.rail.items.some(
+        (it) => it.name && it.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (isDuplicate) {
+        toast(`A sponsor named "${name}" is already in the rail.`, 'warn');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add to Rail & Save';
+        }
+        return;
+      }
+
+      const newSponsor = {
+        id: `sp-${Date.now()}`,
+        name,
+        tier: overlay.querySelector('#cNewTier').value,
+        order: Number(overlay.querySelector('#cNewOrder').value) || (currentData.rail.items.length + 1),
+        logoUrl: overlay.querySelector('#cNewLogoUrl').value.trim(),
+        altText: overlay.querySelector('#cNewAlt').value.trim() || name,
+        websiteUrl: overlay.querySelector('#cNewWebsite').value.trim(),
+        icon: overlay.querySelector('#cNewIcon').value.trim() || 'fas fa-bolt',
+        visible: overlay.querySelector('#cNewVisible').checked,
+      };
+
+      currentData.rail.items.push(newSponsor);
+      markDirty();
+
+      try {
+        const payload = {
+          settings: currentData.settings,
+          rail: currentData.rail,
+          hero: currentData.hero,
+          tiersSection: currentData.tiersSection,
+          enquirySection: currentData.enquirySection,
+        };
+
+        const res = await API().patch('/admin/sponsors/page', payload);
+        if (!res || !res.success) {
+          throw new Error(res?.message || 'Failed to save new sponsor in MongoDB.');
+        }
+
+        currentData.status = res.data.status;
+        currentData.lastEditedAt = res.data.lastEditedAt;
+
+        toast(`Sponsor "${newSponsor.name}" created and added to rail!`);
+        close();
+        renderInterface(document.getElementById('adminContent'));
+      } catch (err) {
+        console.error('Error creating sponsor:', err);
+        currentData.rail.items = currentData.rail.items.filter((it) => it !== newSponsor);
+        toast('Error saving sponsor: ' + err.message, 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add to Rail & Save';
+        }
+      }
+    });
+
+    // Start loading existing sponsors
+    await loadExistingSponsors();
+  }
+
+  /**
+   * EDIT SPONSOR: Opens edit form pre-populated with sponsor data.
+   * Persists changes to MongoDB and reloads interface.
+   */
+  function openEditSponsorModal(sponsorIdOrIndex) {
+    const items = currentData?.rail?.items || [];
+    let sponsor = null;
+    let itemIdx = -1;
+
+    if (typeof sponsorIdOrIndex === 'number') {
+      itemIdx = sponsorIdOrIndex;
+      sponsor = items[itemIdx];
+    } else if (sponsorIdOrIndex !== null && sponsorIdOrIndex !== undefined && sponsorIdOrIndex !== '') {
+      itemIdx = items.findIndex(
+        (s) => String(s.id) === String(sponsorIdOrIndex) || String(s._id) === String(sponsorIdOrIndex)
+      );
+      if (itemIdx !== -1) {
+        sponsor = items[itemIdx];
+      } else if (!isNaN(Number(sponsorIdOrIndex)) && items[Number(sponsorIdOrIndex)]) {
+        itemIdx = Number(sponsorIdOrIndex);
+        sponsor = items[itemIdx];
+      }
+    }
+
+    if (!sponsor) {
+      toast('Sponsor not found in rail.', 'error');
+      return;
+    }
+
+    const sponsorId = sponsor.id || sponsor._id || `sp-${itemIdx + 1}`;
+    console.log('[Sponsor Edit] Opening form for ID:', sponsorId, 'Name:', sponsor.name);
+
+    const sponsorData = {
+      id: sponsorId,
+      name: sponsor.name || '',
+      tier: sponsor.tier || 'Gold',
+      logoUrl: sponsor.logoUrl || '',
+      altText: sponsor.altText || '',
+      websiteUrl: sponsor.websiteUrl || '',
+      icon: sponsor.icon || 'fas fa-bolt',
+      order: sponsor.order !== undefined ? sponsor.order : (itemIdx + 1),
+      visible: sponsor.visible !== false,
     };
 
     const modalId = 'sponsorEditModal';
@@ -813,12 +1400,26 @@
     const overlay = document.createElement('div');
     overlay.id = modalId;
     overlay.className = 'ar-cms-modal-overlay ar-open';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.zIndex = '999999';
+    overlay.style.background = 'rgba(8, 8, 12, 0.85)';
+    overlay.style.backdropFilter = 'blur(8px)';
+    overlay.style.webkitBackdropFilter = 'blur(8px)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '20px';
+    overlay.style.overflowY = 'auto';
+    overlay.style.boxSizing = 'border-box';
 
     overlay.innerHTML = `
-      <div class="ar-cms-modal" style="max-width:540px; background:#141419; border:1px solid #282832; border-radius:10px; color:#F5F5F5;">
-        <div class="ar-cms-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #282832; padding:16px 20px;">
+      <div class="ar-cms-modal" style="max-width:540px; width:100%; max-height:90vh; overflow-y:auto; background:#141419; border:1px solid #282832; border-radius:12px; color:#F5F5F5; box-shadow:0 30px 90px rgba(0,0,0,0.85);">
+        <div class="ar-cms-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #282832; padding:18px 20px; background:#181820; border-top-left-radius:12px; border-top-right-radius:12px;">
           <h3 style="margin:0; font-size:1.1rem; color:#FFF; display:flex; align-items:center; gap:8px;">
-            <i class="fas fa-handshake" style="color:#F25912;"></i> ${isEdit ? 'Edit Sponsor' : 'Add Sponsor to Rail'}
+            <i class="fas fa-pen-to-square" style="color:#F25912;"></i> Edit Sponsor: ${escapeHtml(sponsorData.name || sponsorId)}
           </h3>
           <button type="button" class="btn btn-secondary btn-sm" id="closeSponsorModalBtn"><i class="fas fa-times"></i></button>
         </div>
@@ -826,68 +1427,71 @@
         <form id="sponsorModalForm" style="padding:20px;">
           <div class="form-group" style="margin-bottom:14px;">
             <label class="form-label">Sponsor / Company Name *</label>
-            <input type="text" class="form-input" id="mSponsorName" value="${escapeHtml(sponsor.name)}" required placeholder="e.g. Carbonext, MATLAB, ANSYS">
+            <input type="text" class="form-input" id="mSponsorName" value="${escapeHtml(sponsorData.name)}" required placeholder="e.g. Carbonext, MATLAB, ANSYS">
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
             <div>
               <label class="form-label">Sponsorship Tier</label>
               <select class="form-select" id="mSponsorTier">
-                <option value="Title" ${sponsor.tier === 'Title' ? 'selected' : ''}>Title Sponsor</option>
-                <option value="Platinum" ${sponsor.tier === 'Platinum' ? 'selected' : ''}>Platinum Tier</option>
-                <option value="Gold" ${sponsor.tier === 'Gold' ? 'selected' : ''}>Gold Tier</option>
-                <option value="Silver" ${sponsor.tier === 'Silver' ? 'selected' : ''}>Silver Tier</option>
-                <option value="Bronze" ${sponsor.tier === 'Bronze' ? 'selected' : ''}>Bronze Tier</option>
-                <option value="Equipment Partner" ${sponsor.tier === 'Equipment Partner' ? 'selected' : ''}>Equipment Partner</option>
-                <option value="Associate" ${sponsor.tier === 'Associate' ? 'selected' : ''}>Associate Partner</option>
+                <option value="Title" ${sponsorData.tier === 'Title' ? 'selected' : ''}>Title Sponsor</option>
+                <option value="Platinum" ${sponsorData.tier === 'Platinum' ? 'selected' : ''}>Platinum Tier</option>
+                <option value="Gold" ${sponsorData.tier === 'Gold' ? 'selected' : ''}>Gold Tier</option>
+                <option value="Silver" ${sponsorData.tier === 'Silver' ? 'selected' : ''}>Silver Tier</option>
+                <option value="Bronze" ${sponsorData.tier === 'Bronze' ? 'selected' : ''}>Bronze Tier</option>
+                <option value="Equipment Partner" ${sponsorData.tier === 'Equipment Partner' ? 'selected' : ''}>Equipment Partner</option>
+                <option value="Associate" ${sponsorData.tier === 'Associate' ? 'selected' : ''}>Associate Partner</option>
               </select>
             </div>
             <div>
               <label class="form-label">Display Order</label>
-              <input type="number" class="form-input" id="mSponsorOrder" value="${sponsor.order}">
+              <input type="number" class="form-input" id="mSponsorOrder" value="${sponsorData.order}">
             </div>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
             <label class="form-label">Sponsor Logo Image</label>
             <div style="display:flex; gap:8px;">
-              <input type="text" class="form-input" id="mSponsorLogoUrl" value="${escapeHtml(sponsor.logoUrl)}" placeholder="https://res.cloudinary.com/...">
+              <input type="text" class="form-input" id="mSponsorLogoUrl" value="${escapeHtml(sponsorData.logoUrl)}" placeholder="https://res.cloudinary.com/...">
               <button type="button" class="btn btn-secondary btn-sm" id="mPickLogoBtn">
                 <i class="fas fa-folder-open"></i> Pick Logo
               </button>
             </div>
             <div id="mLogoPreviewBox" style="margin-top:8px; width:120px; height:50px; background:#0B0B0E; border:1px solid #282832; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-              ${sponsor.logoUrl ? `<img src="${escapeHtml(sponsor.logoUrl)}" style="max-height:40px; max-width:110px; object-fit:contain;">` : `<i class="${escapeHtml(sponsor.icon || 'fas fa-bolt')}" style="color:#F25912;"></i>`}
+              ${sponsorData.logoUrl ? `<img src="${escapeHtml(sponsorData.logoUrl)}" style="max-height:40px; max-width:110px; object-fit:contain;">` : `<i class="${escapeHtml(sponsorData.icon || 'fas fa-bolt')}" style="color:#F25912;"></i>`}
             </div>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
             <label class="form-label">Website URL</label>
-            <input type="text" class="form-input" id="mSponsorWebsite" value="${escapeHtml(sponsor.websiteUrl)}" placeholder="https://company.com">
+            <input type="text" class="form-input" id="mSponsorWebsite" value="${escapeHtml(sponsorData.websiteUrl)}" placeholder="https://company.com">
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
             <div>
               <label class="form-label">Fallback FontAwesome Icon</label>
-              <input type="text" class="form-input" id="mSponsorIcon" value="${escapeHtml(sponsor.icon || 'fas fa-bolt')}" placeholder="fas fa-bolt">
+              <input type="text" class="form-input" id="mSponsorIcon" value="${escapeHtml(sponsorData.icon || 'fas fa-bolt')}" placeholder="fas fa-bolt">
             </div>
             <div>
               <label class="form-label">Logo Alt Text</label>
-              <input type="text" class="form-input" id="mSponsorAlt" value="${escapeHtml(sponsor.altText)}" placeholder="Company logo">
+              <input type="text" class="form-input" id="mSponsorAlt" value="${escapeHtml(sponsorData.altText)}" placeholder="Company logo">
             </div>
           </div>
 
           <div style="margin-bottom:18px;">
             <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="mSponsorVisible" ${sponsor.visible ? 'checked' : ''}>
+              <input type="checkbox" id="mSponsorVisible" ${sponsorData.visible ? 'checked' : ''}>
               <span>Show in Marquee Rail</span>
             </label>
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #282832; padding-top:14px;">
             <button type="button" class="btn btn-secondary btn-sm" id="cancelSponsorModalBtn">Cancel</button>
-            <button type="submit" class="btn btn-primary btn-sm" style="background:#F25912; border-color:#F25912;">
-              <i class="fas fa-save"></i> ${isEdit ? 'Update Sponsor' : 'Add Sponsor'}
+            <button type="submit" class="btn btn-secondary btn-sm" id="mSponsorSaveDraftBtn">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" id="mSponsorSavePublishBtn" style="background:#F25912; border-color:#F25912;">
+              <i class="fas fa-paper-plane"></i> Save & Publish Live
             </button>
           </div>
         </form>
@@ -901,7 +1505,10 @@
     overlay.querySelector('#cancelSponsorModalBtn').addEventListener('click', close);
 
     overlay.querySelector('#mPickLogoBtn').addEventListener('click', () => {
-      if (!window.MediaPicker) return;
+      if (!window.MediaPicker) {
+        toast('Media Library picker is not initialized.', 'warn');
+        return;
+      }
       window.MediaPicker.open({
         allowedType: 'image',
         onSelect: (asset) => {
@@ -913,10 +1520,18 @@
       });
     });
 
-    overlay.querySelector('#sponsorModalForm').addEventListener('submit', (e) => {
-      e.preventDefault();
+    const handleSave = async (publishNow = false) => {
+      const submitBtn = publishNow
+        ? overlay.querySelector('#mSponsorSavePublishBtn')
+        : overlay.querySelector('#mSponsorSaveDraftBtn');
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${publishNow ? 'Publishing...' : 'Saving...'}`;
+      }
+
       const updatedSponsor = {
-        id: sponsor.id,
+        id: sponsorData.id,
         name: overlay.querySelector('#mSponsorName').value.trim(),
         tier: overlay.querySelector('#mSponsorTier').value,
         order: Number(overlay.querySelector('#mSponsorOrder').value) || 0,
@@ -929,49 +1544,158 @@
 
       if (!updatedSponsor.name) {
         toast('Sponsor Name is required.', 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = publishNow
+            ? '<i class="fas fa-paper-plane"></i> Save & Publish Live'
+            : '<i class="fas fa-save"></i> Save Changes';
+        }
         return;
       }
 
       if (!currentData.rail.items) currentData.rail.items = [];
 
-      if (isEdit) {
-        currentData.rail.items[index] = updatedSponsor;
+      const targetIdx = currentData.rail.items.findIndex(
+        (s) => String(s.id) === String(updatedSponsor.id) || String(s._id) === String(updatedSponsor.id)
+      );
+
+      if (targetIdx !== -1) {
+        currentData.rail.items[targetIdx] = updatedSponsor;
       } else {
         currentData.rail.items.push(updatedSponsor);
       }
 
-      markDirty();
-      close();
-      renderInterface(document.getElementById('adminContent'));
-      toast(`Sponsor ${isEdit ? 'updated' : 'added'} to draft.`);
-    });
-  }
+      try {
+        const payload = {
+          settings: currentData.settings,
+          rail: currentData.rail,
+          hero: currentData.hero,
+          tiersSection: currentData.tiersSection,
+          enquirySection: currentData.enquirySection,
+          publishNow: publishNow,
+        };
 
-  function replaceSponsorLogo(index) {
-    if (!window.MediaPicker) return;
-    window.MediaPicker.open({
-      allowedType: 'image',
-      onSelect: (asset) => {
-        if (currentData?.rail?.items?.[index]) {
-          currentData.rail.items[index].logoUrl = asset.url;
-          markDirty();
-          renderInterface(document.getElementById('adminContent'));
-          toast('Sponsor logo replaced.');
+        const res = await API().patch('/admin/sponsors/page', payload);
+        if (!res || !res.success) {
+          throw new Error(res?.message || 'Failed to update sponsor in MongoDB.');
         }
-      },
+
+        currentData.status = res.data.status;
+        currentData.lastEditedAt = res.data.lastEditedAt;
+
+        if (publishNow) {
+          currentData.lastPublishedAt = res.data.lastPublishedAt;
+          toast(`Sponsor "${updatedSponsor.name}" saved & published live!`);
+        } else {
+          toast(`Sponsor "${updatedSponsor.name}" saved successfully.`);
+        }
+
+        close();
+        renderInterface(document.getElementById('adminContent'));
+      } catch (err) {
+        console.error('Error saving sponsor:', err);
+        toast('Error saving sponsor: ' + err.message, 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = publishNow
+            ? '<i class="fas fa-paper-plane"></i> Save & Publish Live'
+            : '<i class="fas fa-save"></i> Save Changes';
+        }
+      }
+    };
+
+    overlay.querySelector('#sponsorModalForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleSave(false);
+    });
+
+    overlay.querySelector('#mSponsorSavePublishBtn')?.addEventListener('click', () => {
+      handleSave(true);
     });
   }
 
-  function toggleSponsorVisibility(index, isVisible) {
-    if (currentData?.rail?.items?.[index]) {
-      currentData.rail.items[index].visible = isVisible;
+  /**
+   * REPLACE SPONSOR LOGO:
+   * Opens MediaPicker, updates the sponsor's logo URL, and immediately persists to MongoDB.
+   */
+  async function replaceSponsorLogo(sponsorIdOrIndex) {
+    const items = currentData?.rail?.items || [];
+    const sponsor = typeof sponsorIdOrIndex === 'number'
+      ? items[sponsorIdOrIndex]
+      : items.find((s) => String(s.id) === String(sponsorIdOrIndex) || String(s._id) === String(sponsorIdOrIndex));
+
+    if (!sponsor) {
+      toast('Sponsor not found.', 'error');
+      return;
+    }
+
+    const persistLogoUpdate = async (newUrl) => {
+      if (!newUrl || !newUrl.trim()) return;
+      sponsor.logoUrl = newUrl.trim();
+      markDirty();
+
+      try {
+        const payload = {
+          settings: currentData.settings,
+          rail: currentData.rail,
+          hero: currentData.hero,
+          tiersSection: currentData.tiersSection,
+          enquirySection: currentData.enquirySection,
+        };
+
+        const res = await API().patch('/admin/sponsors/page', payload);
+        if (!res || !res.success) {
+          throw new Error(res?.message || 'Failed to persist logo in MongoDB.');
+        }
+
+        currentData.status = res.data.status;
+        currentData.lastEditedAt = res.data.lastEditedAt;
+        renderInterface(document.getElementById('adminContent'));
+        toast(`Logo replaced and saved for "${sponsor.name}".`);
+      } catch (err) {
+        console.error('Error saving replaced logo:', err);
+        toast('Error saving logo: ' + err.message, 'error');
+      }
+    };
+
+    if (window.MediaPicker) {
+      window.MediaPicker.open({
+        allowedType: 'image',
+        onSelect: async (asset) => {
+          if (asset && asset.url) {
+            await persistLogoUpdate(asset.url);
+          }
+        },
+      });
+    } else {
+      const fallbackUrl = prompt(`Enter image URL to replace logo for "${sponsor.name}":`, sponsor.logoUrl || '');
+      if (fallbackUrl && fallbackUrl.trim()) {
+        await persistLogoUpdate(fallbackUrl.trim());
+      }
+    }
+  }
+
+  function toggleSponsorVisibility(sponsorIdOrIndex, isVisible) {
+    const items = currentData?.rail?.items || [];
+    const sponsor = typeof sponsorIdOrIndex === 'number'
+      ? items[sponsorIdOrIndex]
+      : items.find((s) => String(s.id) === String(sponsorIdOrIndex) || String(s._id) === String(sponsorIdOrIndex));
+
+    if (sponsor) {
+      sponsor.visible = isVisible;
       markDirty();
     }
   }
 
-  function moveSponsor(index, direction) {
+  function moveSponsor(sponsorIdOrIndex, direction) {
     const items = currentData?.rail?.items;
     if (!items) return;
+
+    const index = typeof sponsorIdOrIndex === 'number'
+      ? sponsorIdOrIndex
+      : items.findIndex((s) => String(s.id) === String(sponsorIdOrIndex) || String(s._id) === String(sponsorIdOrIndex));
+
+    if (index === -1) return;
     const targetIdx = index + direction;
     if (targetIdx < 0 || targetIdx >= items.length) return;
 
@@ -986,13 +1710,18 @@
     renderInterface(document.getElementById('adminContent'));
   }
 
-  function deleteSponsor(index) {
-    const item = currentData?.rail?.items?.[index];
-    if (!item) return;
+  function deleteSponsor(sponsorIdOrIndex) {
+    const items = currentData?.rail?.items || [];
+    const idx = typeof sponsorIdOrIndex === 'number'
+      ? sponsorIdOrIndex
+      : items.findIndex((s) => String(s.id) === String(sponsorIdOrIndex) || String(s._id) === String(sponsorIdOrIndex));
+
+    if (idx === -1) return;
+    const item = items[idx];
     if (!confirm(`Are you sure you want to remove "${item.name}" from the Sponsor Rail?`)) return;
 
-    currentData.rail.items.splice(index, 1);
-    currentData.rail.items.forEach((it, i) => { it.order = i + 1; });
+    items.splice(idx, 1);
+    items.forEach((it, i) => { it.order = i + 1; });
     markDirty();
     renderInterface(document.getElementById('adminContent'));
     toast('Sponsor removed from rail.');

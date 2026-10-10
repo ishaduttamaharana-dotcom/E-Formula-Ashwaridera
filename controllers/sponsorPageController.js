@@ -439,16 +439,31 @@ const updateSponsorDraft = async (req, res) => {
     };
 
     doc.draftVersion = newDraft;
-    doc.status = 'draft';
     doc.lastEditedAt = new Date();
+
+    if (payload.publishNow || req.query.publish === 'true') {
+      doc.publishedVersion = JSON.parse(JSON.stringify(newDraft));
+      doc.settings = newDraft.settings;
+      doc.rail = newDraft.rail;
+      doc.hero = newDraft.hero;
+      doc.tiersSection = newDraft.tiersSection;
+      doc.enquirySection = newDraft.enquirySection;
+      doc.status = 'published';
+      doc.version = (doc.version || 1) + 1;
+      doc.lastPublishedAt = new Date();
+    } else {
+      doc.status = 'draft';
+    }
 
     await doc.save();
 
-    return sendSuccess(res, 200, 'Sponsor Page draft saved successfully.', {
+    return sendSuccess(res, 200, 'Sponsor Page saved successfully.', {
       status: doc.status,
       version: doc.version,
       lastEditedAt: doc.lastEditedAt,
+      lastPublishedAt: doc.lastPublishedAt,
       draftVersion: doc.draftVersion,
+      publishedVersion: doc.publishedVersion,
     });
   } catch (err) {
     console.error('updateSponsorDraft Error:', err);

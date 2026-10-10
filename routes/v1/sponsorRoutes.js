@@ -19,6 +19,7 @@ const router = express.Router();
 
 // ─── Public Read Routes (Unified Sponsor Page Content) ─────────
 router.get('/', getPublicSponsorContent);
+router.get('/page', getPublicSponsorContent);
 router.get('/public', getPublicSponsorContent);
 
 // ─── Public Form Submission (Direct to Inbox) ────────────────
