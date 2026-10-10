@@ -11,6 +11,7 @@ const BuildStage = require('../models/BuildStage');
 const GarageCard = require('../models/GarageCard');
 const NewsArticle = require('../models/NewsArticle');
 const HomeStat = require('../models/HomeStat');
+const HomeHero = require('../models/HomeHero');
 const NavFooterSettings = require('../models/NavFooterSettings');
 const Sponsor = require('../models/Sponsor');
 
@@ -164,7 +165,7 @@ const getOrSeedHomeDoc = async () => {
     description: s.description || '',
     mediaType: s.mediaType || 'video',
     imageUrl: s.imageUrl || '',
-    videoUrl: s.videoUrl || 'https://res.cloudinary.com/i2wo14vs/video/upload/v1790102688/ashwa_cms/videos/seq9wfyc4iri1mzry7ok.mp4',
+    videoUrl: s.videoUrl || '',
     posterUrl: '',
     mobileImageUrl: s.mobileImageUrl || '',
     primaryBtnText: s.primaryBtnText || 'Explore Our Car',
@@ -190,7 +191,7 @@ const getOrSeedHomeDoc = async () => {
       description: '',
       mediaType: 'video',
       imageUrl: '',
-      videoUrl: 'https://res.cloudinary.com/i2wo14vs/video/upload/v1790102688/ashwa_cms/videos/seq9wfyc4iri1mzry7ok.mp4',
+      videoUrl: '',
       posterUrl: '',
       mobileImageUrl: '',
       primaryBtnText: 'Explore Our Car',
@@ -580,9 +581,18 @@ const updateHomeDraft = async (req, res) => {
     const doc = await getOrSeedHomeDoc();
     const body = req.body || {};
 
-    if (body.hero) doc.hero = Object.assign(doc.hero || {}, body.hero);
-    if (body.carStory) doc.carStory = Object.assign(doc.carStory || {}, body.carStory);
-    if (body.news) doc.news = Object.assign(doc.news || {}, body.news);
+    if (body.hero) {
+      doc.hero = Object.assign(doc.hero || {}, body.hero);
+      doc.markModified('hero');
+    }
+    if (body.carStory) {
+      doc.carStory = Object.assign(doc.carStory || {}, body.carStory);
+      doc.markModified('carStory');
+    }
+    if (body.news) {
+      doc.news = Object.assign(doc.news || {}, body.news);
+      doc.markModified('news');
+    }
     if (body.footerSponsors) {
       if (body.footerSponsors.sponsorSection?.tiers) {
         const hasObsolete = body.footerSponsors.sponsorSection.tiers.some(
@@ -637,6 +647,53 @@ const publishHome = async (req, res) => {
     doc.updatedBy = req.user ? req.user._id : null;
 
     await doc.save();
+
+    // Authoritative Sync: Ensure HeroSlide and HomeHero collections match the published hero slide
+    if (doc.hero && Array.isArray(doc.hero.slides) && doc.hero.slides.length > 0) {
+      const activeSlide = doc.hero.slides[0];
+      const videoToSync = activeSlide.videoUrl || '';
+      const mediaTypeToSync = activeSlide.mediaType || (videoToSync ? 'video' : 'image');
+
+      try {
+        await HeroSlide.updateMany(
+          { status: 'published' },
+          {
+            $set: {
+              videoUrl: videoToSync,
+              mediaType: mediaTypeToSync,
+            }
+          }
+        );
+        await HeroSlide.updateMany(
+          { status: 'published', publishedVersion: { $type: 'object' } },
+          {
+            $set: {
+              'publishedVersion.videoUrl': videoToSync,
+              'publishedVersion.mediaType': mediaTypeToSync,
+            }
+          }
+        );
+        await HeroSlide.updateMany(
+          { status: 'published', draftVersion: { $type: 'object' } },
+          {
+            $set: {
+              'draftVersion.videoUrl': videoToSync,
+              'draftVersion.mediaType': mediaTypeToSync,
+            }
+          }
+        );
+        await HomeHero.updateMany(
+          {},
+          {
+            $set: {
+              videoUrl: videoToSync,
+            }
+          }
+        );
+      } catch (syncErr) {
+        console.warn('[HOME CMS] Syncing HeroSlide/HomeHero notice:', syncErr.message);
+      }
+    }
 
     await logActivity({
       user: req.user,

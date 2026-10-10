@@ -108,14 +108,22 @@
       if (videoElement) {
         videoElement.pause();
         videoElement.style.display = 'none';
+        if (videoSource) videoSource.src = '';
+        videoElement.src = '';
       }
       heroSection.style.backgroundImage = `url('${targetImage}')`;
       heroSection.style.backgroundSize = 'cover';
       heroSection.style.backgroundPosition = 'center';
-    } else if (heroData.videoUrl) {
+    } else if (heroData.videoUrl && heroData.videoUrl.trim()) {
       heroSection.style.backgroundImage = 'none';
       if (videoElement) {
         videoElement.style.display = 'block';
+        videoElement.muted = true;
+        videoElement.setAttribute('muted', '');
+        videoElement.setAttribute('autoplay', '');
+        videoElement.setAttribute('loop', '');
+        videoElement.setAttribute('playsinline', '');
+
         const currentSrc = videoSource ? videoSource.src : videoElement.src;
         if (currentSrc !== heroData.videoUrl) {
           if (videoSource) {
@@ -127,14 +135,17 @@
         }
         videoElement.play().catch(() => {});
 
-        // Error handling fallback to target image if video fails
+        // Error handling fallback: if video fails, show target image or neutral background
         videoElement.onerror = () => {
           console.warn('[HERO VIDEO] Failed to load hero video:', heroData.videoUrl);
+          videoElement.style.display = 'none';
           if (targetImage) {
-            videoElement.style.display = 'none';
             heroSection.style.backgroundImage = `url('${targetImage}')`;
             heroSection.style.backgroundSize = 'cover';
             heroSection.style.backgroundPosition = 'center';
+          } else {
+            heroSection.style.backgroundImage = 'none';
+            heroSection.style.backgroundColor = '#111116';
           }
         };
       }
@@ -142,10 +153,22 @@
       if (videoElement) {
         videoElement.pause();
         videoElement.style.display = 'none';
+        if (videoSource) videoSource.src = '';
+        videoElement.src = '';
       }
       heroSection.style.backgroundImage = `url('${targetImage}')`;
       heroSection.style.backgroundSize = 'cover';
       heroSection.style.backgroundPosition = 'center';
+    } else {
+      // Empty configuration: hide video and display clean neutral dark hero
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.style.display = 'none';
+        if (videoSource) videoSource.src = '';
+        videoElement.src = '';
+      }
+      heroSection.style.backgroundImage = 'none';
+      heroSection.style.backgroundColor = '#111116';
     }
 
     // Badge

@@ -177,7 +177,7 @@
       subtitle: 'Engineering Speed. Building Innovation. Racing the Future.',
       badgeText: 'Ashwa Riders — 2026 Season',
       mediaType: 'video',
-      videoUrl: 'https://res.cloudinary.com/i2wo14vs/video/upload/v1790102688/ashwa_cms/videos/seq9wfyc4iri1mzry7ok.mp4',
+      videoUrl: '',
       imageUrl: '',
       mobileImageUrl: '',
       primaryBtnText: 'Explore Our Car',

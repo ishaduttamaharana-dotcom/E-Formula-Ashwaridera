@@ -584,7 +584,9 @@ window.AdminHomeModule = (function () {
           <div class="hcms-card-media-thumb">
             ${previewMedia
               ? `<img src="${escapeHtml(previewMedia)}" alt="Slide ${idx + 1} preview" onerror="this.style.display='none'" /><div class="hcms-card-media-overlay"></div>`
-              : `<div class="hcms-no-media"><i class="fas fa-image"></i><span>No media yet</span></div>`
+              : (isVideo && slide.videoUrl)
+                ? `<video src="${escapeHtml(slide.videoUrl)}" style="width:100%; height:100%; object-fit:cover;" muted></video><div class="hcms-card-media-overlay"></div>`
+                : `<div class="hcms-no-media"><i class="fas fa-image"></i><span>No media yet</span></div>`
             }
             <div class="hcms-card-media-type-badge">
               <i class="fas ${isVideo ? 'fa-video' : 'fa-image'}"></i> ${isVideo ? 'Video' : 'Image'}
@@ -678,33 +680,53 @@ window.AdminHomeModule = (function () {
                   </div>
                 </div>
                 <div class="hcms-field-group">
-                  <label class="hcms-label">${isVideo ? 'Background Video' : 'Background Image'}</label>
+                  <label class="hcms-label">${isVideo ? 'Background Video (MP4 / WebM)' : 'Background Image'}</label>
                   <div class="hcms-media-block">
-                    <div class="hcms-media-preview-area" id="slideMediaPreview_${idx}">
-                      ${previewMedia
-                        ? `<img src="${escapeHtml(previewMedia)}" alt="Media preview" style="max-height:200px; width:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<div class=hcms-media-empty-state><i class=\\'fas fa-image\\'></i><span>Could not load preview</span></div>'" />`
-                        : `<div class="hcms-media-empty-state"><i class="fas ${isVideo ? 'fa-video' : 'fa-image'}"></i><span>No ${isVideo ? 'video' : 'image'} selected</span></div>`
+                    <div class="hcms-media-preview-area" id="slideMediaPreview_${idx}" style="margin-bottom:10px;">
+                      ${isVideo
+                        ? (slide.videoUrl
+                            ? `<video src="${escapeHtml(slide.videoUrl)}" style="max-height:180px; width:100%; border-radius:6px; object-fit:cover;" controls muted playsinline></video>`
+                            : `<div class="hcms-media-empty-state"><i class="fas fa-video"></i><span>No video selected</span></div>`)
+                        : (slide.imageUrl
+                            ? `<img src="${escapeHtml(slide.imageUrl)}" alt="Media preview" style="max-height:180px; width:100%; object-fit:cover; border-radius:6px;" onerror="this.parentElement.innerHTML='<div class=hcms-media-empty-state><i class=\\'fas fa-image\\'></i><span>Could not load preview</span></div>'" />`
+                            : `<div class="hcms-media-empty-state"><i class="fas fa-image"></i><span>No image selected</span></div>`)
                       }
                     </div>
-                    <div class="hcms-media-actions">
-                      <button type="button" class="hcms-media-replace-btn open-media-picker-btn"
-                        data-target="slideMediaUrl_${idx}" data-type="${isVideo ? 'video' : 'image'}">
-                        <i class="fas fa-folder-open"></i> Replace ${isVideo ? 'Video' : 'Image'}
-                      </button>
-                      <input type="hidden" id="slideMediaUrl_${idx}" class="slide-field" data-idx="${idx}"
-                        data-key="${isVideo ? 'videoUrl' : 'imageUrl'}" value="${escapeHtml(isVideo ? (slide.videoUrl || '') : (slide.imageUrl || ''))}" />
+
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                      <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="slideMediaUrl_${idx}" class="hcms-input slide-field slide-media-input" data-idx="${idx}"
+                          data-key="${isVideo ? 'videoUrl' : 'imageUrl'}" value="${escapeHtml(isVideo ? (slide.videoUrl || '') : (slide.imageUrl || ''))}"
+                          placeholder="${isVideo ? 'Paste video URL (https://res.cloudinary.com/...mp4)' : 'Paste image URL (https://...)'}"
+                          style="flex:1; background:var(--panel-dark, #20202B); color:#fff; border:1px solid var(--border-hairline, #2D2D3B); border-radius:6px; padding:8px 12px; font-size:0.85rem;" />
+                        <button type="button" class="hcms-media-replace-btn open-media-picker-btn"
+                          data-target="slideMediaUrl_${idx}" data-type="${isVideo ? 'video' : 'image'}" style="flex-shrink:0;">
+                          <i class="fas fa-folder-open"></i> Media Library
+                        </button>
+                        <label class="hcms-media-replace-btn slide-upload-label" style="flex-shrink:0; cursor:pointer; margin:0; display:inline-flex; align-items:center; gap:6px;" title="Upload new file directly">
+                          <i class="fas fa-cloud-upload-alt"></i> Upload
+                          <input type="file" class="slide-direct-upload-input" data-idx="${idx}" data-target="slideMediaUrl_${idx}" data-type="${isVideo ? 'video' : 'image'}" accept="${isVideo ? 'video/*' : 'image/*'}" style="display:none;" />
+                        </label>
+                        <button type="button" class="hcms-action-btn danger clear-slide-media-btn" data-idx="${idx}" style="flex-shrink:0;" title="Clear Media">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
+
                 ${isVideo ? `
-                  <div class="hcms-field-group">
-                    <label class="hcms-label">Poster / Fallback Image <span class="hcms-label-hint">(shown before video loads)</span></label>
-                    <div class="hcms-url-field-wrap">
+                  <div class="hcms-field-group" style="margin-top:12px;">
+                    <label class="hcms-label">Poster / Fallback Image <span class="hcms-label-hint">(optional — shown while video buffers)</span></label>
+                    <div class="hcms-url-field-wrap" style="display:flex; gap:8px;">
                       <input type="text" id="imageUrl_${idx}" class="hcms-input slide-field" data-idx="${idx}" data-key="imageUrl"
-                        value="${escapeHtml(slide.imageUrl || '')}" placeholder="https://..." />
+                        value="${escapeHtml(slide.imageUrl || '')}" placeholder="https://... poster image URL" style="flex:1; background:var(--panel-dark, #20202B); color:#fff; border:1px solid var(--border-hairline, #2D2D3B); border-radius:6px; padding:8px 12px; font-size:0.85rem;" />
                       <button type="button" class="hcms-media-replace-btn open-media-picker-btn" data-target="imageUrl_${idx}" data-type="image"
                         style="flex-shrink:0; white-space:nowrap;">
                         <i class="fas fa-image"></i> Pick
+                      </button>
+                      <button type="button" class="hcms-action-btn danger clear-slide-poster-btn" data-idx="${idx}" style="flex-shrink:0;" title="Clear Poster">
+                        <i class="fas fa-trash"></i>
                       </button>
                     </div>
                   </div>
@@ -1990,20 +2012,86 @@ window.AdminHomeModule = (function () {
               const url = asset.secureUrl || asset.url || '';
               targetInput.value = url;
               targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-              markDirty();
-              // Update visible preview if it exists nearby
-              const parent = targetInput.closest('.hcms-media-block') || targetInput.closest('.form-group');
-              if (parent) {
-                let img = parent.querySelector('img');
-                if (img) {
-                  img.src = url;
-                  img.style.display = 'block';
-                }
-                const emptyState = parent.querySelector('.hcms-media-empty-state');
-                if (emptyState) emptyState.style.display = 'none';
+              const sIdx = targetInput.getAttribute('data-idx');
+              const sKey = targetInput.getAttribute('data-key');
+              if (sIdx !== null && sKey && homeData?.hero?.slides?.[parseInt(sIdx, 10)]) {
+                homeData.hero.slides[parseInt(sIdx, 10)][sKey] = url;
               }
+              markDirty();
+              renderInterface(container);
             },
           });
+        }
+      });
+    });
+
+    // 11b. Direct Upload Handler for Slide Media
+    container.querySelectorAll('.slide-direct-upload-input').forEach(input => {
+      input.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const idx = parseInt(input.getAttribute('data-idx'), 10);
+        const targetInputId = input.getAttribute('data-target');
+        const targetInput = document.getElementById(targetInputId);
+        const isVideo = file.type.startsWith('video/');
+
+        try {
+          Toast().info(`Uploading ${isVideo ? 'video' : 'image'} (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('altText', file.name.replace(/\.[^/.]+$/, ''));
+
+          const res = await API().post('/admin/media/upload', formData);
+          if (res && res.success && res.data) {
+            const url = res.data.secureUrl || res.data.url;
+            if (homeData.hero.slides[idx]) {
+              if (isVideo) {
+                homeData.hero.slides[idx].videoUrl = url;
+                homeData.hero.slides[idx].mediaType = 'video';
+              } else {
+                homeData.hero.slides[idx].imageUrl = url;
+              }
+            }
+            if (targetInput) {
+              targetInput.value = url;
+              targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            markDirty();
+            Toast().success(`${isVideo ? 'Video' : 'Image'} uploaded and set to slide!`);
+            renderInterface(container);
+          } else {
+            throw new Error(res?.message || 'Upload failed');
+          }
+        } catch (err) {
+          console.error('Slide upload error:', err);
+          Toast().error('Upload failed: ' + err.message);
+        }
+      });
+    });
+
+    // 11c. Clear Slide Media
+    container.querySelectorAll('.clear-slide-media-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        if (homeData.hero.slides[idx]) {
+          homeData.hero.slides[idx].videoUrl = '';
+          homeData.hero.slides[idx].imageUrl = '';
+          markDirty();
+          syncFormDataToState();
+          renderInterface(container);
+        }
+      });
+    });
+
+    // 11d. Clear Slide Poster
+    container.querySelectorAll('.clear-slide-poster-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        if (homeData.hero.slides[idx]) {
+          homeData.hero.slides[idx].imageUrl = '';
+          markDirty();
+          syncFormDataToState();
+          renderInterface(container);
         }
       });
     });

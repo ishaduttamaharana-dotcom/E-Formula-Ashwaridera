@@ -75,7 +75,7 @@ const homePageContentSchema = new mongoose.Schema(
           imageUrl: { type: String, default: '' },
           videoUrl: {
             type: String,
-            default: 'https://res.cloudinary.com/i2wo14vs/video/upload/v1790102688/ashwa_cms/videos/seq9wfyc4iri1mzry7ok.mp4',
+            default: '',
           },
           posterUrl: { type: String, default: '' },
           mobileImageUrl: { type: String, default: '' },
