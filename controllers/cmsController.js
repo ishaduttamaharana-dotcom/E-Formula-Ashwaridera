@@ -4,6 +4,9 @@
 //  Uses CmsContent model (collection: 'cms_contents').
 // ============================================================
 
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const CmsContent = require('../models/CmsContent');
 const { uploadBufferToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
 const { sendSuccess, sendError } = require('../utils/responseHelper');
@@ -144,12 +147,51 @@ const uploadImage = async (req, res, next) => {
       return sendError(res, 400, 'Please select an image file to upload.');
     }
 
+    const fileSize = req.file.size || 0;
+    const CLOUD_MAX_IMAGE = 10 * 1024 * 1024; // 10 MB limit for Cloudinary Free plan
     const folder = req.body.folder || 'ashwa_cms';
-    const result = await uploadBufferToCloudinary(req.file.buffer, folder);
+    let imageUrl = '';
+    let publicId = '';
 
-    return sendSuccess(res, 200, 'Image uploaded successfully to Cloudinary.', {
-      imageUrl: result.url,
-      publicId: result.publicId,
+    if (fileSize <= CLOUD_MAX_IMAGE) {
+      try {
+        const fileBuffer = req.file.buffer || (req.file.path && fs.existsSync(req.file.path) ? fs.readFileSync(req.file.path) : null);
+        if (fileBuffer) {
+          const result = await uploadBufferToCloudinary(fileBuffer, folder);
+          imageUrl = result.url;
+          publicId = result.publicId;
+          if (req.file.path && fs.existsSync(req.file.path)) {
+            try { fs.unlinkSync(req.file.path); } catch (e) {}
+          }
+        }
+      } catch (cloudErr) {
+        console.warn('[CMS UPLOAD] Cloudinary upload bypassed or failed, saving to local storage:', cloudErr.message);
+      }
+    }
+
+    if (!imageUrl) {
+      const uploadDir = path.join(__dirname, '..', 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      let localFilename = req.file.filename;
+      if (!localFilename) {
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        localFilename = `${uuidv4()}${ext}`;
+        const localPath = path.join(uploadDir, localFilename);
+        if (req.file.buffer) {
+          fs.writeFileSync(localPath, req.file.buffer);
+        }
+      }
+      imageUrl = `/uploads/${localFilename}`;
+      publicId = `local_${localFilename}`;
+      console.log(`[CMS UPLOAD] Image saved to local storage: ${imageUrl}`);
+    }
+
+    return sendSuccess(res, 200, 'Image uploaded successfully.', {
+      imageUrl,
+      publicId,
     });
   } catch (error) {
     return sendError(res, 500, `Image upload failed: ${error.message}`);

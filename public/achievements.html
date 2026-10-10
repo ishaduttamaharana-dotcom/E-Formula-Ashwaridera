@@ -615,10 +615,6 @@
       .timeline-section { padding: 60px 0 70px; }
     }
 
-    /* ── CTA ── */
-    .cta-join { background: var(--void); color: #fff; padding: 100px 0; text-align: center; position: relative; overflow: hidden; }
-    .cta-join::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 56px 56px; }
-    .cta-join .container { position: relative; z-index: 1; }
 
     /* ── Footer ── */
     .footer { background: var(--void); color: var(--steel); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
@@ -725,7 +721,7 @@
     body.light .tl-card .tl-year .year-line {
       background: rgba(184, 134, 11, 0.2);
     }
-    body.light .cta-join { background: var(--carbon); }
+
     body.light .footer { background: var(--carbon); }
 
     /* ── Responsive ── */
@@ -784,7 +780,7 @@
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-        <li id="arNavItem"></li>
+
       </ul>
       <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
         <i class="fas fa-bars"></i>
@@ -874,16 +870,10 @@
 
       <!-- Toolbar: Filter + Add -->
       <div class="toolbar-row">
-        <div class="filter-bar" id="filterBar">
-          <button class="filter-btn active" data-filter="all">All <span class="count">(15)</span></button>
-          <button class="filter-btn" data-filter="competition">Competitions <span class="count">(5)</span></button>
-          <button class="filter-btn" data-filter="award">Awards <span class="count">(3)</span></button>
-          <button class="filter-btn" data-filter="record">Milestones <span class="count">(4)</span></button>
-          <button class="filter-btn" data-filter="certificate">Recognition <span class="count">(3)</span></button>
+        <div class="filter-bar" id="filterBar" data-cms-pending="true">
+          <button class="filter-btn active" data-filter="all">All</button>
         </div>
-        <button class="add-achievement-btn" id="openAddModal">
-          <i class="fas fa-plus"></i> Add Achievement
-        </button>
+
       </div>
 
       <!-- Achievements Grid -->
@@ -919,76 +909,6 @@
   </section>
 
   <!-- ════════════════════════════════════════════════════ -->
-  <!--  ADD ACHIEVEMENT MODAL                            -->
-  <!-- ════════════════════════════════════════════════════ -->
-  <div class="modal-overlay" id="addModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3>Add Achievement</h3>
-        <button class="modal-close" id="closeAddModal"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <form id="achievementForm">
-          <div class="form-row">
-            <label for="fCategory">Category</label>
-            <select id="fCategory" required>
-              <option value="competition">Competition</option>
-              <option value="award">Award</option>
-              <option value="record">Milestone</option>
-              <option value="certificate">Recognition</option>
-            </select>
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-row">
-              <label for="fTitle">Title</label>
-              <input type="text" id="fTitle" placeholder="e.g. Formula Bharat — Overall Rank" required />
-            </div>
-            <div class="form-row">
-              <label for="fYear">Year</label>
-              <input type="number" id="fYear" placeholder="2026" min="2000" max="2100" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label for="fDesc">Description</label>
-            <textarea id="fDesc" placeholder="Short description of the achievement" required></textarea>
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-row">
-              <label for="fLocation">Location</label>
-              <input type="text" id="fLocation" placeholder="e.g. India" />
-            </div>
-            <div class="form-row">
-              <label for="fResult">Result Label</label>
-              <input type="text" id="fResult" placeholder="e.g. AIR 5" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label for="fPhoto">Photo (optional)</label>
-            <div class="photo-drop" id="photoDrop">
-              <i class="fas fa-camera"></i>
-              <span>Click to upload a photo</span>
-              <input type="file" id="fPhoto" accept="image/*" />
-            </div>
-            <div class="photo-preview" id="photoPreview">
-              <img id="photoPreviewImg" src="" alt="Preview" />
-            </div>
-            <div class="form-hint">JPG or PNG. Stored only in this browser.</div>
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" class="btn btn-outline" id="cancelAddModal">Cancel</button>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Achievement</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════════════════ -->
   <!--  REDESIGNED TIMELINE SECTION — with background image -->
   <!-- ════════════════════════════════════════════════════ -->
   <section class="timeline-section" id="timelineSection">
@@ -1013,19 +933,7 @@
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════ -->
-  <!--  CTA - JOIN US                                   -->
-  <!-- ════════════════════════════════════════════════════ -->
-  <section class="cta-join">
-    <div class="container reveal">
-      <span class="eyebrow on-dark" style="display:block;">Join The Team</span>
-      <h2 style="font-size: clamp(2rem, 4vw, 3rem); text-transform:uppercase; margin: 6px 0 16px; color:#fff;">Be Part Of Our <span class="text-gradient">Next</span> Achievement</h2>
-      <p style="color: rgba(255,255,255,0.55); font-weight:300; max-width: 500px; margin: 0 auto 30px;">
-        Join our team and help us write the next chapter of engineering excellence.
-      </p>
-      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join the Team</a>
-    </div>
-  </section>
+
 
   <!-- ════════════════════════════════════════════════════ -->
   <!--  FOOTER                                          -->
@@ -1048,7 +956,7 @@
           <h4>Team</h4>
           <ul>
             <li><a href="team.html">Members</a></li>
-            <li><a href="index.html#recruitment">Join Us</a></li>
+
             <li><a href="car.html">Our Car</a></li>
             <li><a href="achievements.html">Achievements</a></li>
           </ul>
@@ -1231,7 +1139,7 @@
     })();
   </script>
 
-  <script src="/auth.js"></script>
+
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/achievements-cms.js"></script>

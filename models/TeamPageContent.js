@@ -67,16 +67,16 @@ const teamPageContentSchema = new mongoose.Schema(
       },
     ],
 
-    // 03 JOIN TEAM / CTA
+    // 03 JOIN TEAM / CTA (DISABLED)
     cta: {
-      visible: { type: Boolean, default: true },
-      eyebrow: { type: String, default: 'GET INVOLVED' },
-      heading: { type: String, default: 'BECOME A' },
-      highlightedHeading: { type: String, default: 'RIDER' },
-      description: { type: String, default: "We're always looking for passionate engineers, designers, and innovators to join our family." },
-      buttonText: { type: String, default: 'APPLY NOW' },
-      buttonUrl: { type: String, default: 'index.html#recruitment' },
-      buttonIcon: { type: String, default: 'fas fa-user-plus' },
+      visible: { type: Boolean, default: false },
+      eyebrow: { type: String, default: '' },
+      heading: { type: String, default: '' },
+      highlightedHeading: { type: String, default: '' },
+      description: { type: String, default: '' },
+      buttonText: { type: String, default: '' },
+      buttonUrl: { type: String, default: '' },
+      buttonIcon: { type: String, default: '' },
       openInNewTab: { type: Boolean, default: false },
       backgroundColor: { type: String, default: '#000000' },
       bgImageUrl: { type: String, default: '' },

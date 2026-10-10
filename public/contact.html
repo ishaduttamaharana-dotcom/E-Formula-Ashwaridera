@@ -457,7 +457,7 @@
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-        <li id="arNavItem"></li>
+
       </ul>
       <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
         <i class="fas fa-bars"></i>
@@ -508,7 +508,7 @@
       <div class="reveal visible">
         <div class="hero-badge" id="contactHeroBadge"><span class="dot"></span> <span id="contactHeroBadgeText">Race Control — Open Frequency</span></div>
         <h1 id="contactHeroTitle">Talk To <span class="text-gradient">Ashwa Riders</span></h1>
-        <p class="lede" id="contactHeroDesc">Sponsorship, recruitment, media, or just a question about the car — pick a channel below or send a transmission straight to the pit box.</p>
+        <p class="lede" id="contactHeroDesc">Sponsorship, media, or just a question about the car — pick a channel below or send a transmission straight to the pit box.</p>
 
         <div class="hero-telemetry" id="contactHeroTelemetry">
           <div class="t-item"><div class="t-num"><span class="live-dot"></span> &lt; 24H</div><div class="t-label">Avg. Reply Time</div></div>
@@ -534,52 +534,31 @@
           <p class="section-subtitle" id="channelsDescEl">Every channel is monitored by the team. Choose whichever gets to the right people fastest.</p>
 
           <div class="channel-list" id="contactChannelList">
-            <a href="mailto:eformulaashwariders@gmail.com" class="channel-row">
+            <div class="channel-row channel-skeleton" style="opacity: 0.65; pointer-events: none;">
               <div class="ch-id">CH 01<b>EMAIL</b></div>
-              <div class="ch-icon"><i class="fas fa-envelope"></i></div>
+              <div class="ch-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
               <div class="ch-body">
-                <h4>eformulaashwariders@gmail.com</h4>
-                <p>Best for sponsorship, press, and detailed queries</p>
+                <div style="height: 16px; width: 220px; background: currentColor; opacity: 0.15; border-radius: 2px; margin-bottom: 6px;"></div>
+                <div style="height: 12px; width: 260px; background: currentColor; opacity: 0.08; border-radius: 2px;"></div>
               </div>
-              <div class="ch-status"><span class="dot"></span> Monitored</div>
-            </a>
-
-            <a href="tel:+919096110224" class="channel-row">
+              <div class="ch-status"><span class="dot" style="background: var(--signal);"></span> Connecting...</div>
+            </div>
+            <div class="channel-row channel-skeleton" style="opacity: 0.45; pointer-events: none;">
               <div class="ch-id">CH 02<b>VOICE</b></div>
-              <div class="ch-icon"><i class="fas fa-phone"></i></div>
+              <div class="ch-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
               <div class="ch-body">
-                <h4>+91 90961 10224 &nbsp;/&nbsp; +91 93259 66459</h4>
-                <p>Mon–Sat, 10 AM – 6 PM IST</p>
+                <div style="height: 16px; width: 180px; background: currentColor; opacity: 0.15; border-radius: 2px; margin-bottom: 6px;"></div>
+                <div style="height: 12px; width: 200px; background: currentColor; opacity: 0.08; border-radius: 2px;"></div>
               </div>
-              <div class="ch-status"><span class="dot"></span> On Duty</div>
-            </a>
-
-            <a href="https://wa.me/919096110224" target="_blank" class="channel-row">
-              <div class="ch-id">CH 03<b>RADIO</b></div>
-              <div class="ch-icon"><i class="fab fa-whatsapp"></i></div>
-              <div class="ch-body">
-                <h4>WhatsApp — +91 90961 10224</h4>
-                <p>Fastest for quick questions</p>
-              </div>
-              <div class="ch-status"><span class="dot"></span> Live</div>
-            </a>
-
-            <a href="#pitlane" class="channel-row">
-              <div class="ch-id">CH 04<b>PIT</b></div>
-              <div class="ch-icon"><i class="fas fa-map-marker-alt"></i></div>
-              <div class="ch-body">
-                <h4>SVPCET Workshop, Nagpur</h4>
-                <p>Visits welcome by appointment</p>
-              </div>
-              <div class="ch-status"><span class="dot"></span> By Appt.</div>
-            </a>
+              <div class="ch-status"><span class="dot" style="background: var(--signal);"></span> Connecting...</div>
+            </div>
           </div>
 
           <p class="contact-side-note"><i class="fas fa-circle-info"></i> Message us through any channel — everything routes to the same pit box.</p>
 
           <div class="social-section">
             <span class="eyebrow" style="margin-top: 36px;">Broadcast Channels</span>
-            <div class="broadcast-grid">
+            <div class="broadcast-grid" id="contactBroadcastGrid">
               <a href="https://www.instagram.com/eformula_ashwariders/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
               <a href="https://www.linkedin.com/company/e-formula-ashwa-riders" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
               <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
@@ -618,7 +597,7 @@
                     <option value="">Select a subject...</option>
                     <option value="general">General Inquiry</option>
                     <option value="sponsorship">Sponsorship / Partnership</option>
-                    <option value="recruitment">Recruitment / Join Team</option>
+
                     <option value="media">Media / Press</option>
                     <option value="event">Event Collaboration</option>
                     <option value="other">Other</option>
@@ -676,17 +655,7 @@
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════ -->
-  <!--  CTA - JOIN US                                   -->
-  <!-- ════════════════════════════════════════════════════ -->
-  <section class="section-padding" style="background: var(--void); text-align: center;">
-    <div class="container reveal">
-      <span class="eyebrow on-dark" style="display:block;">One More Channel</span>
-      <h2 class="section-title section-title-light">Ready To <span class="text-gradient">Race</span> With Us?</h2>
-      <p class="section-subtitle section-subtitle-light" style="margin: 0 auto 30px;">Join the Ashwa Riders team and be part of something extraordinary.</p>
-      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join The Team</a>
-    </div>
-  </section>
+
 
   <!-- ════════════════════════════════════════════════════ -->
   <!--  FOOTER                                          -->
@@ -709,7 +678,7 @@
           <h4>Team</h4>
           <ul>
             <li><a href="team.html">Members</a></li>
-            <li><a href="index.html#recruitment">Join Us</a></li>
+
             <li><a href="car.html">Our Car</a></li>
             <li><a href="achievements.html">Achievements</a></li>
           </ul>
@@ -869,11 +838,9 @@
     }, 900);
   </script>
 
-  <script src="/auth.js"></script>
+
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/contact-cms.js"></script>
-  <script src="/join-cms.js"></script>
-  <script src="/sponsor-cms.js"></script>
 </body>
 </html>

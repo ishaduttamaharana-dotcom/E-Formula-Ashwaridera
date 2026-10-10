@@ -209,24 +209,49 @@ const getPublicContactInfo = async (req, res) => {
  */
 const submitContactForm = async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message } = req.body || {};
 
     if (!name || !email || !subject || !message) {
       return sendError(res, 400, 'Please fill in all required fields (name, email, subject, message).');
     }
 
-    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-    if (!emailRegex.test(email)) {
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof subject !== 'string' || typeof message !== 'string') {
+      return sendError(res, 400, 'Invalid submission payload format.');
+    }
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedSubject = subject.trim();
+    const trimmedMessage = message.trim();
+
+    if (!trimmedName || !trimmedEmail || !trimmedSubject || !trimmedMessage) {
+      return sendError(res, 400, 'Please fill in all required fields (name, email, subject, message).');
+    }
+
+    if (trimmedName.length > 100) {
+      return sendError(res, 400, 'Name must be 100 characters or fewer.');
+    }
+
+    if (trimmedSubject.length > 200) {
+      return sendError(res, 400, 'Subject must be 200 characters or fewer.');
+    }
+
+    if (trimmedMessage.length > 5000) {
+      return sendError(res, 400, 'Message cannot exceed 5000 characters.');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
       return sendError(res, 400, 'Please enter a valid email address.');
     }
 
     const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
 
     const newMsg = await ContactMessage.create({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      subject: subject.trim(),
-      message: message.trim(),
+      name: trimmedName,
+      email: trimmedEmail,
+      subject: trimmedSubject,
+      message: trimmedMessage,
       status: 'new',
       ipAddress,
     });
@@ -258,10 +283,11 @@ const getPublicNavFooter = async (req, res) => {
       homeUrl: source.branding?.homeUrl || 'index.html',
     };
 
-    // Filter navigation items and sort by order
-    const rawNav = Array.isArray(source.navigation) && source.navigation.length > 0
+    // Filter navigation items, excluding any Join Team or Login items, and sort by order
+    const rawNav = (Array.isArray(source.navigation) && source.navigation.length > 0
       ? source.navigation
-      : (source.navLinks || []).filter((l) => !l.isCta);
+      : (source.navLinks || []).filter((l) => !l.isCta))
+      .filter((item) => !/join|recruitment|login|sign/i.test((item.label || '') + ' ' + (item.url || '')));
 
     const navigation = rawNav
       .map((item, idx) => ({
@@ -273,10 +299,14 @@ const getPublicNavFooter = async (req, res) => {
       }))
       .sort((a, b) => a.order - b.order);
 
+    const ctaLabel = source.headerCta?.label || source.ctaLabel || '';
+    const ctaUrl = source.headerCta?.url || source.ctaUrl || '';
+    const isJoinOrAuthCta = /join|recruitment|login|sign/i.test(ctaLabel + ' ' + ctaUrl);
+
     const headerCta = {
-      label: source.headerCta?.label || source.ctaLabel || 'Join Team',
-      url: source.headerCta?.url || source.ctaUrl || 'index.html#recruitment',
-      visible: source.headerCta?.visible !== false,
+      label: isJoinOrAuthCta ? '' : ctaLabel,
+      url: isJoinOrAuthCta ? '' : ctaUrl,
+      visible: isJoinOrAuthCta ? false : (source.headerCta?.visible !== false && !!ctaLabel),
     };
 
     const footerBrand = {
@@ -316,6 +346,7 @@ const getPublicNavFooter = async (req, res) => {
         visible: grp.visible !== false,
         order: Number(grp.order) || gIdx + 1,
         links: (Array.isArray(grp.links) ? grp.links : [])
+          .filter((lnk) => !/join|recruitment|login|sign/i.test((lnk.label || '') + ' ' + (lnk.url || '')))
           .map((lnk, lIdx) => ({
             id: lnk.id || `lnk-${lIdx}`,
             label: lnk.label,

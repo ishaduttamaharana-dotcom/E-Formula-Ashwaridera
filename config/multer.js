@@ -5,6 +5,7 @@
 
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 // ─── Extended Limit: 1000 MB for images, videos & documents ─
@@ -48,7 +49,15 @@ const ALL_ALLOWED_TYPES = [
 // ─── Disk storage (local uploads folder) ────────────────────
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'uploads'));
+    const uploadDir = path.join(__dirname, '..', 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      try {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      } catch (e) {
+        // ignore
+      }
+    }
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -114,6 +123,37 @@ const uploadDocument = (fieldName = 'document') =>
     fileFilter: createFileFilter(ALLOWED_DOC_TYPES),
   }).single(fieldName);
 
+/**
+ * Universal media upload middleware with direct disk streaming (1000MB limit).
+ * Accepts 'file', 'image', 'video', or 'document' field name and streams chunks directly to disk
+ * to prevent high-memory exhaustion on large files.
+ */
+const uploadMediaDisk = multer({
+  storage: diskStorage,
+  limits: { fileSize: MAX_UPLOAD_SIZE }, // 1000 MB
+  fileFilter: createFileFilter(ALL_ALLOWED_TYPES),
+}).fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'image', maxCount: 1 },
+  { name: 'video', maxCount: 1 },
+  { name: 'document', maxCount: 1 },
+]);
+
+const uploadMediaMiddleware = (req, res, next) => {
+  uploadMediaDisk(req, res, (err) => {
+    if (err) return next(err);
+    if (req.files) {
+      req.file =
+        req.files.file?.[0] ||
+        req.files.image?.[0] ||
+        req.files.video?.[0] ||
+        req.files.document?.[0] ||
+        null;
+    }
+    next();
+  });
+};
+
 module.exports = {
   MAX_UPLOAD_SIZE,
   uploadSingleImage,
@@ -121,4 +161,5 @@ module.exports = {
   uploadToMemory,
   uploadToMemoryFields,
   uploadDocument,
+  uploadMediaMiddleware,
 };

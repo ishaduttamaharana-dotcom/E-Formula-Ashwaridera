@@ -16,6 +16,7 @@ const router = express.Router();
 
 // ─── Public Read Routes (Visitors & Users) ───────────────────
 router.get('/',               getPublicGalleryContent);
+router.get('/page',           getPublicGalleryContent);
 router.get('/albums',          getAlbums);
 router.get('/images',          getImages);
 router.get('/images/:albumId', getImages);

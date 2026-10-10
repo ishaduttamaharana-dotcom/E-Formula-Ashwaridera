@@ -214,15 +214,6 @@
     };
     r.registerRoute('/admin/messages', messagesHandler, { title: 'Contact Messages', breadcrumbs: [{ label: 'Admin', url: '/admin' }, { label: 'Inboxes', url: '/admin/messages' }, { label: 'Messages', url: '/admin/messages' }] });
 
-    // Join Applications Inbox Module
-    const joinInboxHandler = async (path) => {
-      const container = document.getElementById('adminContent');
-      if (window.AdminJoinApplicationsModule) {
-        await window.AdminJoinApplicationsModule.renderJoinApplicationsModule(container);
-      }
-    };
-    r.registerRoute('/admin/join-applications', joinInboxHandler, { title: 'Join Applications', breadcrumbs: [{ label: 'Admin', url: '/admin' }, { label: 'Inboxes', url: '/admin/join-applications' }, { label: 'Applications', url: '/admin/join-applications' }] });
-
     // Sponsor Requests Inbox Module
     const sponsorInboxHandler = async (path) => {
       const container = document.getElementById('adminContent');

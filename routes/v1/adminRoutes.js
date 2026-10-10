@@ -8,7 +8,7 @@
 const express = require('express');
 const { protect, authorize } = require('../../middleware/authMiddleware');
 const { sendSuccess } = require('../../utils/responseHelper');
-const { uploadToMemory } = require('../../config/multer');
+const { uploadToMemory, uploadMediaMiddleware } = require('../../config/multer');
 const { uploadImage } = require('../../controllers/cmsController');
 
 // Controllers
@@ -104,8 +104,6 @@ const {
   getContactMessages,
   updateMessageStatus,
   deleteContactMessage,
-  getJoinApplications,
-  updateJoinApplicationStatus,
   getSponsorRequests,
   updateSponsorRequestStatus,
   getInboxCounts,
@@ -294,22 +292,18 @@ router.get('/media/signature', getUploadSignature);
 router.get('/media/audit', auditMediaHealth);
 router.post('/media/verify', verifyMediaEndpoint);
 router.post('/media/direct-record', createMediaAssetFromDirectUpload);
-router.post('/media/upload', uploadToMemory('file'), uploadMediaAsset);
+router.post('/media/upload', uploadMediaMiddleware, uploadMediaAsset);
 router.get('/media/:id', getMediaAssetById);
 router.patch('/media/:id', updateMediaAsset);
 router.delete('/media/:id', deleteMediaAsset);
 
 // Legacy upload helper
-router.post('/upload', uploadToMemory('image'), uploadImage);
+router.post('/upload', uploadMediaMiddleware, uploadImage);
 
 // ─── ADMIN INBOXES ──────────────────────────────────────────
 router.get('/messages', getContactMessages);
 router.patch('/messages/:id', updateMessageStatus);
 router.delete('/messages/:id', deleteContactMessage);
-
-router.get('/join', getJoinApplications);
-router.put('/join/:id/status', updateJoinApplicationStatus);
-router.patch('/join/:id/status', updateJoinApplicationStatus);
 
 router.get('/sponsor-requests', getSponsorRequests);
 router.put('/sponsor-requests/:id/status', updateSponsorRequestStatus);

@@ -1,19 +1,21 @@
 /* ============================================================
-   gallery-cms.js — Dynamic Hydration & Interactive Lightbox Engine
+   gallery-cms.js — Authoritative Gallery CMS Hydration & Interactive Engine
    Ashwa Riders — Formula Student Electric Team
    Hydrates:
-     01. HERO (Eyebrow, Heading, Highlight, Description, Image/Video BG, Overlay)
-     02. DYNAMIC CATEGORIES & COUNTS (Configurable CMS Tabs)
-     03. MEDIA GRID (Images & Videos, Responsive Cards, Badges)
-     04. INTERACTIVE LIGHTBOX (Full Image + HTML5 Video Player + Keyboard Nav)
-     05. PAGE SETTINGS & SEO
-   Supports SSR Preload (__INITIAL_GALLERY_DATA__) + Preview Mode.
+     01. HERO (Eyebrow, Heading, Highlight, Description, Background Media, Overlay)
+     02. DYNAMIC CATEGORIES & LIVE COUNTS (Configurable CMS Filter Tabs)
+     03. MEDIA GRID (Images & Videos, Responsive Cards, Badges, Live Filters)
+     04. INTERACTIVE LIGHTBOX (HTML5 Full Video Player + Image Viewer + Keyboard Nav)
+     05. RECRUITMENT CTA (Heading, Highlight, Description, Button Link & Icon)
+     06. PAGE SETTINGS & SEO
+   Strictly authoritative from MongoDB / Public API (no localStorage / sessionStorage cache).
 ============================================================ */
 
 (function () {
   'use strict';
 
-  const GALLERY_API = '/api/v1/gallery';
+  const PRIMARY_API = '/api/v1/gallery';
+  const FALLBACK_API = '/api/v1/content/gallery';
   const urlParams = new URLSearchParams(window.location.search);
   const isPreview = urlParams.get('preview') === 'true' || urlParams.get('draft') === 'true';
 
@@ -21,6 +23,7 @@
   let activeFilter = 'all';
   let visibleMedia = [];
   let currentLightboxIndex = 0;
+  let lightboxInitialized = false;
 
   const escapeHtml = (str) => {
     if (str === null || str === undefined) return '';
@@ -33,32 +36,102 @@
   };
 
   // ============================================================
-  //  DATA FETCHING & PRELOAD
+  //  DATA FETCHING (Direct from API, no cache override)
   // ============================================================
   async function fetchGalleryData() {
-    const base = isPreview ? `${GALLERY_API}?preview=true` : GALLERY_API;
-    const sep = base.includes('?') ? '&' : '?';
-    const endpoint = `${base}${sep}_t=${Date.now()}`;
+    const endpoints = [PRIMARY_API, FALLBACK_API];
+    let lastError = null;
 
-    const res = await fetch(endpoint, {
-      cache: 'no-store',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    return json.data || json;
+    for (const ep of endpoints) {
+      try {
+        const queryParams = new URLSearchParams();
+        if (isPreview) queryParams.set('preview', 'true');
+        queryParams.set('_t', Date.now().toString());
+
+        const res = await fetch(`${ep}?${queryParams.toString()}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.success && json.data) return json.data;
+          if (json && json.data) return json.data;
+        } else {
+          lastError = new Error(`HTTP ${res.status}`);
+        }
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    throw lastError || new Error('Failed to retrieve Gallery CMS data.');
   }
 
   // ============================================================
-  //  HYDRATION LOGIC
+  //  CONTROLLED ERROR STATE
+  // ============================================================
+  function showControlledError(msg) {
+    const grid = document.getElementById('galleryGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <div class="gallery-error-state" style="grid-column:1/-1; padding:60px 20px; text-align:center; color:var(--ink-faint, #9696A0); background:rgba(255,255,255,0.02); border:1px dashed var(--hairline, rgba(211,218,217,0.15)); border-radius:4px;">
+          <i class="fas fa-triangle-exclamation" style="font-size:2.2rem; color:var(--signal, #F25912); margin-bottom:14px; display:block;"></i>
+          <h3 style="font-size:1.15rem; text-transform:uppercase; margin-bottom:6px; color:var(--ink, #222126); font-family:var(--font-display, sans-serif);">Gallery Media Unavailable</h3>
+          <p style="font-family:var(--font-mono, monospace); font-size:0.85rem; margin:0 0 16px;">${escapeHtml(msg || 'Unable to connect to CMS. Please verify your connection.')}</p>
+          <button class="btn btn-primary" onclick="window.location.reload()" style="padding:10px 22px; font-size:0.75rem; cursor:pointer;">
+            <i class="fas fa-rotate-right"></i> Retry Connection
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  // ============================================================
+  //  PREVIEW BANNER
+  // ============================================================
+  function showPreviewBanner() {
+    if (!isPreview) return;
+    if (document.getElementById('gallery-preview-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'gallery-preview-banner';
+    banner.style.cssText = [
+      'position: fixed',
+      'top: 0',
+      'left: 0',
+      'width: 100%',
+      'background: linear-gradient(90deg, #F25912, #FF8C00)',
+      'color: #000',
+      'font-weight: 800',
+      'font-size: 0.75rem',
+      'text-transform: uppercase',
+      'letter-spacing: 0.12em',
+      'text-align: center',
+      'padding: 8px 16px',
+      'z-index: 99999',
+      'box-shadow: 0 2px 10px rgba(0,0,0,0.5)',
+      'font-family: var(--font-mono, monospace)',
+      'display: flex',
+      'align-items: center',
+      'justify-content: center',
+      'gap: 10px',
+    ].join(';');
+
+    banner.innerHTML = `
+      <i class="fas fa-eye"></i>
+      <span>CMS Live Preview Mode — Viewing Unpublished Draft Revisions</span>
+      <a href="gallery.html" style="color:#000; text-decoration:underline; font-weight:900; margin-left:12px;">Exit Preview</a>
+    `;
+    document.body.prepend(banner);
+  }
+
+  // ============================================================
+  //  HYDRATION ENTRY POINT
   // ============================================================
   function hydrateGalleryPage(data) {
     if (!data) return;
     currentGalleryData = data;
-
-    if (!isPreview && data) {
-      try { sessionStorage.setItem('ar_gallery_cache', JSON.stringify(data)); } catch (e) {}
-    }
 
     const { settings, hero, categories, media, albums, cta } = data;
     const mediaItems = media || data.images || [];
@@ -89,13 +162,8 @@
     // 04. Lightbox Event Bindings
     setupLightbox();
 
-    // 05. CTA Section (if present)
+    // 05. Recruitment CTA
     if (cta) hydrateCTA(cta);
-
-    // Remove pending states
-    document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
-      el.setAttribute('data-cms-pending', 'false');
-    });
   }
 
   // ============================================================
@@ -105,7 +173,7 @@
     const heroSec = document.querySelector('.gallery-hero');
     if (!heroSec) return;
 
-    if (hero && hero.visible === false) {
+    if (hero && hero.visible === false && !isPreview) {
       heroSec.style.display = 'none';
       return;
     }
@@ -114,26 +182,29 @@
     if (!hero) return;
 
     // Eyebrow badge
-    const badge = heroSec.querySelector('.hero-badge');
-    if (badge) {
-      badge.innerHTML = `<span class="dot"></span> ${escapeHtml(hero.eyebrow || 'Gallery')}`;
+    const badgeText = heroSec.querySelector('.hero-badge-text') || heroSec.querySelector('.hero-badge');
+    const eyebrowStr = hero.eyebrow || hero.label || 'Gallery';
+    if (heroSec.querySelector('.hero-badge-text')) {
+      heroSec.querySelector('.hero-badge-text').textContent = eyebrowStr;
+    } else if (badgeText) {
+      badgeText.innerHTML = `<span class="dot"></span> ${escapeHtml(eyebrowStr)}`;
     }
 
     // Heading Line 1 + Highlight
     const h1 = heroSec.querySelector('h1');
     if (h1) {
-      const l1 = escapeHtml(hero.headingLine1 || 'Moments in');
-      const hl = escapeHtml(hero.headingHighlight || 'Motion');
-      h1.innerHTML = `${l1} <span class="text-gradient">${hl}</span>`;
+      const l1 = hero.headingLine1 || 'Moments in';
+      const hl = hero.headingHighlight || 'Motion';
+      h1.innerHTML = `${escapeHtml(l1)} <span class="text-gradient">${escapeHtml(hl)}</span>`;
     }
 
     // Description
-    const desc = heroSec.querySelector('p');
-    if (desc && hero.description) {
+    const desc = heroSec.querySelector('.hero-desc') || heroSec.querySelector('p');
+    if (desc && hero.description !== undefined) {
       desc.textContent = hero.description;
     }
 
-    // Background Alignment & Spacing
+    // Background Alignment
     if (hero.backgroundPosition) {
       heroSec.style.backgroundPosition = hero.backgroundPosition;
     }
@@ -142,6 +213,8 @@
     if (hero.overlayStrength !== undefined) {
       const strength = (hero.overlayStrength / 100).toFixed(2);
       heroSec.style.setProperty('--hero-overlay-color', `rgba(0, 0, 0, ${strength})`);
+    } else if (hero.overlay === false) {
+      heroSec.style.setProperty('--hero-overlay-color', 'rgba(0, 0, 0, 0)');
     }
 
     // Background Media (Image or Video)
@@ -159,13 +232,13 @@
 
     if (hero.mediaType === 'video' && hero.videoUrl) {
       videoEl.src = hero.videoUrl;
-      if (hero.videoPoster) videoEl.poster = hero.videoPoster;
+      if (hero.videoPoster || hero.posterUrl) videoEl.poster = hero.videoPoster || hero.posterUrl;
       videoEl.style.display = 'block';
       heroSec.style.backgroundImage = 'none';
     } else {
       videoEl.style.display = 'none';
       videoEl.pause();
-      const bgImg = hero.desktopImageUrl || 'https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg';
+      const bgImg = hero.desktopImageUrl || hero.bgImageUrl || hero.imageUrl || 'https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg';
       heroSec.style.backgroundImage = `url("${bgImg}")`;
       heroSec.style.backgroundSize = 'cover';
     }
@@ -181,43 +254,50 @@
     // Calculate dynamic counts
     const counts = { all: mediaItems.length, image: 0, video: 0 };
     mediaItems.forEach(item => {
-      const t = (item.mediaType || item.type || 'image').toLowerCase();
-      if (t === 'image') counts.image = (counts.image || 0) + 1;
-      if (t === 'video') counts.video = (counts.video || 0) + 1;
+      const isVid = (item.mediaType || item.type || '').toLowerCase() === 'video' || Boolean(item.videoUrl && item.videoUrl.trim());
+      if (isVid) {
+        counts.video = (counts.video || 0) + 1;
+      } else {
+        counts.image = (counts.image || 0) + 1;
+      }
 
-      const cat = (item.category || '').toLowerCase();
-      if (cat) counts[cat] = (counts[cat] || 0) + 1;
+      const cat = (item.category || '').toLowerCase().trim();
+      if (cat) {
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
     });
 
     // Default categories if CMS categories empty
-    const catsToRender = (categories && categories.length > 0)
-      ? categories.filter(c => c.isVisible !== false)
+    const rawCats = (categories && categories.length > 0)
+      ? categories.filter(c => isPreview || (c.visible !== false && c.isVisible !== false))
       : [
-          { id: 'all', label: 'All', order: 0 },
-          { id: 'image', label: 'Images', order: 1 },
-          { id: 'video', label: 'Videos', order: 2 },
-          { id: 'competition', label: 'Competition', order: 3 },
-          { id: 'workshop', label: 'Workshop', order: 4 },
-          { id: 'testing', label: 'Testing', order: 5 },
-          { id: 'events', label: 'Events', order: 6 },
+          { id: 'all', name: 'All', order: 1 },
+          { id: 'image', name: 'Images', order: 2 },
+          { id: 'video', name: 'Videos', order: 3 },
+          { id: 'competition', name: 'Competition', order: 4 },
+          { id: 'workshop', name: 'Workshop', order: 5 },
+          { id: 'testing', name: 'Testing', order: 6 },
+          { id: 'events', name: 'Events', order: 7 },
+          { id: 'formula-bharat', name: 'Formula Bharat', order: 8 },
         ];
 
     let html = '';
-    catsToRender.forEach(cat => {
-      const catId = (cat.id || '').toLowerCase();
+    rawCats.forEach(cat => {
+      const catId = (cat.slug || cat.id || cat.name || '').toLowerCase().trim();
+      const label = cat.label || cat.name || cat.id || 'Category';
       const count = counts[catId] !== undefined ? counts[catId] : (cat.count !== undefined ? cat.count : 0);
       const isActive = activeFilter === catId;
 
       html += `
         <button class="filter-btn ${isActive ? 'active' : ''}" data-filter="${escapeHtml(catId)}">
-          ${escapeHtml(cat.label)} <span class="count">(${count})</span>
+          ${escapeHtml(label)} <span class="count">(${count})</span>
         </button>
       `;
     });
 
     filterBar.innerHTML = html;
 
-    // Attach click listeners
+    // Attach click listeners to filter buttons
     const buttons = filterBar.querySelectorAll('.filter-btn');
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -240,11 +320,11 @@
     // Filter items
     visibleMedia = mediaItems.filter(item => {
       if (activeFilter === 'all') return true;
-      const t = (item.mediaType || item.type || 'image').toLowerCase();
-      if (activeFilter === 'image') return t === 'image';
-      if (activeFilter === 'video') return t === 'video';
+      const isVid = (item.mediaType || item.type || '').toLowerCase() === 'video' || Boolean(item.videoUrl && item.videoUrl.trim());
+      if (activeFilter === 'image') return !isVid;
+      if (activeFilter === 'video') return isVid;
 
-      const cat = (item.category || '').toLowerCase();
+      const cat = (item.category || '').toLowerCase().trim();
       return cat === activeFilter;
     });
 
@@ -254,10 +334,10 @@
         emptyState.style.display = 'block';
       } else {
         grid.innerHTML = `
-          <div style="grid-column:1/-1; padding:70px 20px; text-align:center; color:var(--ink-faint);">
+          <div style="grid-column:1/-1; padding:70px 20px; text-align:center; color:var(--ink-faint, #9696A0);">
             <i class="fas fa-camera" style="font-size:3rem; opacity:0.15; margin-bottom:16px; display:block;"></i>
             <h3 style="font-size:1.15rem; text-transform:uppercase; margin-bottom:6px;">No Media Items Found</h3>
-            <p style="font-family:var(--font-mono); font-size:0.85rem; margin:0;">There are currently no media items listed under this category.</p>
+            <p style="font-family:var(--font-mono, monospace); font-size:0.85rem; margin:0;">There are currently no media items listed under this category.</p>
           </div>
         `;
       }
@@ -268,11 +348,11 @@
 
     let html = '';
     visibleMedia.forEach((item, index) => {
-      const isVideo = (item.mediaType || item.type || 'image').toLowerCase() === 'video';
+      const isVideo = (item.mediaType || item.type || '').toLowerCase() === 'video' || Boolean(item.videoUrl && item.videoUrl.trim());
       const thumb = item.thumbnailUrl || item.imageUrl || item.mediaUrl || 'https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png';
       const title = item.title || item.caption || 'Ashwa Riders';
-      const desc = item.description || (isVideo ? 'Video highlight' : 'Race & event gallery');
-      const cat = item.category || (isVideo ? 'Video' : 'Gallery');
+      const desc = item.description || item.caption || (isVideo ? 'Video highlight' : 'Race & event gallery');
+      const cat = item.category || (isVideo ? 'video' : 'gallery');
 
       html += `
         <div class="gallery-item reveal-scale visible" data-index="${index}" data-type="${isVideo ? 'video' : 'image'}" data-category="${escapeHtml(cat)}">
@@ -306,8 +386,6 @@
   // ============================================================
   //  04. INTERACTIVE LIGHTBOX ENGINE
   // ============================================================
-  let lightboxInitialized = false;
-
   function setupLightbox() {
     if (lightboxInitialized) return;
     lightboxInitialized = true;
@@ -363,10 +441,10 @@
     const prevBtn = document.getElementById('prevLightbox');
     const nextBtn = document.getElementById('nextLightbox');
 
-    const isVideo = (item.mediaType || item.type || 'image').toLowerCase() === 'video';
-    const mediaUrl = item.mediaUrl || item.imageUrl || '';
+    const isVideo = (item.mediaType || item.type || '').toLowerCase() === 'video' || Boolean(item.videoUrl && item.videoUrl.trim());
+    const mediaUrl = isVideo ? (item.videoUrl || item.mediaUrl || item.imageUrl || '') : (item.imageUrl || item.mediaUrl || '');
     const title = item.title || item.caption || 'Ashwa Riders';
-    const desc = item.description || (item.category ? `Category: ${item.category}` : '');
+    const desc = item.description || item.caption || (item.category ? `Category: ${item.category}` : '');
 
     if (mediaContainer) {
       if (isVideo) {
@@ -409,32 +487,53 @@
   }
 
   // ============================================================
-  //  05. CTA HYDRATION
+  //  05. RECRUITMENT CTA HYDRATION
   // ============================================================
   function hydrateCTA(cta) {
     const ctaSec = document.querySelector('.cta-section');
     if (!ctaSec || !cta) return;
 
-    if (cta.visible === false) {
+    if (cta.visible === false && !isPreview) {
       ctaSec.style.display = 'none';
       return;
     }
     ctaSec.style.display = 'block';
 
+    const headingText = cta.heading || cta.title || 'Be Part of the';
+    const highlightText = cta.highlightedHeading || cta.highlightText || 'Story';
     const titleEl = ctaSec.querySelector('h2');
-    if (titleEl && (cta.title || cta.highlightText)) {
-      titleEl.innerHTML = `${escapeHtml(cta.title || 'Ready to')} <span class="text-gradient">${escapeHtml(cta.highlightText || 'Race With Us?')}</span>`;
+    if (titleEl) {
+      titleEl.innerHTML = `${escapeHtml(headingText)} <span class="text-gradient">${escapeHtml(highlightText)}</span>`;
     }
 
     const descEl = ctaSec.querySelector('p');
-    if (descEl && cta.description) {
+    if (descEl && cta.description !== undefined) {
       descEl.textContent = cta.description;
     }
 
     const btnEl = ctaSec.querySelector('.btn');
     if (btnEl) {
-      if (cta.buttonText) btnEl.textContent = cta.buttonText;
-      if (cta.buttonLink) btnEl.setAttribute('href', cta.buttonLink);
+      const btnText = cta.buttonText || 'Join the Team';
+      const btnUrl = cta.buttonUrl || cta.buttonLink || 'index.html#recruitment';
+      const iconClass = cta.buttonIcon || 'fas fa-user-plus';
+      btnEl.innerHTML = `<i class="${escapeHtml(iconClass)}"></i> ${escapeHtml(btnText)}`;
+      btnEl.setAttribute('href', btnUrl);
+      if (cta.openInNewTab) {
+        btnEl.setAttribute('target', '_blank');
+        btnEl.setAttribute('rel', 'noopener noreferrer');
+      } else {
+        btnEl.removeAttribute('target');
+        btnEl.removeAttribute('rel');
+      }
+    }
+
+    if (cta.backgroundColor) {
+      ctaSec.style.backgroundColor = cta.backgroundColor;
+    }
+    if (cta.bgImageUrl) {
+      ctaSec.style.backgroundImage = `url("${escapeHtml(cta.bgImageUrl)}")`;
+      ctaSec.style.backgroundSize = 'cover';
+      ctaSec.style.backgroundPosition = 'center';
     }
   }
 
@@ -442,42 +541,27 @@
   //  BOOTSTRAP ENGINE
   // ============================================================
   async function init() {
-    // 0. Session cache fast-path (instant 0ms paint)
-    try {
-      const cached = sessionStorage.getItem('ar_gallery_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object') {
-          hydrateGalleryPage(parsed);
-        }
-      }
-    } catch (e) {}
+    showPreviewBanner();
 
-    // 1. SSR Preload check
+    // 1. SSR Preload check (if server injected)
     if (window.__INITIAL_GALLERY_DATA__) {
       try {
         hydrateGalleryPage(window.__INITIAL_GALLERY_DATA__);
       } catch (err) {
-        console.warn('Initial gallery data hydration warning:', err);
+        console.warn('Initial gallery preload notice:', err);
       }
     }
 
-    // 2. Fetch fresh live/preview data asynchronously
+    // 2. Fetch fresh live/preview CMS data asynchronously
     try {
       const liveData = await fetchGalleryData();
       if (liveData) {
         hydrateGalleryPage(liveData);
+        console.log(`[Ashwa Gallery CMS] Page hydrated successfully (${liveData.media ? liveData.media.length : 0} items).`);
       }
     } catch (err) {
-      console.warn('Background gallery data fetch note:', err.message);
-      const grid = document.getElementById('galleryGrid');
-      if (grid && !grid.querySelector('.gallery-item')) {
-        grid.innerHTML = `
-          <div style="grid-column:1/-1; padding:70px 20px; text-align:center; color:var(--ink-faint, #9696A0); font-family: var(--font-mono, monospace);">
-            <p>Gallery media temporarily unavailable.</p>
-          </div>
-        `;
-      }
+      console.warn('[Ashwa Gallery CMS] Hydration notice:', err.message);
+      showControlledError(err.message);
     }
   }
 
@@ -487,7 +571,7 @@
     init();
   }
 
-  // Public export for debugging or preview
+  // Public export for debugging, preview, or testing
   window.AshwaGalleryCMS = {
     hydrate: hydrateGalleryPage,
     refresh: init,

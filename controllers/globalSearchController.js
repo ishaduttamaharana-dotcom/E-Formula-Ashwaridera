@@ -7,7 +7,6 @@ const ContentItem = require('../models/ContentItem');
 const TeamMember = require('../models/TeamMember');
 const Achievement = require('../models/Achievement');
 const GalleryAlbum = require('../models/GalleryAlbum');
-const JoinApplication = require('../models/JoinApplication');
 const SponsorRequest = require('../models/SponsorRequest');
 const HeroSlide = require('../models/HeroSlide');
 const CarSpec = require('../models/CarSpec');
@@ -20,7 +19,6 @@ const ADMIN_PAGES = [
   { title: 'Achievements & Awards', subtitle: 'Trophies, Competition Ranks & Seasons', contentTypeName: 'CMS Module', url: '/admin/achievements' },
   { title: 'Media Gallery & Albums', subtitle: 'Photo Albums & Cloudinary Assets', contentTypeName: 'CMS Module', url: '/admin/gallery' },
   { title: 'Hero Slides & Video Header', subtitle: 'Homepage Header Media & Headlines', contentTypeName: 'CMS Module', url: '/admin/hero' },
-  { title: 'Join Team Recruitment Applications', subtitle: 'Student Applications & Resumes', contentTypeName: 'CMS Module', url: '/admin/join' },
   { title: 'Corporate Sponsorship Requests', subtitle: 'Sponsor Enquiries & Proposals', contentTypeName: 'CMS Module', url: '/admin/sponsor-requests' },
   { title: 'Contact Page & Workshop Info', subtitle: 'Public Address & Phone Numbers', contentTypeName: 'CMS Module', url: '/admin/contact' },
   { title: 'Contact Messages & Enquiries', subtitle: 'Public Contact Inbox', contentTypeName: 'CMS Module', url: '/admin/messages' },
@@ -54,7 +52,6 @@ exports.globalSearch = async (req, res, next) => {
       teamRes,
       achieveRes,
       galleryRes,
-      joinRes,
       sponsorReqRes,
       heroRes,
       itemsRes,
@@ -63,7 +60,6 @@ exports.globalSearch = async (req, res, next) => {
       TeamMember ? TeamMember.find({ $or: [{ name: regex }, { role: regex }, { department: regex }, { season: regex }] }).limit(10) : Promise.resolve([]),
       Achievement ? Achievement.find({ $or: [{ title: regex }, { competition: regex }, { awardTitle: regex }] }).limit(10) : Promise.resolve([]),
       GalleryAlbum ? GalleryAlbum.find({ $or: [{ title: regex }, { description: regex }, { category: regex }] }).limit(10) : Promise.resolve([]),
-      JoinApplication ? JoinApplication.find({ $or: [{ fullName: regex }, { email: regex }, { college: regex }, { branch: regex }, { department: regex }] }).limit(10) : Promise.resolve([]),
       SponsorRequest ? SponsorRequest.find({ $or: [{ companyName: regex }, { contactPerson: regex }, { email: regex }, { sponsorshipType: regex }] }).limit(10) : Promise.resolve([]),
       HeroSlide ? HeroSlide.find({ $or: [{ headline: regex }, { subtitle: regex }, { badgeText: regex }] }).limit(10) : Promise.resolve([]),
       ContentItem ? ContentItem.find({ $or: [{ title: regex }, { contentType: regex }, { 'fields.headline': regex }] }).limit(10) : Promise.resolve([]),
@@ -115,20 +111,6 @@ exports.globalSearch = async (req, res, next) => {
       });
     }
 
-    // Process Recruitment Applications
-    if (joinRes.status === 'fulfilled' && joinRes.value && joinRes.value.length) {
-      joinRes.value.forEach(j => {
-        results.push({
-          id: j._id,
-          title: j.fullName,
-          subtitle: `${j.college || 'SVPCET'} (${j.department || 'General'})`,
-          contentTypeName: 'Applicant',
-          status: j.status || 'Pending',
-          updatedAt: j.createdAt,
-          url: '/admin/join'
-        });
-      });
-    }
 
     // Process Sponsor Requests
     if (sponsorReqRes.status === 'fulfilled' && sponsorReqRes.value && sponsorReqRes.value.length) {

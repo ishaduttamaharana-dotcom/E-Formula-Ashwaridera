@@ -11,7 +11,6 @@ const Achievement = require('../models/Achievement');
 const GalleryImage = require('../models/GalleryImage');
 const Sponsor = require('../models/Sponsor');
 const ContactMessage = require('../models/ContactMessage');
-const JoinApplication = require('../models/JoinApplication');
 const SponsorRequest = require('../models/SponsorRequest');
 const ActivityLog = require('../models/ActivityLog');
 
@@ -29,7 +28,6 @@ const getAdminDashboardStats = async (req, res) => {
       totalGalleryMedia,
       totalSponsors,
       newMessages,
-      pendingJoinApps,
       pendingSponsorReqs,
       recentActivity,
     ] = await Promise.all([
@@ -40,7 +38,6 @@ const getAdminDashboardStats = async (req, res) => {
       GalleryImage.countDocuments({ status: 'published' }),
       Sponsor.countDocuments({ status: 'published' }),
       ContactMessage.countDocuments({ status: { $regex: /^new$/i } }),
-      JoinApplication.countDocuments({ status: { $regex: /^pending$/i } }),
       SponsorRequest.countDocuments({ status: { $regex: /^pending$/i } }),
       ActivityLog.find()
         .sort({ createdAt: -1 })
@@ -59,9 +56,8 @@ const getAdminDashboardStats = async (req, res) => {
       },
       inbox: {
         newContactMessages: newMessages,
-        pendingJoinApplications: pendingJoinApps,
         pendingSponsorRequests: pendingSponsorReqs,
-        totalUnreadItems: newMessages + pendingJoinApps + pendingSponsorReqs,
+        totalUnreadItems: newMessages + pendingSponsorReqs,
       },
       recentActivity,
     };

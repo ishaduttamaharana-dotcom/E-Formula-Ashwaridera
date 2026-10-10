@@ -18,7 +18,12 @@ const router = express.Router();
 
 // ─── Public Read Routes ──────────────────────────────────────
 router.get('/page', getPublicAchievementsContent);
-router.get('/', getPublicAchievements);
+router.get('/', (req, res, next) => {
+  if (req.query.format === 'array') {
+    return getPublicAchievements(req, res, next);
+  }
+  return getPublicAchievementsContent(req, res, next);
+});
 
 // ─── Protected Admin Write Routes ────────────────────────────
 router.post('/', protect, authorize('admin'), createAchievement);

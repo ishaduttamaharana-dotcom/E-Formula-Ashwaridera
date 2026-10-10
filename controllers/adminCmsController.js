@@ -5,6 +5,7 @@
 //  Archive, Restore Draft, Duplicate as Draft, Reorder.
 // ============================================================
 
+const mongoose = require('mongoose');
 const { sendSuccess, sendError, sendPaginated } = require('../utils/responseHelper');
 const { logActivity, buildSnapshot } = require('../utils/publishingHelper');
 const { recordRevision } = require('./adminRevisionController');
@@ -53,9 +54,23 @@ const getAdminResourceList = (Model, resourceName) => async (req, res) => {
  */
 const getAdminResourceById = (Model, resourceName) => async (req, res) => {
   try {
-    const item = await Model.findById(req.params.id)
-      .populate('createdBy', 'fullName email')
-      .populate('updatedBy', 'fullName email');
+    const { id } = req.params;
+    let item = null;
+
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      item = await Model.findById(id)
+        .populate('createdBy', 'fullName email')
+        .populate('updatedBy', 'fullName email');
+    }
+
+    if (!item && resourceName === 'Sponsor') {
+      const SponsorPageContent = require('../models/SponsorPageContent');
+      const pageDoc = await SponsorPageContent.findOne();
+      const railItem = pageDoc?.rail?.items?.find((i) => i.id === id || String(i._id) === id);
+      if (railItem) {
+        return sendSuccess(res, 200, `${resourceName} details retrieved.`, railItem);
+      }
+    }
 
     if (!item) {
       return sendError(res, 404, `${resourceName} record not found.`);
@@ -129,7 +144,64 @@ const updateResourceDraft = (Model, resourceName) => async (req, res) => {
     const inputData = req.body;
     const userId = req.user._id;
 
-    const doc = await Model.findById(id);
+    let doc = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      doc = await Model.findById(id);
+    }
+
+    if (!doc && resourceName === 'Sponsor') {
+      const SponsorPageContent = require('../models/SponsorPageContent');
+      const pageDoc = await SponsorPageContent.findOne();
+      if (pageDoc) {
+        const items = pageDoc.rail?.items || [];
+        const idx = items.findIndex((i) => i.id === id || String(i._id) === id);
+        if (idx !== -1) {
+          const current = items[idx].toObject ? items[idx].toObject() : items[idx];
+          const updatedItem = {
+            ...current,
+            ...inputData,
+            id: current.id || id,
+          };
+          items[idx] = updatedItem;
+          pageDoc.markModified('rail.items');
+
+          if (pageDoc.draftVersion?.rail?.items) {
+            const dIdx = pageDoc.draftVersion.rail.items.findIndex((i) => i.id === id || String(i._id) === id);
+            if (dIdx !== -1) {
+              pageDoc.draftVersion.rail.items[dIdx] = updatedItem;
+            } else {
+              pageDoc.draftVersion.rail.items.push(updatedItem);
+            }
+            pageDoc.markModified('draftVersion.rail.items');
+          }
+
+          if (req.body.publishNow || pageDoc.status === 'published') {
+            if (pageDoc.publishedVersion?.rail?.items) {
+              const pIdx = pageDoc.publishedVersion.rail.items.findIndex((i) => i.id === id || String(i._id) === id);
+              if (pIdx !== -1) {
+                pageDoc.publishedVersion.rail.items[pIdx] = updatedItem;
+                pageDoc.markModified('publishedVersion.rail.items');
+              }
+            }
+          }
+
+          pageDoc.lastEditedAt = new Date();
+          await pageDoc.save();
+
+          await logActivity({
+            user: req.user,
+            action: 'UPDATE_DRAFT',
+            resource: resourceName,
+            resourceId: id,
+            summary: `Updated ${resourceName} "${updatedItem.name || id}" in Sponsor Page Rail`,
+            req,
+          });
+
+          return sendSuccess(res, 200, `${resourceName} updated successfully.`, updatedItem);
+        }
+      }
+    }
+
     if (!doc) {
       return sendError(res, 404, `${resourceName} record not found.`);
     }

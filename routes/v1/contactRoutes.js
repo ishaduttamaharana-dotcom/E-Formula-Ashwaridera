@@ -19,11 +19,17 @@ const router = express.Router();
 router.get('/page', getPublicContactContent);
 
 // ─── Public Read Route (Visitors & Users) ───────────────────
-router.get('/', getPublicContactInfo);
+router.get('/', (req, res, next) => {
+  if (req.query.format === 'legacy' || req.query.type === 'info') {
+    return getPublicContactInfo(req, res, next);
+  }
+  return getPublicContactContent(req, res, next);
+});
 
 // ─── Public Contact Form Submission ────────────────────────
 // Replaces fake setTimeout timer with real database persistence
 router.post('/submit', submitContactForm);
+router.post('/submissions', submitContactForm);
 router.post('/', submitContactForm);
 
 // ─── Protected Admin Write Route (Admin Only) ────────────────

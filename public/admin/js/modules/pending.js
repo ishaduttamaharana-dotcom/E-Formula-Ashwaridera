@@ -73,12 +73,6 @@
       description: 'Protected inbox for public contact form transmissions, status updates (New/Read/Closed), internal notes.',
       icon: 'fas fa-envelope',
     },
-    '/admin/join-applications': {
-      title: 'Recruitment Join Applications',
-      phase: 'Phase 7 — Working Forms & Admin Inboxes',
-      description: 'Student recruitment roster, department filters, status transitions (Shortlisted/Accepted/Rejected), resume PDF viewer.',
-      icon: 'fas fa-user-plus',
-    },
     '/admin/sponsor-requests': {
       title: 'Sponsorship Requests Inbox',
       phase: 'Phase 7 — Working Forms & Admin Inboxes',

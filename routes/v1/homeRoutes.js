@@ -5,7 +5,7 @@
 
 const express = require('express');
 const { protect, authorize } = require('../../middleware/authMiddleware');
-const { uploadToMemory } = require('../../config/multer');
+const { uploadToMemory, uploadMediaMiddleware } = require('../../config/multer');
 const {
   getPublicHero,
   getPublicHomepageCombined,
@@ -36,7 +36,7 @@ router.get('/sponsors', getPublicSponsors);
 
 // ─── Legacy/Compatibility Admin Write Routes ────────────────
 router.put('/hero',          protect, authorize('admin'), updateHero);
-router.post('/hero/video',   protect, authorize('admin'), uploadToMemory('video'), uploadHeroVideo);
+router.post('/hero/video',   protect, authorize('admin'), uploadMediaMiddleware, uploadHeroVideo);
 
 router.post('/garage',       protect, authorize('admin'), createGarageCard);
 router.put('/garage/:id',    protect, authorize('admin'), updateGarageCard);

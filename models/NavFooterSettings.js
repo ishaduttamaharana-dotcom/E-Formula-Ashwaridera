@@ -57,9 +57,9 @@ const navFooterSettingsSchema = new mongoose.Schema(
     },
     navigation: [navigationItemSchema],
     headerCta: {
-      label: { type: String, default: 'Join Team' },
-      url: { type: String, default: 'index.html#recruitment' },
-      visible: { type: Boolean, default: true },
+      label: { type: String, default: '' },
+      url: { type: String, default: '' },
+      visible: { type: Boolean, default: false },
     },
 
     // Footer Configuration
@@ -92,8 +92,8 @@ const navFooterSettingsSchema = new mongoose.Schema(
     // Legacy Support & Flat Convenience Aliases
     brandTitle: { type: String, default: 'Ashwa Riders' },
     logoUrl: { type: String, default: 'https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png' },
-    ctaLabel: { type: String, default: 'Join Team' },
-    ctaUrl: { type: String, default: 'index.html#recruitment' },
+    ctaLabel: { type: String, default: '' },
+    ctaUrl: { type: String, default: '' },
     footerSummary: { type: String, default: '' },
     copyrightText: { type: String, default: '© 2026 Ashwa Riders. All rights reserved.' },
     designedBy: { type: String, default: 'Built by the Ashwa Riders Team' },
@@ -179,9 +179,10 @@ navFooterSettingsSchema.pre('save', function () {
   if (this.logo?.subtitle && !this.branding.subtitle) this.branding.subtitle = this.logo.subtitle;
 
   // Sync CTA
-  const ctaTxt = this.ctaLabel || this.headerCta.label || 'Join Team';
-  const ctaLnk = this.ctaUrl || this.headerCta.url || 'index.html#recruitment';
+  const ctaTxt = this.ctaLabel || this.headerCta?.label || '';
+  const ctaLnk = this.ctaUrl || this.headerCta?.url || '';
   this.ctaLabel = ctaTxt;
+  if (!this.headerCta) this.headerCta = {};
   this.headerCta.label = ctaTxt;
   this.ctaUrl = ctaLnk;
   this.headerCta.url = ctaLnk;
@@ -205,21 +206,25 @@ navFooterSettingsSchema.pre('save', function () {
   this.credit.text = cred;
   this.footer.builtByText = cred;
 
-  // Sync navigation array to legacy navLinks
-  if (Array.isArray(this.navigation) && this.navigation.length > 0) {
-    this.navLinks = this.navigation.map((item, idx) => ({
-      label: item.label,
-      url: item.url,
-      isCta: false,
-      order: item.order || idx + 1,
-    }));
-    this.navLinks.push({
-      label: this.ctaLabel,
-      url: this.ctaUrl,
-      isCta: true,
-      order: 999,
-    });
-  }
+    // Sync navigation array to legacy navLinks
+    if (Array.isArray(this.navigation) && this.navigation.length > 0) {
+      this.navLinks = this.navigation
+        .filter((item) => !/join|recruitment|login|sign/i.test((item.label || '') + ' ' + (item.url || '')))
+        .map((item, idx) => ({
+          label: item.label,
+          url: item.url,
+          isCta: false,
+          order: item.order || idx + 1,
+        }));
+      if (this.headerCta?.visible && this.ctaLabel && !/join|recruitment|login|sign/i.test(this.ctaLabel + ' ' + (this.ctaUrl || ''))) {
+        this.navLinks.push({
+          label: this.ctaLabel,
+          url: this.ctaUrl,
+          isCta: true,
+          order: 999,
+        });
+      }
+    }
 });
 
 const NavFooterSettings = mongoose.model('NavFooterSettings', navFooterSettingsSchema);

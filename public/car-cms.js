@@ -1,6 +1,6 @@
 /* ============================================================
    car-cms.js — Dynamic Hydration Engine for Car Page (Ashwa-3)
-   Injected into public/car.html.
+   Ashwa Riders — Formula Student Electric Team
    Hydrates:
      01. Car Experience 5 Stages & Timeline HUD
      02. Vehicle Values / Key Specifications Counters Strip
@@ -8,13 +8,15 @@
      04. The Build Journey Horizontal Timeline Phases
      05. Visual Breakdown In-the-Details Masonry Grid
      06. Open Positions Recruitment CTA Section
+   Authoritative source: MongoDB Atlas via /api/v1/car.
    Preserves Canvas 240-frame sequence and interactive timeline navigation.
 ============================================================ */
 
 (function () {
   'use strict';
 
-  const CAR_API = '/api/v1/content/car/page' + window.location.search;
+  const isPreview = window.location.search.includes('preview=true') || window.location.search.includes('draft=true');
+  const CAR_API = isPreview ? `/api/v1/car?preview=true&_t=${Date.now()}` : `/api/v1/car?_t=${Date.now()}`;
 
   const escapeHtml = (str) => {
     if (str === null || str === undefined) return '';
@@ -37,7 +39,8 @@
   };
 
   const showPreviewBanner = () => {
-    if (!window.location.search.includes('preview=true')) return;
+    if (!isPreview) return;
+    if (document.getElementById('cmsPreviewBanner')) return;
     const banner = document.createElement('div');
     banner.id = 'cmsPreviewBanner';
     banner.style.cssText = `
@@ -83,7 +86,12 @@
       if (s.getBoundingClientRect().top < window.innerHeight * 0.95) {
         animated = true;
         counters.forEach(el => {
-          const target = parseFloat(el.dataset.target || 0);
+          const rawTarget = el.dataset.target || '0';
+          const target = parseFloat(rawTarget);
+          if (isNaN(target)) {
+            el.textContent = rawTarget;
+            return;
+          }
           const isD = el.dataset.decimal;
           const dur = 1600;
           const st = performance.now();
@@ -92,6 +100,7 @@
             const e = 1 - Math.pow(1 - p, 3);
             el.textContent = isD ? (target * e).toFixed(1) : Math.round(target * e);
             if (p < 1) requestAnimationFrame(step);
+            else el.textContent = isD ? target.toFixed(1) : rawTarget;
           }
           requestAnimationFrame(step);
         });
@@ -102,44 +111,56 @@
     run();
   };
 
+  const showControlledError = (msg) => {
+    console.warn('[Ashwa Car CMS] Hydration notice:', msg);
+    const toast = document.getElementById('toast');
+    if (toast) {
+      const msgEl = document.getElementById('toast-message');
+      if (msgEl) msgEl.textContent = 'Car data temporarily unavailable: ' + (msg || 'Check network connection');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 5000);
+    }
+  };
+
   // ============================================================
   //  HYDRATION HANDLERS
   // ============================================================
 
   const hydrateStages = (carExp) => {
     if (!carExp) return;
-    const stages = carExp.stages || [];
+    const stages = (carExp.stages || []).filter(s => isPreview || s.published !== false);
     if (!stages.length) return;
 
     stages.forEach((st, idx) => {
-      const panel = document.getElementById('stage-' + (st.stageNumber !== undefined ? st.stageNumber : idx));
+      const stageIdx = st.stageNumber !== undefined ? st.stageNumber : idx;
+      const panel = document.getElementById('stage-' + stageIdx);
       if (!panel) return;
 
       // Eyebrow badge
       const badge = panel.querySelector('.stage-badge');
-      if (badge && st.eyebrow) {
-        badge.textContent = st.eyebrow;
+      if (badge) {
+        badge.textContent = st.eyebrow || '';
       }
 
       // Title
       const titleEl = panel.querySelector('.stage-title');
-      if (titleEl && st.heading) {
-        titleEl.innerHTML = formatHeadingWithHighlight(st.heading, st.headingHighlight);
+      if (titleEl) {
+        titleEl.innerHTML = formatHeadingWithHighlight(st.heading || '', st.headingHighlight || '');
       }
 
       // Description
       const descEl = panel.querySelector('.stage-desc');
-      if (descEl && st.description) {
-        descEl.textContent = st.description;
+      if (descEl) {
+        descEl.textContent = st.description || '';
       }
 
       // Stats
       const statsWrap = panel.querySelector('.stage-stats');
-      if (statsWrap && st.stats && st.stats.length > 0) {
+      if (statsWrap && Array.isArray(st.stats)) {
         statsWrap.innerHTML = st.stats.map(s => `
           <div>
-            <div class="stage-stat-label">${escapeHtml(s.label)}</div>
-            <div class="stage-stat-val">${escapeHtml(s.value)}<sub>${escapeHtml(s.unit || '')}</sub></div>
+            <div class="stage-stat-label">${escapeHtml(s.label || s.key || '')}</div>
+            <div class="stage-stat-val">${escapeHtml(s.value || '')}<sub>${escapeHtml(s.unit || '')}</sub></div>
           </div>
         `).join('');
       }
@@ -163,7 +184,7 @@
       }
 
       // Update timeline bottom HUD step label
-      const tlStep = document.querySelector(`.tl-step[data-step="${idx}"]`);
+      const tlStep = document.querySelector(`.tl-step[data-step="${stageIdx}"]`);
       if (tlStep) {
         const tlLabel = tlStep.querySelector('.tl-label');
         if (tlLabel && st.stageName) {
@@ -171,23 +192,40 @@
         }
       }
     });
+
+    // Update document title if hero stage heading is present
+    const heroStage = stages.find(s => s.stageNumber === 0) || stages[0];
+    if (heroStage && heroStage.heading) {
+      document.title = `Ashwa Riders — ${heroStage.heading}`;
+    }
   };
 
   const hydrateKeySpecs = (specs) => {
-    if (!specs || !specs.length) return;
+    if (!Array.isArray(specs) || !specs.length) return;
     const stripInner = document.querySelector('.stats-strip-inner');
     if (!stripInner) return;
 
-    stripInner.innerHTML = specs.map(s => `
-      <div class="stat-block">
-        <div class="stat-key">${escapeHtml(s.key)}</div>
-        <div class="stat-num">
-          <span class="counter" data-target="${escapeHtml(s.value)}" ${s.decimalPlaces ? `data-decimal="${s.decimalPlaces}"` : ''}>0</span>
-          <span class="unit">${escapeHtml(s.unit || '')}</span>
+    const visibleSpecs = specs.filter(s => isPreview || s.visible !== false);
+    if (!visibleSpecs.length) return;
+
+    stripInner.innerHTML = visibleSpecs.map(s => {
+      const label = s.label || s.key || '';
+      const val = s.value !== undefined ? String(s.value) : '0';
+      const unit = s.unit || '';
+      const sub = s.description || s.subtitle || '';
+      const isDec = s.decimalPlaces || (val.includes('.') ? 1 : 0);
+
+      return `
+        <div class="stat-block">
+          <div class="stat-key">${escapeHtml(label)}</div>
+          <div class="stat-num">
+            <span class="counter" data-target="${escapeHtml(val)}" ${isDec ? `data-decimal="${isDec}"` : ''}>${escapeHtml(val)}</span>
+            <span class="unit">${escapeHtml(unit)}</span>
+          </div>
+          ${sub ? `<div class="stat-sub">${escapeHtml(sub)}</div>` : ''}
         </div>
-        <div class="stat-sub">${escapeHtml(s.subtitle || '')}</div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     initCounterAnimation();
   };
@@ -214,14 +252,14 @@
     if (sub && eng.description) sub.textContent = eng.description;
 
     // Categories / Tabs
-    const categories = eng.categories || [];
+    const categories = (eng.categories || []).filter(c => isPreview || c.visible !== false);
     if (!categories.length) return;
 
     const tabsWrap = sec.querySelector('.sys-tabs');
     if (tabsWrap) {
       tabsWrap.innerHTML = categories.map((cat, idx) => `
         <button class="sys-tab ${idx === 0 ? 'active' : ''}" data-tab="${escapeHtml(cat.id)}">
-          <i class="${escapeHtml(cat.icon || 'fas fa-cube')}"></i> ${escapeHtml(cat.title)}
+          <i class="${escapeHtml(cat.icon || 'fas fa-cube')}"></i> ${escapeHtml(cat.name || cat.title || '')}
         </button>
       `).join('');
     }
@@ -242,14 +280,14 @@
         panel.innerHTML = cards.map(c => `
           <div class="sys-card ${c.isFullWidth ? 'full' : ''}">
             <div class="sys-card-icon"><i class="${escapeHtml(c.icon || 'fas fa-cube')}"></i></div>
-            <h3>${escapeHtml(c.title)}</h3>
-            <p>${escapeHtml(c.description || '')}</p>
+            <h3>${escapeHtml(c.title || '')}</h3>
+            ${c.description ? `<p>${escapeHtml(c.description)}</p>` : ''}
             ${c.specs && c.specs.length > 0 ? `
               <ul class="spec-list">
                 ${c.specs.map(row => `
                   <li>
-                    <span class="k">${escapeHtml(row.key)}</span>
-                    <span class="v">${escapeHtml(row.value)}</span>
+                    <span class="k">${escapeHtml(row.label || row.key || '')}</span>
+                    <span class="v">${escapeHtml(row.value || '')}</span>
                   </li>
                 `).join('')}
               </ul>
@@ -289,18 +327,18 @@
     const sub = sec.querySelector('.section-subtitle');
     if (sub && build.description) sub.textContent = build.description;
 
-    const phases = build.phases || [];
+    const phases = (build.phases || []).filter(p => isPreview || p.visible !== false);
     if (!phases.length) return;
 
     const timeline = sec.querySelector('.build-timeline');
     if (timeline) {
       timeline.innerHTML = phases.map(ph => `
         <div class="build-step ${ph.isDone ? 'done' : ''}">
-          <div class="build-step-num">${escapeHtml(ph.phaseNumber)}</div>
+          <div class="build-step-num">${escapeHtml(ph.phaseNumber || '')}</div>
           <div class="build-step-icon"><i class="${escapeHtml(ph.icon || 'fas fa-pencil-ruler')}"></i></div>
-          <h4>${escapeHtml(ph.title)}</h4>
+          <h4>${escapeHtml(ph.title || '')}</h4>
           <p>${escapeHtml(ph.description || '')}</p>
-          <div class="build-step-tag">${escapeHtml(ph.dateTag || '')}</div>
+          ${ph.dateTag ? `<div class="build-step-tag">${escapeHtml(ph.dateTag)}</div>` : ''}
         </div>
       `).join('');
     }
@@ -322,46 +360,17 @@
     const sub = sec.querySelector('.section-subtitle');
     if (sub && visual.description) sub.textContent = visual.description;
 
-    const cards = visual.cards || [];
+    const cards = (visual.cards || []).filter(c => isPreview || c.visible !== false);
     if (!cards.length) return;
 
     const masonry = sec.querySelector('.gallery-masonry');
     if (masonry) {
-      masonry.innerHTML = cards.map((c, idx) => `
-        <div class="g-item" style="${c.imageUrl ? `background-image:url('${escapeHtml(c.imageUrl)}'); background-size:cover; background-position:center;` : ''}">
-          <div class="g-label">${escapeHtml(c.title)}</div>
+      masonry.innerHTML = cards.map((c) => `
+        <div class="g-item ${c.isFeatured ? 'featured' : ''}" style="${c.imageUrl ? `background-image:url('${escapeHtml(c.imageUrl)}'); background-size:cover; background-position:center;` : ''}">
+          <div class="g-label">${escapeHtml(c.title || '')}</div>
           <div class="g-overlay"><i class="fas fa-expand"></i></div>
         </div>
       `).join('');
-    }
-  };
-
-  const hydrateOpenPositions = (openPos) => {
-    if (!openPos) return;
-    const sec = document.querySelector('.cta-section');
-    if (!sec) return;
-
-    const eyebrow = sec.querySelector('.eyebrow');
-    if (eyebrow && openPos.eyebrow) eyebrow.textContent = openPos.eyebrow;
-
-    const title = sec.querySelector('.section-title');
-    if (title && openPos.heading) {
-      title.innerHTML = formatHeadingWithHighlight(openPos.heading, openPos.headingHighlight);
-    }
-
-    const sub = sec.querySelector('.section-subtitle');
-    if (sub && openPos.description) sub.textContent = openPos.description;
-
-    const btnWrap = sec.querySelector('div[style*="inline-flex"]');
-    if (btnWrap) {
-      let html = '';
-      if (openPos.primaryCta && openPos.primaryCta.enabled && openPos.primaryCta.text) {
-        html += `<a href="${escapeHtml(openPos.primaryCta.link || '#')}" class="btn btn-primary"><i class="fas fa-user-plus"></i> ${escapeHtml(openPos.primaryCta.text)}</a>`;
-      }
-      if (openPos.secondaryCta && openPos.secondaryCta.enabled && openPos.secondaryCta.text) {
-        html += `<a href="${escapeHtml(openPos.secondaryCta.link || '#')}" class="btn btn-outline"><i class="fas fa-envelope"></i> ${escapeHtml(openPos.secondaryCta.text)}</a>`;
-      }
-      if (html) btnWrap.innerHTML = html;
     }
   };
 
@@ -386,9 +395,6 @@
     // 05. Visual Breakdown
     hydrateVisualBreakdown(data.visualBreakdownSection);
 
-    // 06. Open Positions
-    hydrateOpenPositions(data.openPositionsSection);
-
     // Remove pending states
     document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
       el.setAttribute('data-cms-pending', 'false');
@@ -398,31 +404,21 @@
   const hydrateCarPage = async () => {
     showPreviewBanner();
 
-    // 0. Session cache fast-path (instant 0ms paint)
-    try {
-      const cached = sessionStorage.getItem('ar_car_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object') {
-          applyCarData(parsed);
-        }
-      }
-    } catch (e) {}
-
+    // Directly fetch live CMS data from authoritative API (no localStorage / sessionStorage cache)
     try {
       const res = await fetch(CAR_API, { credentials: 'include', cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
       if (json && json.success && json.data) {
         const data = json.data;
         applyCarData(data);
-        if (!window.location.search.includes('preview=true')) {
-          try { sessionStorage.setItem('ar_car_cache', JSON.stringify(data)); } catch (e) {}
-        }
         console.log(`[Ashwa Car CMS] Page hydrated successfully (v${data.version || 1}).`);
+      } else {
+        throw new Error(json?.message || 'Invalid CMS response payload');
       }
     } catch (err) {
-      console.warn('[Ashwa Car CMS] Hydration notice:', err.message);
+      showControlledError(err.message);
     }
   };
 

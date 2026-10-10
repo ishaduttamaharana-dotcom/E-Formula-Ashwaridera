@@ -32,7 +32,6 @@
       groupTitle: 'Inbox',
       items: [
         { label: 'Contact Messages', url: '/admin/messages', icon: 'fas fa-envelope', badgeKey: 'newContactMessages' },
-        { label: 'Join Applications', url: '/admin/join-applications', icon: 'fas fa-user-plus', badgeKey: 'pendingJoinApplications' },
         { label: 'Sponsor Requests', url: '/admin/sponsor-requests', icon: 'fas fa-handshake', badgeKey: 'pendingSponsorRequests' },
       ],
     },

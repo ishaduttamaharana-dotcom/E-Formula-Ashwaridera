@@ -211,25 +211,73 @@ const getPublicContactContent = async (req, res) => {
       .filter((opt) => isPreview || opt.enabled !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+    // Fetch ContactInfo singleton to bridge socialLinks and fallback sync
+    const contactInfoDoc = await ContactInfo.findOne().lean().catch(() => null);
+
+    const socialLinks = {
+      instagram: contactInfoDoc?.instagram || 'https://www.instagram.com/eformula_ashwariders/',
+      linkedin: contactInfoDoc?.linkedin || 'https://www.linkedin.com/company/e-formula-ashwa-riders',
+      youtube: contactInfoDoc?.youtube || '#',
+      twitter: contactInfoDoc?.twitter || '#',
+      whatsapp: contactInfoDoc?.whatsapp ? `https://wa.me/${contactInfoDoc.whatsapp.replace(/\D/g, '')}` : 'https://wa.me/919096110224',
+      facebook: contactInfoDoc?.facebook || '#',
+      website: contactInfoDoc?.website || 'https://ashwariders.com',
+      github: '#',
+    };
+
+    const heroTitle = content.heroSection?.heading || content.heroSection?.title || 'TALK TO ASHWA RIDERS';
+    const heroHighlight = content.heroSection?.headingHighlight || content.heroSection?.titleHighlight || 'ASHWA RIDERS';
+    const heroBg = content.heroSection?.bgImageUrl || content.heroSection?.backgroundImage || '';
+    const heroOverlay = content.heroSection?.overlayStrength !== undefined ? content.heroSection?.overlayStrength : (content.heroSection?.overlayIntensity !== undefined ? content.heroSection?.overlayIntensity : 0.72);
+
+    const channelsTitle = content.channelsSection?.heading || content.channelsSection?.title || 'PICK A FREQUENCY';
+    const channelsHighlight = content.channelsSection?.headingHighlight || content.channelsSection?.titleHighlight || 'FREQUENCY';
+
+    const findUsTitle = content.findUsSection?.heading || content.findUsSection?.title || 'THE PIT LANE';
+    const findUsHighlight = content.findUsSection?.headingHighlight || content.findUsSection?.titleHighlight || 'PIT LANE';
+
     return sendSuccess(res, 200, 'Contact page content retrieved.', {
       isPreview,
       status: doc.status,
       version: doc.version,
       lastPublishedAt: doc.lastPublishedAt,
       settings: content.settings,
+      socialLinks,
       heroSection: {
         ...content.heroSection,
+        title: heroTitle,
+        heading: heroTitle,
+        titleHighlight: heroHighlight,
+        headingHighlight: heroHighlight,
+        backgroundImage: heroBg,
+        bgImageUrl: heroBg,
+        overlayIntensity: heroOverlay,
+        overlayStrength: heroOverlay,
         stats: visibleStats,
       },
       channelsSection: {
         ...content.channelsSection,
+        title: channelsTitle,
+        heading: channelsTitle,
+        titleHighlight: channelsHighlight,
+        headingHighlight: channelsHighlight,
         channels: visibleChannels,
+        socialLinks,
         formSettings: {
           ...content.channelsSection?.formSettings,
+          title: content.channelsSection?.formSettings?.title || content.channelsSection?.formSettings?.formTitle || 'TRANSMIT MESSAGE',
+          formTitle: content.channelsSection?.formSettings?.formTitle || content.channelsSection?.formSettings?.title || 'TRANSMIT MESSAGE',
           channelOptions: visibleChannelOptions,
+          subjectOptions: visibleChannelOptions,
         },
       },
-      findUsSection: content.findUsSection,
+      findUsSection: {
+        ...content.findUsSection,
+        title: findUsTitle,
+        heading: findUsTitle,
+        titleHighlight: findUsHighlight,
+        headingHighlight: findUsHighlight,
+      },
     });
   } catch (err) {
     console.error('Error in getPublicContactContent:', err);

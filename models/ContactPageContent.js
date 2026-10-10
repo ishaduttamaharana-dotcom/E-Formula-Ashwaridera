@@ -46,7 +46,7 @@ const contactPageContentSchema = new mongoose.Schema(
       },
       seoDescription: {
         type: String,
-        default: 'Get in touch with Ashwa Riders Formula Student Electric team. Channels for sponsorship, recruitment, media, and workshop visits.',
+        default: 'Get in touch with Ashwa Riders Formula Student Electric team. Channels for sponsorship, media, and workshop visits.',
         trim: true,
       },
       ogImageUrl: {
@@ -97,7 +97,7 @@ const contactPageContentSchema = new mongoose.Schema(
       },
       description: {
         type: String,
-        default: 'Sponsorship, recruitment, media, or just a question about the car — pick a channel below or send a transmission straight to the pit box.',
+        default: 'Sponsorship, media, or just a question about the car — pick a channel below or send a transmission straight to the pit box.',
         trim: true,
       },
       stats: [

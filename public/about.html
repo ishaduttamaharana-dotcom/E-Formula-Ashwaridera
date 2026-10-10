@@ -150,7 +150,7 @@
       overflow: hidden;
       padding-top: 120px;
       border-bottom: 1px solid var(--hairline);
-      background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784484192/car-hero-DAWajS8q_dt2ddg.png');
+      background-color: var(--carbon);
       background-size: cover;
       background-position: center 45%;
       background-repeat: no-repeat;
@@ -160,7 +160,7 @@
       position: absolute;
       inset: 0;
       z-index: 0;
-      background: rgba(0, 0, 0, 0.72);
+      background: rgba(0, 0, 0, var(--hero-overlay-opacity, 0.72));
       pointer-events: none;
     }
     .about-hero::after {
@@ -422,6 +422,15 @@
       animation: cmsShimmer 1.5s infinite;
       border-radius: 4px;
     }
+    [data-cms-pending="true"] .btn:empty {
+      min-width: 160px;
+      min-height: 48px;
+      display: inline-block;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: cmsShimmer 1.5s infinite;
+      border-radius: 2px;
+    }
     @keyframes cmsShimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
@@ -450,7 +459,6 @@
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-        <li id="arNavItem"></li>
       </ul>
       <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
         <i class="fas fa-bars"></i>
@@ -703,8 +711,7 @@
       <h2 style="font-size: clamp(2rem, 4vw, 3.2rem); text-transform:uppercase; margin: 6px 0 16px; color:#fff;"></h2>
       <p style="color: rgba(255,255,255,0.55); font-weight: 300; max-width: 500px; margin: 0 auto 34px;"></p>
       <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-        <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Become a Team Member</a>
-        <a href="sponsors.html" class="btn btn-secondary"><i class="fas fa-handshake"></i> Become a Sponsor</a>
+        <a href="sponsors.html" class="btn btn-secondary" id="aboutCtaSecondary"></a>
       </div>
     </div>
   </section>
@@ -728,7 +735,6 @@
           <h4>Team</h4>
           <ul>
             <li><a href="team.html">Members</a></li>
-            <li><a href="index.html#recruitment">Join Us</a></li>
             <li><a href="car.html">Our Car</a></li>
             <li><a href="achievements.html">Achievements</a></li>
           </ul>
@@ -815,7 +821,6 @@
     });
   </script>
 
-  <script src="/auth.js"></script>
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/about-cms.js"></script>

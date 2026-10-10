@@ -178,9 +178,20 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // SSR SEO Meta Injector Middleware for public HTML requests
 app.use(seoMiddleware);
 
-// Serve public assets (both root and /public prefix)
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+// Serve public assets with no-cache headers to guarantee browsers execute latest scripts
+const staticOptions = {
+  maxAge: 0,
+  etag: false,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.css')) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+    }
+  },
+};
+app.use(express.static(path.join(__dirname, 'public'), staticOptions));
+app.use('/public', express.static(path.join(__dirname, 'public'), staticOptions));
 
 // Dynamic API No-Cache Middleware (ensures fresh load receives published content)
 app.use('/api', (req, res, next) => {
@@ -221,7 +232,6 @@ app.get(['/achievements', '/achievements.html', '/Achievements.html', '/public/a
 app.get(['/gallery', '/gallery.html', '/Gallery.html', '/public/gallery.html', '/public/Gallery.html'], servePublicHtml('gallery.html'));
 app.get(['/sponsors', '/sponsors.html', '/Sponsors.html', '/public/sponsors.html', '/public/Sponsors.html'], servePublicHtml('sponsors.html'));
 app.get(['/contact', '/contact.html', '/Contact.html', '/public/contact.html', '/public/Contact.html'], servePublicHtml('contact.html'));
-app.get(['/my-applications', '/my-applications.html', '/public/my-applications.html'], servePublicHtml('my-applications.html'));
 
 // ============================================================
 //  ERROR HANDLING  —  must be LAST

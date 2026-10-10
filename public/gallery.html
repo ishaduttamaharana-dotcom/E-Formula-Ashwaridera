@@ -433,7 +433,6 @@
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-        <li id="arNavItem"></li>
       </ul>
       <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
         <i class="fas fa-bars"></i>
@@ -482,9 +481,9 @@
     <div class="hero-glow g2"></div>
     <div class="container hero-content">
       <div class="reveal">
-        <div class="hero-badge"><span class="dot"></span> Gallery</div>
-        <h1>Moments in <span class="text-gradient">Motion</span></h1>
-        <p>A visual journey through our competitions, events, and the everyday life of the Ashwa Riders team.</p>
+        <div class="hero-badge"><span class="dot"></span> <span class="hero-badge-text"></span></div>
+        <h1><span class="hero-heading-l1"></span> <span class="text-gradient hero-heading-hl"></span></h1>
+        <p class="hero-desc"></p>
       </div>
     </div>
   </section>
@@ -494,11 +493,7 @@
   <!-- ════════════════════════════════════════════════════ -->
   <section class="section-padding" style="background: var(--paper);">
     <div class="container">
-      <div class="filter-bar" id="filterBar">
-        <button class="filter-btn active" data-filter="all">All <span class="count">(11)</span></button>
-        <button class="filter-btn" data-filter="image">Images <span class="count">(10)</span></button>
-        <button class="filter-btn" data-filter="video">Videos <span class="count">(1)</span></button>
-      </div>
+      <div class="filter-bar" id="filterBar"></div>
 
       <div class="gallery-grid" id="galleryGrid">
         <div class="gallery-skeleton-item"><div class="gallery-skeleton-shimmer"></div></div>
@@ -534,16 +529,7 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════ -->
-  <!--  CTA - JOIN US                                   -->
-  <!-- ════════════════════════════════════════════════════ -->
-  <section class="section-padding text-center cta-section" style="background: var(--void); text-align: center; color: #fff; padding: 90px 0; position: relative; overflow: hidden;">
-    <div class="container reveal" style="position: relative; z-index: 1;">
-      <h2 class="section-title section-title-light" style="margin: 0 auto 16px;">Be Part of the <span class="text-gradient">Story</span></h2>
-      <p class="section-subtitle section-subtitle-light" style="margin: 0 auto 30px;">Join our team and create your own moments of engineering excellence.</p>
-      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join the Team</a>
-    </div>
-  </section>
+
 
   <!-- ════════════════════════════════════════════════════ -->
   <!--  FOOTER                                          -->
@@ -566,7 +552,7 @@
           <h4>Team</h4>
           <ul>
             <li><a href="team.html">Members</a></li>
-            <li><a href="index.html#recruitment">Join Us</a></li>
+
             <li><a href="car.html">Our Car</a></li>
             <li><a href="achievements.html">Achievements</a></li>
           </ul>
@@ -661,151 +647,13 @@
       checkReveals();
     })();
 
-    // ─── Gallery Data ──────────────────────────────────
-    const galleryItems = document.querySelectorAll('.gallery-item');
-
-    // ─── Filter Logic ──────────────────────────────────
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const emptyState = document.getElementById('emptyState');
-
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const filter = btn.dataset.filter;
-        let visibleCount = 0;
-
-        galleryItems.forEach(item => {
-          const type = item.dataset.type;
-          const category = item.dataset.category;
-          const matches = filter === 'all' || type === filter || category === filter;
-
-          if (matches) {
-            item.style.display = 'block';
-            item.classList.remove('visible');
-            setTimeout(() => {
-              if (item.getBoundingClientRect().top < window.innerHeight * 0.88) {
-                item.classList.add('visible');
-              }
-            }, 50);
-            visibleCount++;
-          } else {
-            item.style.display = 'none';
-          }
-        });
-
-        emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
-
-        filterButtons.forEach(b => {
-          const f = b.dataset.filter;
-          let count = 0;
-          galleryItems.forEach(item => {
-            const t = item.dataset.type;
-            const c = item.dataset.category;
-            if (f === 'all' || t === f || c === f) count++;
-          });
-          const span = b.querySelector('.count');
-          if (span) span.textContent = `(${count})`;
-        });
-      });
-    });
-
-    // ─── Lightbox ──────────────────────────────────────
-    const lightbox = document.getElementById('lightbox');
-    const lightboxMedia = document.getElementById('lightboxMedia');
-    const lightboxTitle = document.getElementById('lightboxTitle');
-    const lightboxDesc = document.getElementById('lightboxDesc');
-    const closeLightbox = document.getElementById('closeLightbox');
-    const prevLightbox = document.getElementById('prevLightbox');
-    const nextLightbox = document.getElementById('nextLightbox');
-
-    let currentLightboxIndex = 0;
-    let filteredItems = [];
-
-    function getVisibleItems() {
-      const items = [];
-      galleryItems.forEach(item => { if (item.style.display !== 'none') items.push(item); });
-      return items;
-    }
-
-    function openLightbox(index) {
-      const visible = getVisibleItems();
-      if (visible.length === 0) return;
-      filteredItems = visible;
-      currentLightboxIndex = Math.min(index, visible.length - 1);
-      updateLightboxContent(currentLightboxIndex);
-      lightbox.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function updateLightboxContent(index) {
-      const item = filteredItems[index];
-      if (!item) return;
-      const img = item.querySelector('img');
-      const title = item.querySelector('.gallery-info h4')?.textContent || 'Gallery Item';
-      const desc = item.querySelector('.gallery-info p')?.textContent || 'Category • Description';
-      const type = item.dataset.type;
-
-      let contentHTML = '';
-      if (type === 'video') {
-        contentHTML = `
-          <div style="position:relative; width:100%; max-width:800px; aspect-ratio:16/9; background:#0a0a0a; display:flex; align-items:center; justify-content:center;">
-            <i class="fas fa-play-circle" style="font-size:4rem; color:rgba(227,183,63,0.7);"></i>
-            <span style="position:absolute; bottom:20px; right:20px; font-family:'JetBrains Mono'; color:rgba(255,255,255,0.2); font-size:0.75rem;">Video</span>
-          </div>
-        `;
-      } else {
-        contentHTML = `<img src="${img ? img.src : ''}" alt="${title}" style="max-width:100%; max-height:80vh; object-fit:contain; display:block;">`;
-      }
-      lightboxMedia.innerHTML = contentHTML;
-      lightboxTitle.textContent = title;
-      lightboxDesc.textContent = desc;
-
-      prevLightbox.style.display = filteredItems.length > 1 ? 'flex' : 'none';
-      nextLightbox.style.display = filteredItems.length > 1 ? 'flex' : 'none';
-    }
-
-    function closeLightboxFn() {
-      lightbox.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function navigateLightbox(direction) {
-      const newIndex = currentLightboxIndex + direction;
-      if (newIndex < 0 || newIndex >= filteredItems.length) return;
-      currentLightboxIndex = newIndex;
-      updateLightboxContent(currentLightboxIndex);
-    }
-
-    galleryItems.forEach((item) => {
-      item.addEventListener('click', () => {
-        const visible = getVisibleItems();
-        const idx = visible.indexOf(item);
-        if (idx !== -1) openLightbox(idx);
-      });
-    });
-
-    closeLightbox.addEventListener('click', closeLightboxFn);
-    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightboxFn(); });
-    document.addEventListener('keydown', (e) => {
-      if (!lightbox.classList.contains('open')) return;
-      if (e.key === 'Escape') closeLightboxFn();
-      if (e.key === 'ArrowLeft') navigateLightbox(-1);
-      if (e.key === 'ArrowRight') navigateLightbox(1);
-    });
-    prevLightbox.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(-1); });
-    nextLightbox.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(1); });
-
     // ─── Welcome toast ──────────────────────────────────
     setTimeout(() => { showToast('Explore our moments in motion', 'fa-images'); }, 1000);
   </script>
 
-  <script src="/auth.js"></script>
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/gallery-cms.js"></script>
-  <script src="/join-cms.js"></script>
   <script src="/sponsor-cms.js"></script>
 </body>
 </html>

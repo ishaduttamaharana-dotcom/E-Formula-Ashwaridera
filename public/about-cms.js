@@ -12,12 +12,33 @@
   const ABOUT_API = '/api/v1/about';
 
   const apiFetch = async (url) => {
-    const res = await fetch(url, {
-      credentials: 'include',
-      cache: 'no-store',
-      headers: { 'Accept': 'application/json' }
-    });
-    return res.json();
+    try {
+      const res = await fetch(url, {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error ${res.status}`);
+      }
+      return await res.json();
+    } catch (err) {
+      console.error('[ABOUT CMS] API fetch failed:', err);
+      return null;
+    }
+  };
+
+  const showControlledError = (msg) => {
+    const heroContent = document.querySelector('#section-hero .hero-content .reveal');
+    if (heroContent) {
+      heroContent.innerHTML = `
+        <div style="padding: 24px; border: 1px solid rgba(255,90,0,0.3); background: rgba(20,20,25,0.85); border-radius: 4px; max-width: 620px; margin: 30px 0;">
+          <p style="color: var(--signal-bright); font-family: var(--font-mono); font-size: 0.9rem; margin: 0 0 10px;">// CMS CONNECTION NOTICE</p>
+          <p style="color: rgba(255,255,255,0.85); margin: 0 0 16px;">${msg}</p>
+          <button class="btn btn-secondary" style="padding: 8px 18px; font-size: 0.75rem;" onclick="window.location.reload()"><i class="fas fa-rotate"></i> Reload Page</button>
+        </div>
+      `;
+    }
   };
 
   const renderTitleWithHighlight = (title, highlight) => {
@@ -87,6 +108,7 @@
 
       if (!data) {
         console.warn('[ABOUT CMS] No published About data returned from API.');
+        showControlledError('Unable to load authoritative About content from backend.');
         markPendingDone();
         return;
       }
@@ -94,6 +116,7 @@
       renderAbout(data);
     } catch (err) {
       console.error('[ABOUT CMS] Hydration failed:', err.message);
+      showControlledError('Failed to initialize About content from backend.');
       markPendingDone();
     }
   };
@@ -131,7 +154,7 @@
           const desc = heroSec.querySelector('p');
 
           if (eyebrow) {
-            eyebrow.innerHTML = `<i class="fas fa-flag-checkered"></i> ${data.hero.eyebrow || 'About Ashwa Riders'}`;
+            eyebrow.innerHTML = `<i class="fas fa-flag-checkered"></i> ${data.hero.eyebrow || ''}`;
           }
           if (title) {
             const rawTitle = data.hero.title || data.hero.heading || '';
@@ -144,6 +167,14 @@
           if (desc) {
             desc.textContent = data.hero.description || '';
             desc.style.display = data.hero.description ? '' : 'none';
+          }
+
+          if (typeof data.hero.overlayOpacity === 'number') {
+            heroSec.style.setProperty('--hero-overlay-opacity', data.hero.overlayOpacity / 100);
+          }
+          if (data.hero.textAlignment) {
+            const heroReveal = heroSec.querySelector('.hero-content .reveal');
+            if (heroReveal) heroReveal.style.textAlign = data.hero.textAlignment;
           }
 
           const bgImg = data.hero.desktopImageUrl || data.hero.media?.desktopImage || data.hero.backgroundImageUrl;
@@ -169,6 +200,11 @@
           if (img && imgSrc) {
             img.src = imgSrc;
             if (data.whoWeAre.altText) img.alt = data.whoWeAre.altText;
+          }
+
+          const splitBlock = sec.querySelector('.split-block');
+          if (splitBlock) {
+            splitBlock.classList.toggle('reverse', data.whoWeAre.imagePosition === 'right');
           }
 
           const copy = sec.querySelector('.split-copy');
@@ -236,7 +272,10 @@
             const rawBlocks = Array.isArray(data.story.blocks) ? data.story.blocks : (Array.isArray(data.story.storyBlocks) ? data.story.storyBlocks : []);
             const visibleBlocks = rawBlocks.filter(b => b.visible !== false && b.isVisible !== false);
             blocksContainer.innerHTML = visibleBlocks.map(b => `
-              <p class="section-subtitle" style="margin: 20px auto 0;">${b.content || ''}</p>
+              <div class="story-block-item" style="margin: 20px auto 0; max-width: 680px;">
+                ${b.year || b.title ? `<h4 style="font-size: 1.05rem; color: var(--signal); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">${b.year ? `<span style="font-family: var(--font-mono); font-weight: 700; margin-right: 8px;">${b.year}</span>` : ''}${b.title || ''}</h4>` : ''}
+                <p class="section-subtitle" style="margin: 0 auto;">${b.content || b.description || ''}</p>
+              </div>
             `).join('');
           }
         }
@@ -675,21 +714,21 @@
           }
 
           const btnP = ctaSec.querySelector('.btn-primary');
-          const pText = data.cta.primaryBtnText || data.cta.primaryCta?.text;
-          const pUrl = data.cta.primaryBtnUrl || data.cta.primaryCta?.url;
           if (btnP) {
-            if (pText) btnP.innerHTML = `<i class="fas fa-user-plus"></i> ${pText}`;
-            if (pUrl) btnP.href = pUrl;
-            btnP.style.display = data.cta.primaryBtnVisible !== false ? '' : 'none';
+            btnP.style.display = 'none';
           }
 
           const btnS = ctaSec.querySelector('.btn-secondary');
-          const sText = data.cta.secondaryBtnText || data.cta.secondaryCta?.text;
+          const sText = data.cta.secondaryBtnText || data.cta.secondaryCta?.text || '';
           const sUrl = data.cta.secondaryBtnUrl || data.cta.secondaryCta?.url;
           if (btnS) {
-            if (sText) btnS.innerHTML = `<i class="fas fa-handshake"></i> ${sText}`;
-            if (sUrl) btnS.href = sUrl;
-            btnS.style.display = data.cta.secondaryBtnVisible !== false ? '' : 'none';
+            if (sText) {
+              btnS.innerHTML = `<i class="fas fa-handshake"></i> ${sText}`;
+              if (sUrl) btnS.href = sUrl;
+              btnS.style.display = data.cta.secondaryBtnVisible !== false ? '' : 'none';
+            } else {
+              btnS.style.display = 'none';
+            }
           }
         }
       }

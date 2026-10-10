@@ -721,10 +721,13 @@
           order: l.order || i + 1,
         }));
 
-    const headerCta = nav.headerCta || {
-      label: nav.navbarCta?.label || nav.ctaLabel || 'Join Team',
-      url: nav.navbarCta?.targetUrl || nav.ctaUrl || 'index.html#recruitment',
-      visible: nav.navbarCta?.visible !== false,
+    const rawCtaLabel = nav.headerCta?.label || nav.navbarCta?.label || nav.ctaLabel || '';
+    const rawCtaUrl = nav.headerCta?.url || nav.navbarCta?.targetUrl || nav.ctaUrl || '';
+    const isJoinOrAuthCta = /join|recruitment|login|sign/i.test(rawCtaLabel + ' ' + rawCtaUrl);
+    const headerCta = {
+      label: isJoinOrAuthCta ? '' : rawCtaLabel,
+      url: isJoinOrAuthCta ? '' : rawCtaUrl,
+      visible: isJoinOrAuthCta ? false : (nav.headerCta?.visible !== false && !!rawCtaLabel),
     };
 
     const footerBrand = nav.footerBrand || {
@@ -810,7 +813,7 @@
     // Desktop Navbar
     const navLinksUl = document.querySelector('.nav-links, #navLinks');
     if (navLinksUl && navItems && navItems.length > 0) {
-      const visibleNavItems = navItems.filter((item) => item.visible !== false);
+      const visibleNavItems = navItems.filter((item) => item.visible !== false && !/join|recruitment|login|sign/i.test((item.label || '') + ' ' + (item.url || '')));
 
       let linksMarkup = visibleNavItems
         .map((item) => {
@@ -825,22 +828,14 @@
         linksMarkup += `<li><a href="${headerCta.url || '#'}" class="nav-cta">${headerCta.label}</a></li>`;
       }
 
-      // Authoritative Login button placeholder (populated by auth.js)
-      linksMarkup += `<li id="arNavItem"></li>`;
-
       navLinksUl.innerHTML = linksMarkup;
       navLinksUl.removeAttribute('data-cms-nav');
-
-      // Coordinate with auth system immediately so login / profile button renders without flicker
-      if (window.AshwaAuth && typeof window.AshwaAuth.updateNavButton === 'function') {
-        window.AshwaAuth.updateNavButton();
-      }
     }
 
     // Mobile Navigation Drawer Links
     const mobileNav = document.querySelector('.mobile-nav-links');
     if (mobileNav && navItems && navItems.length > 0) {
-      const visibleNavItems = navItems.filter((item) => item.visible !== false);
+      const visibleNavItems = navItems.filter((item) => item.visible !== false && !/join|recruitment|login|sign/i.test((item.label || '') + ' ' + (item.url || '')));
 
       mobileNav.innerHTML = visibleNavItems
         .map((item) => {
@@ -926,7 +921,7 @@
         const visibleGroups = linkGroups.filter((g) => g.visible !== false);
         visibleGroups.forEach((grp) => {
           const colDiv = document.createElement('div');
-          const colLinks = (grp.links || []).filter((l) => l.visible !== false);
+          const colLinks = (grp.links || []).filter((l) => l.visible !== false && !/join|recruitment|login|sign/i.test((l.label || '') + ' ' + (l.url || '')));
           colDiv.innerHTML = `
             <h4>${grp.title}</h4>
             <ul>

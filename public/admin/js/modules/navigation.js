@@ -168,14 +168,14 @@
               <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted, #8E929E); margin-bottom:6px;">
                 CTA Target URL
               </label>
-              <input type="text" class="cms-input" id="inpCtaUrl" placeholder="index.html#recruitment"
+              <input type="text" class="cms-input" id="inpCtaUrl" placeholder="sponsors.html"
                 style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" />
             </div>
 
             <div style="background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:12px; text-align:center;">
               <span style="font-size:0.68rem; color:var(--text-muted, #8E929E); display:block; margin-bottom:6px; text-transform:uppercase; font-weight:700;">Live Button</span>
               <span id="previewCtaBadge" style="display:inline-block; background:var(--accent-orange, #F25912); color:#fff; font-size:0.8rem; font-weight:700; padding:6px 14px; border-radius:4px;">
-                Join Team
+                Header CTA
               </span>
             </div>
           </div>
@@ -585,9 +585,9 @@
               order: l.order || idx + 1,
             })),
         headerCta: {
-          label: draft.headerCta?.label || draft.ctaLabel || 'Join Team',
-          url: draft.headerCta?.url || draft.ctaUrl || 'index.html#recruitment',
-          visible: draft.headerCta?.visible !== false,
+          label: draft.headerCta?.label || draft.ctaLabel || '',
+          url: draft.headerCta?.url || draft.ctaUrl || '',
+          visible: draft.headerCta?.visible === true && !/join|recruitment|login/i.test(draft.headerCta?.label || ''),
         },
         footerBrand: {
           brandTitle: draft.footerBrand?.brandTitle || draft.brandTitle || 'Ashwa Riders',
@@ -614,9 +614,8 @@
                 order: 1,
                 links: [
                   { id: 'g1-1', label: 'Members', url: 'team.html', visible: true, order: 1 },
-                  { id: 'g1-2', label: 'Join Us', url: 'index.html#recruitment', visible: true, order: 2 },
-                  { id: 'g1-3', label: 'Our Car', url: 'car.html', visible: true, order: 3 },
-                  { id: 'g1-4', label: 'Achievements', url: 'achievements.html', visible: true, order: 4 },
+                  { id: 'g1-2', label: 'Our Car', url: 'car.html', visible: true, order: 2 },
+                  { id: 'g1-3', label: 'Achievements', url: 'achievements.html', visible: true, order: 3 },
                 ],
               },
               {

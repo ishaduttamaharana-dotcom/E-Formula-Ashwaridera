@@ -16,46 +16,6 @@ const passwordStrength = (field = 'password') =>
     .matches(/\d/).withMessage('Password must contain at least one number.')
     .matches(/[@$!%*?&^#\-_+=]/).withMessage('Password must contain at least one special character (@$!%*?&^#-_+=).');
 
-// ─── Register ────────────────────────────────────────────────
-const validateRegister = [
-  body('fullName')
-    .trim()
-    .notEmpty().withMessage('Full name is required.')
-    .isLength({ min: 2, max: 100 }).withMessage('Full name must be 2–100 characters.'),
-
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required.')
-    .isEmail().withMessage('Please enter a valid email address.')
-    .normalizeEmail(),
-
-  body('phone')
-    .trim()
-    .notEmpty().withMessage('Phone number is required.')
-    .matches(/^[+\d\s\-().]{7,20}$/).withMessage('Please enter a valid phone number.'),
-
-  passwordStrength('password'),
-
-  body('confirmPassword')
-    .notEmpty().withMessage('Please confirm your password.')
-    .custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error('Passwords do not match.');
-      }
-      return true;
-    }),
-
-  body('college')
-    .trim()
-    .notEmpty().withMessage('College name is required.')
-    .isLength({ max: 150 }).withMessage('College name must not exceed 150 characters.'),
-
-  body('branch')
-    .trim()
-    .notEmpty().withMessage('Branch is required.')
-    .isLength({ max: 100 }).withMessage('Branch must not exceed 100 characters.'),
-];
-
 // ─── Login ───────────────────────────────────────────────────
 const validateLogin = [
   body('email')
@@ -140,7 +100,6 @@ const handleValidation = (req, res, next) => {
 };
 
 module.exports = {
-  validateRegister,
   validateLogin,
   validateChangePassword,
   validateUpdateProfile,

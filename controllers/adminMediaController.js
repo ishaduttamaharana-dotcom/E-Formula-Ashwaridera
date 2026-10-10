@@ -5,6 +5,9 @@
 //  CMS cross-referencing, safe deletion, and health audits.
 // ============================================================
 
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const MediaAsset = require('../models/MediaAsset');
 const HomePageContent = require('../models/HomePageContent');
 const NavFooterSettings = require('../models/NavFooterSettings');
@@ -313,6 +316,7 @@ const uploadMediaAsset = async (req, res, next) => {
 
     const mimetype = req.file.mimetype || '';
     const originalname = req.file.originalname || 'file';
+    const fileSize = req.file.size || 0;
     let resourceType = 'image';
     let folder = req.body.folder || 'ashwa_cms/images';
 
@@ -329,27 +333,69 @@ const uploadMediaAsset = async (req, res, next) => {
       folder = req.body.folder || 'ashwa_cms/documents';
     }
 
-    let uploadResult;
-    try {
-      if (resourceType === 'video') {
-        uploadResult = await uploadVideoToCloudinary(req.file.buffer, folder);
-      } else if (resourceType === 'raw') {
-        uploadResult = await uploadRawToCloudinary(req.file.buffer, folder);
-      } else {
-        uploadResult = await uploadBufferToCloudinary(req.file.buffer, folder);
+    // Cloudinary Free tier safety limits
+    const CLOUD_MAX_IMAGE = 10 * 1024 * 1024; // 10 MB
+    const CLOUD_MAX_VIDEO = 95 * 1024 * 1024; // 95 MB safe margin
+    const CLOUD_MAX_RAW   = 10 * 1024 * 1024; // 10 MB
+
+    const canFitCloudinary =
+      (resourceType === 'image' && fileSize <= CLOUD_MAX_IMAGE) ||
+      (resourceType === 'video' && fileSize <= CLOUD_MAX_VIDEO) ||
+      (resourceType === 'raw' && fileSize <= CLOUD_MAX_RAW);
+
+    let uploadResult = null;
+    let isStoredLocally = false;
+
+    // Attempt Cloudinary upload if file is within Free plan size limit
+    if (canFitCloudinary) {
+      try {
+        const fileBuffer = req.file.buffer || (req.file.path && fs.existsSync(req.file.path) ? fs.readFileSync(req.file.path) : null);
+        if (fileBuffer) {
+          if (resourceType === 'video') {
+            uploadResult = await uploadVideoToCloudinary(fileBuffer, folder);
+          } else if (resourceType === 'raw') {
+            uploadResult = await uploadRawToCloudinary(fileBuffer, folder);
+          } else {
+            uploadResult = await uploadBufferToCloudinary(fileBuffer, folder);
+          }
+
+          // If successfully stored on Cloudinary, remove the local disk temporary copy
+          if (req.file.path && fs.existsSync(req.file.path)) {
+            try { fs.unlinkSync(req.file.path); } catch (e) {}
+          }
+        }
+      } catch (cloudErr) {
+        console.warn(`[UPLOAD] Cloudinary rejected file (${(fileSize / (1024*1024)).toFixed(1)}MB): ${cloudErr.message}. Storing on local server.`);
       }
-    } catch (cloudErr) {
-      console.error('Cloudinary upload failure:', cloudErr);
-      return sendError(
-        res,
-        500,
-        `Storage upload failed: ${cloudErr.message || 'Unable to store file in Cloudinary.'}`
-      );
     }
 
-    // Verify storage returned a valid URL
+    // Local Server Storage Fallback (for files >10MB/95MB up to 1000MB or Cloudinary errors)
     if (!uploadResult || (!uploadResult.url && !uploadResult.secureUrl)) {
-      return sendError(res, 502, 'Storage provider returned an invalid empty media URL.');
+      const uploadDir = path.join(__dirname, '..', 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      let localFilename = req.file.filename;
+      if (!localFilename) {
+        const ext = path.extname(originalname).toLowerCase();
+        localFilename = `${uuidv4()}${ext}`;
+        const localPath = path.join(uploadDir, localFilename);
+        if (req.file.buffer) {
+          fs.writeFileSync(localPath, req.file.buffer);
+        }
+      }
+
+      const localUrl = `/uploads/${localFilename}`;
+      uploadResult = {
+        publicId: `local_${localFilename}`,
+        url: localUrl,
+        secureUrl: localUrl,
+        bytes: fileSize,
+        format: originalname.split('.').pop().toLowerCase(),
+      };
+      isStoredLocally = true;
+      console.log(`[UPLOAD] Media saved to local server storage (${(fileSize / (1024 * 1024)).toFixed(1)} MB): ${localUrl}`);
     }
 
     const altText = req.body.altText || originalname.replace(/\.[^/.]+$/, '');
@@ -369,12 +415,12 @@ const uploadMediaAsset = async (req, res, next) => {
       resourceType,
       mediaType: resourceType === 'video' ? 'video' : resourceType === 'raw' ? 'document' : 'image',
       format: uploadResult.format || originalname.split('.').pop().toLowerCase(),
-      bytes: uploadResult.bytes || req.file.size || 0,
-      size: uploadResult.bytes || req.file.size || 0,
+      bytes: uploadResult.bytes || fileSize,
+      size: uploadResult.bytes || fileSize,
       width: uploadResult.width || 0,
       height: uploadResult.height || 0,
       duration: uploadResult.duration || 0,
-      folder,
+      folder: isStoredLocally ? 'local_uploads' : folder,
       category: req.body.category || 'general',
       altText,
       caption,
@@ -383,7 +429,7 @@ const uploadMediaAsset = async (req, res, next) => {
       uploadedBy: req.user ? req.user._id : null,
     });
 
-    return sendSuccess(res, 201, 'Media asset uploaded and verified successfully.', asset);
+    return sendSuccess(res, 201, `Media asset uploaded successfully (${isStoredLocally ? 'Local Server' : 'Cloudinary'}).`, asset);
   } catch (error) {
     next(error);
   }
@@ -403,18 +449,30 @@ const verifyMediaEndpoint = async (req, res, next) => {
     let exists = false;
     let details = {};
 
-    if (publicId) {
+    if (publicId && publicId.startsWith('local_')) {
+      const filename = publicId.replace('local_', '');
+      const localPath = path.join(__dirname, '..', 'uploads', filename);
+      exists = fs.existsSync(localPath);
+      details = { local: true, path: `/uploads/${filename}`, exists };
+    } else if (publicId) {
       const v = await verifyCloudinaryAsset(publicId, resourceType, url);
       exists = v.exists;
       details = v.details || { error: v.error };
     } else if (url) {
-      try {
-        const head = await fetch(url, { method: 'HEAD' });
-        exists = head.ok;
-        details = { status: head.status, contentType: head.headers.get('content-type') };
-      } catch (err) {
-        exists = false;
-        details = { error: err.message };
+      if (url.startsWith('/uploads/')) {
+        const filename = path.basename(url);
+        const localPath = path.join(__dirname, '..', 'uploads', filename);
+        exists = fs.existsSync(localPath);
+        details = { local: true, path: url, exists };
+      } else {
+        try {
+          const head = await fetch(url, { method: 'HEAD' });
+          exists = head.ok;
+          details = { status: head.status, contentType: head.headers.get('content-type') };
+        } catch (err) {
+          exists = false;
+          details = { error: err.message };
+        }
       }
     }
 
@@ -518,8 +576,18 @@ const deleteMediaAsset = async (req, res, next) => {
       );
     }
 
-    // Delete from Cloudinary
-    if (asset.publicId && !asset.publicId.startsWith('local_')) {
+    // Delete from Cloudinary or local disk
+    if (asset.publicId && asset.publicId.startsWith('local_')) {
+      try {
+        const localFilename = asset.publicId.replace('local_', '');
+        const localPath = path.join(__dirname, '..', 'uploads', localFilename);
+        if (fs.existsSync(localPath)) {
+          fs.unlinkSync(localPath);
+        }
+      } catch (localErr) {
+        console.warn('Local file delete warning:', localErr.message);
+      }
+    } else if (asset.publicId) {
       try {
         await deleteFromCloudinary(asset.publicId, asset.resourceType);
       } catch (cloudErr) {

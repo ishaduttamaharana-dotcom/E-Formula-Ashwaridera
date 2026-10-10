@@ -139,7 +139,7 @@
       padding-top: 150px;
       padding-bottom: 70px;
 
-      background-image: url('https://res.cloudinary.com/frjck4sc/image/upload/v1784487335/55070254200_f49bbe3c74_o_cijzbq.jpg');
+      background-color: var(--carbon);
       background-size: cover;
       background-position: center 30%;
       background-repeat: no-repeat;
@@ -150,7 +150,7 @@
       position: absolute;
       inset: 0;
       z-index: 0;
-      background: rgba(0, 0, 0, 0.70);
+      background: var(--hero-overlay, rgba(0, 0, 0, 0.70));
       background-image:
         linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
@@ -395,7 +395,6 @@
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 95px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill" style="width: 62px;"></span></li>
         <li class="nav-skeleton-item"><span class="nav-skeleton-pill nav-skeleton-cta" style="width: 84px;"></span></li>
-        <li id="arNavItem"></li>
       </ul>
       <button class="mobile-toggle mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle Navigation Menu">
         <i class="fas fa-bars"></i>
@@ -443,9 +442,9 @@
     <div class="hero-glow g2"></div>
     <div class="container hero-content">
       <div class="reveal">
-        <div class="hero-badge"><span class="dot"></span> Formula Bharat — 2026 Season</div>
-        <h1>The <span class="text-gradient">Driving Force</span><br />Behind Ashwa Riders</h1>
-        <p>A multidisciplinary team of engineers, designers, and innovators working together to build the future of motorsport.</p>
+        <div class="hero-badge" style="display: none;"></div>
+        <h1></h1>
+        <p></p>
       </div>
     </div>
   </section>
@@ -456,18 +455,12 @@
   <section class="section-padding" style="background: var(--paper);">
     <div class="container">
       <div class="reveal text-center" style="margin: 0 auto;">
-        <span class="eyebrow">Filter</span>
-        <h2 class="section-title">Meet the <span class="text-gradient">Riders</span></h2>
-        <p class="section-subtitle" style="margin: 0 auto;">Click a department to view specific teams.</p>
+        <span class="eyebrow"></span>
+        <h2 class="section-title"></h2>
+        <p class="section-subtitle" style="margin: 0 auto;"></p>
       </div>
 
-      <div class="filter-bar text-center" id="filterBar" style="justify-content: center;">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="leadership">Leadership</button>
-        <button class="filter-btn" data-filter="mechanical">Mechanical</button>
-        <button class="filter-btn" data-filter="electrical">Electrical</button>
-        <button class="filter-btn" data-filter="management">Management</button>
-      </div>
+      <div class="filter-bar text-center" id="filterBar" style="justify-content: center;"></div>
 
       <!-- TEAM CARDS HYDRATED DYNAMICALLY VIA CMS -->
       <div class="team-grid" id="teamGrid">
@@ -499,16 +492,6 @@
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════════════ -->
-  <!--  CTA - JOIN US                                   -->
-  <!-- ════════════════════════════════════════════════════ -->
-  <section class="cta-rider">
-    <div class="container reveal">
-      <h2>Become a <span class="text-gradient">Rider</span></h2>
-      <p>We're always looking for passionate engineers, designers, and innovators to join our family.</p>
-      <a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Apply Now</a>
-    </div>
-  </section>
 
   <!-- ════════════════════════════════════════════════════ -->
   <!--  FOOTER                                          -->
@@ -531,7 +514,6 @@
           <h4>Team</h4>
           <ul>
             <li><a href="team.html">Members</a></li>
-            <li><a href="index.html#recruitment">Join Us</a></li>
             <li><a href="car.html">Our Car</a></li>
             <li><a href="achievements.html">Achievements</a></li>
           </ul>
@@ -610,47 +592,11 @@
       window.addEventListener('resize', checkReveals);
       checkReveals();
     })();
-
-    // ─── Filter Logic ──────────────────────────────────
-    const filterButtons = document.querySelectorAll('.filter-btn');
-
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const filter = btn.dataset.filter ? btn.dataset.filter.toLowerCase() : 'all';
-        const teamCards = document.querySelectorAll('#teamGrid .team-card, .team-card');
-
-        teamCards.forEach(card => {
-          const dept = (card.dataset.department || '').toLowerCase();
-          if (filter === 'all' || dept.includes(filter)) {
-            card.style.display = 'block';
-            card.classList.add('visible');
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
-
-    // ─── Initial reveal for cards ──────────────────────
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.querySelectorAll('.team-card').forEach(card => {
-          if (card.getBoundingClientRect().top < window.innerHeight * 0.9) {
-            card.classList.add('visible');
-          }
-        });
-      }, 300);
-    });
   </script>
 
-  <script src="/auth.js"></script>
   <script src="/cms.js"></script>
   <script src="/mobile-nav.js"></script>
   <script src="/team-cms.js"></script>
-  <script src="/join-cms.js"></script>
   <script src="/sponsor-cms.js"></script>
 </body>
 </html>

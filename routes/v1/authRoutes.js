@@ -7,7 +7,6 @@ const express      = require('express');
 const rateLimit    = require('express-rate-limit');
 
 const {
-  register,
   login,
   logout,
   getMe,
@@ -19,7 +18,6 @@ const {
 const { protect } = require('../../middleware/authMiddleware');
 
 const {
-  validateRegister,
   validateLogin,
   validateChangePassword,
   validateUpdateProfile,
@@ -42,15 +40,7 @@ const authLimiter = rateLimit({
   },
 });
 
-// ─── Public routes ───────────────────────────────────────────
-
-// POST /api/v1/auth/register
-router.post(
-  '/register',
-  validateRegister,
-  handleValidation,
-  register
-);
+// ─── Admin Authentication routes ─────────────────────────────
 
 // POST /api/v1/auth/login
 router.post(

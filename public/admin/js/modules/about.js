@@ -478,6 +478,16 @@ window.AdminAboutModule = (function () {
             <span style="font-weight:700; color:#F5F5F5; font-size:0.85rem;">Story Block #${idx + 1}: ${escapeHtml(b.title || '')}</span>
             <button type="button" class="btn btn-secondary btn-sm" style="color:#ef4444;" onclick="window.AdminAboutModule.removeArrayItem('story.blocks', ${idx})">Delete</button>
           </div>
+          <div style="display:grid; grid-template-columns:140px 1fr; gap:12px; margin-bottom:10px;">
+            <div>
+              <label class="form-label">Milestone Year</label>
+              <input type="text" class="form-input" value="${escapeHtml(b.year || '')}" placeholder="e.g. 2026" onchange="window.AdminAboutModule.updateField('story.blocks.${idx}.year', this.value)">
+            </div>
+            <div>
+              <label class="form-label">Block Title</label>
+              <input type="text" class="form-input" value="${escapeHtml(b.title || '')}" placeholder="Milestone Title" onchange="window.AdminAboutModule.updateField('story.blocks.${idx}.title', this.value)">
+            </div>
+          </div>
           <div style="margin-top:10px;">
             <label class="form-label">Block Content</label>
             <textarea class="form-input" rows="2" onchange="window.AdminAboutModule.updateField('story.blocks.${idx}.content', this.value)">${escapeHtml(b.content || '')}</textarea>

@@ -2,6 +2,9 @@
    contact-cms.js — Unified Contact Page Dynamic Hydration Engine
    Ashwa Riders Formula Student Electric Team
 
+   Connects:
+     Admin Dashboard -> MongoDB -> Public API -> Contact Frontend
+
    Hydrates:
      01. HERO SECTION (Eyebrow, title, highlight, description,
          background image, dark overlay intensity, and telemetry stats)
@@ -9,24 +12,29 @@
          and channel list with status dots and actionable links)
      03. TRANSMIT CONSOLE (Form title, frequency badge, submit button text,
          and dynamic subject/channel options)
-     04. FIND US / PIT LANE (Map iframe embed, lat/long coordinates,
+     04. BROADCAST SOCIAL LINKS (Instagram, LinkedIn, YouTube, Twitter/X, GitHub, WhatsApp)
+     05. FIND US / PIT LANE (Map iframe embed, lat/long coordinates,
          workshop name, physical address, access, hours, visitor instructions)
-     05. PREVIEW MODE SUPPORT (?preview=true)
+     06. PREVIEW MODE SUPPORT (?preview=true)
 ============================================================ */
 
 (function () {
   'use strict';
 
-  // Prevent double-initialization
+  // Prevent duplicate script execution
   if (window._ashwaContactCmsLoaded) return;
   window._ashwaContactCmsLoaded = true;
 
   const urlParams = new URLSearchParams(window.location.search);
   const isPreview = urlParams.get('preview') === 'true';
 
-  const API_ENDPOINT = isPreview
-    ? '/api/v1/contact/page?preview=true'
-    : '/api/v1/contact/page';
+  const getApiEndpoint = () => {
+    const base = '/api/v1/contact/page';
+    const params = new URLSearchParams();
+    if (isPreview) params.set('preview', 'true');
+    params.set('_t', Date.now().toString());
+    return `${base}?${params.toString()}`;
+  };
 
   const escapeHtml = (str) => {
     if (str === null || str === undefined) return '';
@@ -38,33 +46,27 @@
       .replace(/'/g, '&#039;');
   };
 
-  const getStoredUser = () => {
-    try {
-      const raw = localStorage.getItem('ar_user');
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  };
 
-  const isAdmin = () => {
-    const user = getStoredUser();
-    return user && user.role === 'admin';
-  };
-
+  /**
+   * Fetch authoritative Contact Page content from live API.
+   * Never falls back to stale caches (localStorage or sessionStorage).
+   */
   async function fetchContactPageData() {
-    try {
-      const res = await fetch(API_ENDPOINT, {
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-        cache: 'no-store',
-      });
-      const data = await res.json();
-      if (data && data.success && data.data) {
-        return data.data;
-      }
-    } catch (err) {
-      console.warn('[Contact CMS] Failed to fetch live content, falling back to static HTML:', err.message);
+    const res = await fetch(getApiEndpoint(), {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'include',
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      throw new Error(`Server returned HTTP ${res.status}`);
     }
-    return null;
+
+    const data = await res.json();
+    if (data && data.success && data.data) {
+      return data.data;
+    }
+    throw new Error(data?.message || 'Invalid Contact API response format');
   }
 
   function hydrateHeroSection(hero) {
@@ -73,7 +75,7 @@
     const heroSection = document.getElementById('contactHeroSection');
     const badgeText = document.getElementById('contactHeroBadgeText');
     const titleEl = document.getElementById('contactHeroTitle');
-    const descEl = document.getElementById('contactHeroLede');
+    const descEl = document.getElementById('contactHeroDesc') || document.getElementById('contactHeroLede');
     const telemetryWrap = document.getElementById('contactHeroTelemetry');
 
     // 1. Eyebrow badge
@@ -82,12 +84,14 @@
     }
 
     // 2. Title with highlight
-    if (titleEl && hero.title) {
-      if (hero.titleHighlight && hero.title.includes(hero.titleHighlight)) {
-        const parts = hero.title.split(hero.titleHighlight);
-        titleEl.innerHTML = `${escapeHtml(parts[0])}<span class="text-gradient">${escapeHtml(hero.titleHighlight)}</span>${escapeHtml(parts.slice(1).join(hero.titleHighlight))}`;
+    const titleText = hero.title || hero.heading;
+    const highlightText = hero.titleHighlight || hero.headingHighlight;
+    if (titleEl && titleText) {
+      if (highlightText && titleText.includes(highlightText)) {
+        const parts = titleText.split(highlightText);
+        titleEl.innerHTML = `${escapeHtml(parts[0])}<span class="text-gradient">${escapeHtml(highlightText)}</span>${escapeHtml(parts.slice(1).join(highlightText))}`;
       } else {
-        titleEl.textContent = hero.title;
+        titleEl.textContent = titleText;
       }
     }
 
@@ -98,11 +102,13 @@
 
     // 4. Background image and dark overlay
     if (heroSection) {
-      if (hero.backgroundImage) {
-        heroSection.style.backgroundImage = `url("${hero.backgroundImage}")`;
+      const bgImg = hero.backgroundImage || hero.bgImageUrl;
+      if (bgImg) {
+        heroSection.style.backgroundImage = `url("${bgImg}")`;
       }
-      if (hero.overlayIntensity !== undefined) {
-        heroSection.style.setProperty('--hero-overlay', `rgba(0, 0, 0, ${hero.overlayIntensity})`);
+      const overlay = hero.overlayIntensity !== undefined ? hero.overlayIntensity : hero.overlayStrength;
+      if (overlay !== undefined) {
+        heroSection.style.setProperty('--hero-overlay', `rgba(0, 0, 0, ${overlay})`);
       }
     }
 
@@ -138,12 +144,14 @@
     }
 
     // 2. Title with highlight
-    if (titleEl && channelsSec.title) {
-      if (channelsSec.titleHighlight && channelsSec.title.includes(channelsSec.titleHighlight)) {
-        const parts = channelsSec.title.split(channelsSec.titleHighlight);
-        titleEl.innerHTML = `${escapeHtml(parts[0])}<span class="text-gradient">${escapeHtml(channelsSec.titleHighlight)}</span>${escapeHtml(parts.slice(1).join(channelsSec.titleHighlight))}`;
+    const titleText = channelsSec.title || channelsSec.heading;
+    const highlightText = channelsSec.titleHighlight || channelsSec.headingHighlight;
+    if (titleEl && titleText) {
+      if (highlightText && titleText.includes(highlightText)) {
+        const parts = titleText.split(highlightText);
+        titleEl.innerHTML = `${escapeHtml(parts[0])}<span class="text-gradient">${escapeHtml(highlightText)}</span>${escapeHtml(parts.slice(1).join(highlightText))}`;
       } else {
-        titleEl.textContent = channelsSec.title;
+        titleEl.textContent = titleText;
       }
     }
 
@@ -160,14 +168,22 @@
 
       if (activeChannels.length > 0) {
         channelListWrap.innerHTML = activeChannels.map(ch => {
-          const isExternal = ch.actionUrl && (ch.actionUrl.startsWith('http://') || ch.actionUrl.startsWith('https://'));
+          let href = ch.actionUrl || '#';
+          if (ch.type === 'EMAIL' && !href.startsWith('mailto:')) {
+            href = `mailto:${ch.name}`;
+          } else if (ch.type === 'VOICE' && !href.startsWith('tel:') && !href.startsWith('http')) {
+            href = `tel:${ch.name.replace(/\s+/g, '')}`;
+          }
+          const isExternal = href.startsWith('http://') || href.startsWith('https://');
           const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
+          const secondaryDisplay = ch.secondaryValue ? ` &nbsp;/&nbsp; ${escapeHtml(ch.secondaryValue)}` : '';
+
           return `
-            <a href="${escapeHtml(ch.actionUrl || '#')}" class="channel-row" ${targetAttr}>
+            <a href="${escapeHtml(href)}" class="channel-row" ${targetAttr}>
               <div class="ch-id">CH ${escapeHtml(ch.channelNumber || '01')}<b>${escapeHtml(ch.type || 'COMM')}</b></div>
               <div class="ch-icon"><i class="${escapeHtml(ch.icon || 'fas fa-envelope')}"></i></div>
               <div class="ch-body">
-                <h4>${escapeHtml(ch.name || '')}</h4>
+                <h4>${escapeHtml(ch.name || '')}${secondaryDisplay}</h4>
                 <p>${escapeHtml(ch.description || '')}</p>
               </div>
               <div class="ch-status"><span class="dot"></span> ${escapeHtml(ch.status || 'ONLINE')}</div>
@@ -183,8 +199,9 @@
     const submitTextEl = document.getElementById('formSubmitText');
     const subjectSelect = document.getElementById('formSubject');
 
-    if (consoleTitleEl && formSettings.formTitle) {
-      consoleTitleEl.innerHTML = `<span class="dot"></span> ${escapeHtml(formSettings.formTitle)}`;
+    const formTitle = formSettings.formTitle || formSettings.title;
+    if (consoleTitleEl && formTitle) {
+      consoleTitleEl.innerHTML = `<span class="dot"></span> ${escapeHtml(formTitle)}`;
     }
     if (consoleFreqEl && formSettings.frequencyLabel) {
       consoleFreqEl.textContent = formSettings.frequencyLabel;
@@ -194,16 +211,69 @@
     }
 
     // Dynamic Subject Dropdown Options
-    if (subjectSelect && Array.isArray(formSettings.subjectOptions) && formSettings.subjectOptions.length > 0) {
+    const opts = formSettings.subjectOptions || formSettings.channelOptions;
+    if (subjectSelect && Array.isArray(opts) && opts.length > 0) {
       const currentSelected = subjectSelect.value;
       let optionsHtml = `<option value="">Select a subject...</option>`;
-      formSettings.subjectOptions
+      opts
+        .filter(opt => opt.enabled !== false)
         .sort((a, b) => (a.order || 0) - (b.order || 0))
         .forEach(opt => {
           const isSelected = opt.value === currentSelected ? 'selected' : '';
           optionsHtml += `<option value="${escapeHtml(opt.value)}" ${isSelected}>${escapeHtml(opt.label || opt.value)}</option>`;
         });
       subjectSelect.innerHTML = optionsHtml;
+    }
+  }
+
+  function hydrateSocialLinks(socialLinks) {
+    if (!socialLinks || typeof socialLinks !== 'object') return;
+
+    // Helper to update link by query selector
+    const updateLink = (container, selector, url) => {
+      if (!url || url === '#') return;
+      const el = container.querySelector(selector);
+      if (el) {
+        el.href = url;
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer');
+      }
+    };
+
+    // 1. Broadcast Grid on Contact Page
+    const broadcastGrid = document.getElementById('contactBroadcastGrid') || document.querySelector('.broadcast-grid');
+    if (broadcastGrid) {
+      if (socialLinks.instagram) updateLink(broadcastGrid, 'a[aria-label="Instagram"], a i.fa-instagram', socialLinks.instagram);
+      if (socialLinks.linkedin) updateLink(broadcastGrid, 'a[aria-label="LinkedIn"], a i.fa-linkedin-in', socialLinks.linkedin);
+      if (socialLinks.youtube) updateLink(broadcastGrid, 'a[aria-label="YouTube"], a i.fa-youtube', socialLinks.youtube);
+      if (socialLinks.twitter) updateLink(broadcastGrid, 'a[aria-label="Twitter"], a i.fa-x-twitter', socialLinks.twitter);
+      if (socialLinks.github) updateLink(broadcastGrid, 'a[aria-label="GitHub"], a i.fa-github', socialLinks.github);
+      if (socialLinks.whatsapp) updateLink(broadcastGrid, 'a[aria-label="WhatsApp"], a i.fa-whatsapp', socialLinks.whatsapp);
+    }
+
+    // 2. Footer Social Links
+    const footerSocial = document.querySelector('.footer .social-links');
+    if (footerSocial) {
+      if (socialLinks.instagram) {
+        const el = footerSocial.querySelector('a i.fa-instagram')?.parentElement;
+        if (el) el.href = socialLinks.instagram;
+      }
+      if (socialLinks.linkedin) {
+        const el = footerSocial.querySelector('a i.fa-linkedin-in')?.parentElement;
+        if (el) el.href = socialLinks.linkedin;
+      }
+      if (socialLinks.youtube) {
+        const el = footerSocial.querySelector('a i.fa-youtube')?.parentElement;
+        if (el) el.href = socialLinks.youtube;
+      }
+      if (socialLinks.twitter) {
+        const el = footerSocial.querySelector('a i.fa-x-twitter')?.parentElement;
+        if (el) el.href = socialLinks.twitter;
+      }
+      if (socialLinks.github) {
+        const el = footerSocial.querySelector('a i.fa-github')?.parentElement;
+        if (el) el.href = socialLinks.github;
+      }
     }
   }
 
@@ -227,12 +297,14 @@
     }
 
     // 2. Title with highlight
-    if (titleEl && findUs.title) {
-      if (findUs.titleHighlight && findUs.title.includes(findUs.titleHighlight)) {
-        const parts = findUs.title.split(findUs.titleHighlight);
-        titleEl.innerHTML = `${escapeHtml(parts[0])}<span class="text-gradient">${escapeHtml(findUs.titleHighlight)}</span>${escapeHtml(parts.slice(1).join(findUs.titleHighlight))}`;
+    const titleText = findUs.title || findUs.heading;
+    const highlightText = findUs.titleHighlight || findUs.headingHighlight;
+    if (titleEl && titleText) {
+      if (highlightText && titleText.includes(highlightText)) {
+        const parts = titleText.split(highlightText);
+        titleEl.innerHTML = `${escapeHtml(parts[0])}<span class="text-gradient">${escapeHtml(highlightText)}</span>${escapeHtml(parts.slice(1).join(highlightText))}`;
       } else {
-        titleEl.textContent = findUs.title;
+        titleEl.textContent = titleText;
       }
     }
 
@@ -270,7 +342,8 @@
   }
 
   function renderAdminBar(pageData) {
-    if (!isAdmin()) return;
+    // Admin bar removed — public auth eliminated
+    return;
 
     let adminBar = document.getElementById('ashwaContactAdminBar');
     if (adminBar) adminBar.remove();
@@ -309,42 +382,60 @@
     document.body.appendChild(adminBar);
   }
 
+  function renderErrorState(errorMessage) {
+    const channelListWrap = document.getElementById('contactChannelList');
+    if (channelListWrap) {
+      channelListWrap.innerHTML = `
+        <div style="background: rgba(255, 77, 77, 0.08); border: 1px solid rgba(255, 77, 77, 0.3); border-radius: 4px; padding: 28px; text-align: center; margin: 16px 0;">
+          <i class="fas fa-triangle-exclamation" style="font-size: 2rem; color: #FF4D4D; margin-bottom: 12px; display: block;"></i>
+          <h4 style="font-size: 1rem; color: #fff; margin-bottom: 8px; font-family: var(--font-display); text-transform: uppercase;">
+            Unable to Load Contact Channels
+          </h4>
+          <p style="color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-bottom: 16px; font-family: var(--font-mono);">
+            ${escapeHtml(errorMessage || 'Unable to establish connection with Race Control servers.')}
+          </p>
+          <button type="button" id="retryContactChannelsBtn" class="btn btn-secondary" style="padding: 9px 20px; font-size: 0.78rem;">
+            <i class="fas fa-rotate-right"></i> Retry Connection
+          </button>
+        </div>
+      `;
+      document.getElementById('retryContactChannelsBtn')?.addEventListener('click', loadContactPage);
+    }
+  }
+
   function applyContactData(data) {
     if (!data) return;
     hydrateHeroSection(data.heroSection);
     hydrateChannelsSection(data.channelsSection);
+    hydrateSocialLinks(data.socialLinks || data.channelsSection?.socialLinks);
     hydrateFindUsSection(data.findUsSection);
-    renderAdminBar(data);
+
 
     document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
       el.setAttribute('data-cms-pending', 'false');
     });
   }
 
-  async function init() {
-    // 0. Session cache fast-path (instant 0ms paint)
+  /**
+   * Main authoritative Contact loader
+   */
+  async function loadContactPage() {
     try {
-      const cached = sessionStorage.getItem('ar_contact_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object') {
-          applyContactData(parsed);
-        }
-      }
-    } catch (e) {}
-
-    const data = await fetchContactPageData();
-    if (!data) return;
-
-    applyContactData(data);
-    if (!isPreview) {
-      try { sessionStorage.setItem('ar_contact_cache', JSON.stringify(data)); } catch (e) {}
+      const data = await fetchContactPageData();
+      applyContactData(data);
+    } catch (err) {
+      console.error('[Contact CMS] Error hydrating live contact content:', err);
+      renderErrorState(err.message);
     }
   }
 
+  // Single authoritative initialization path
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', loadContactPage);
   } else {
-    init();
+    loadContactPage();
   }
+
+  // Expose authoritative loader for programmatic refresh
+  window.loadContactPage = loadContactPage;
 })();

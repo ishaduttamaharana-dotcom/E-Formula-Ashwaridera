@@ -8,6 +8,7 @@
      04. GLOBAL FOOTER (Slogan, Copyright, Social links)
      05. PAGE SETTINGS & SEO
    Supports Preview Mode (?preview=true) + zero hardcoding.
+   Authoritative source: MongoDB Atlas via /api/v1/team.
 ============================================================ */
 
 (function () {
@@ -16,6 +17,8 @@
   const TEAM_API = '/api/v1/team';
   const urlParams = new URLSearchParams(window.location.search);
   const isPreview = urlParams.get('preview') === 'true' || urlParams.get('draft') === 'true';
+
+  const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236B7280'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
   const escapeHtml = (str) => {
     if (str === null || str === undefined) return '';
@@ -28,7 +31,8 @@
   };
 
   /**
-   * Fetch published (or draft preview) data from the unified Team API.
+   * Fetch published (or draft preview) data from the authoritative Team API.
+   * Never cached in localStorage/sessionStorage.
    */
   async function fetchTeamData() {
     const base = isPreview ? `${TEAM_API}?preview=true` : TEAM_API;
@@ -44,14 +48,25 @@
   }
 
   /**
+   * Display controlled error message in place of skeletons when API call fails.
+   */
+  function showControlledError(msg) {
+    const teamGrid = document.getElementById('teamGrid');
+    if (teamGrid) {
+      teamGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: var(--ink-faint, #9696A0); font-family: var(--font-mono, monospace);">
+          <p style="margin-bottom: 8px; font-size: 1rem; color: #FF4D4D;"><i class="fas fa-triangle-exclamation"></i> Unable to load team roster.</p>
+          <p style="font-size: 0.85rem; color: var(--ink-faint, #9696A0);">${escapeHtml(msg || 'Please check your connection and reload.')}</p>
+        </div>
+      `;
+    }
+  }
+
+  /**
    * Hydrate Team Page DOM from CMS payload.
    */
   function hydrateTeamPage(data) {
     if (!data) return;
-
-    if (!isPreview && data) {
-      try { sessionStorage.setItem('ar_team_cache', JSON.stringify(data)); } catch (e) {}
-    }
 
     const { settings, hero, membersSection, filters, members, cta, footer } = data;
 
@@ -80,30 +95,38 @@
         // Background media
         if (hero.desktopImageUrl) {
           heroSec.style.backgroundImage = `url("${hero.desktopImageUrl}")`;
+        } else {
+          heroSec.style.backgroundImage = 'none';
         }
+
         if (hero.backgroundPosition) {
           heroSec.style.backgroundPosition = hero.backgroundPosition;
         }
 
         // Overlay strength
         if (hero.overlayStrength !== undefined) {
-          const strength = hero.overlayStrength / 100;
+          const strength = Number(hero.overlayStrength) / 100;
           heroSec.style.setProperty('--hero-overlay', `rgba(0,0,0,${strength})`);
         }
 
         // Eyebrow badge
         const badge = heroSec.querySelector('.hero-badge');
         if (badge) {
-          badge.innerHTML = `<span class="dot"></span> ${escapeHtml(hero.eyebrow || 'Formula Bharat — 2026 Season')}`;
+          if (hero.eyebrow && hero.eyebrow.trim()) {
+            badge.style.display = 'inline-flex';
+            badge.innerHTML = `<span class="dot"></span> ${escapeHtml(hero.eyebrow.trim())}`;
+          } else {
+            badge.style.display = 'none';
+          }
         }
 
         // Heading Line 1, Highlight, Line 2
         const h1 = heroSec.querySelector('h1');
         if (h1) {
-          const l1 = escapeHtml(hero.headingLine1 || 'The');
-          const hl = escapeHtml(hero.headingHighlight || 'Driving Force');
-          const l2 = escapeHtml(hero.headingLine2 || 'Behind Ashwa Riders');
-          h1.innerHTML = `${l1} <span class="text-gradient">${hl}</span><br />${l2}`;
+          const l1 = hero.headingLine1 ? escapeHtml(hero.headingLine1) : '';
+          const hl = hero.headingHighlight ? `<span class="text-gradient">${escapeHtml(hero.headingHighlight)}</span>` : '';
+          const l2 = hero.headingLine2 ? `<br />${escapeHtml(hero.headingLine2)}` : '';
+          h1.innerHTML = `${l1} ${hl}${l2}`.trim();
         }
 
         // Description
@@ -124,20 +147,20 @@
     const membersSec = document.querySelector('.section-padding');
     if (membersSec && membersSection) {
       const eyebrowEl = membersSec.querySelector('.eyebrow');
-      if (eyebrowEl && membersSection.eyebrow) {
-        eyebrowEl.textContent = membersSection.eyebrow;
+      if (eyebrowEl) {
+        eyebrowEl.textContent = membersSection.eyebrow || '';
       }
 
       const titleEl = membersSec.querySelector('.section-title');
-      if (titleEl && (membersSection.title || membersSection.highlightText)) {
-        const titlePart = escapeHtml(membersSection.title || 'Meet the');
-        const hlPart = escapeHtml(membersSection.highlightText || 'Riders');
-        titleEl.innerHTML = `${titlePart} <span class="text-gradient">${hlPart}</span>`;
+      if (titleEl) {
+        const titlePart = escapeHtml(membersSection.title || '');
+        const hlPart = membersSection.highlightText ? `<span class="text-gradient">${escapeHtml(membersSection.highlightText)}</span>` : '';
+        titleEl.innerHTML = `${titlePart} ${hlPart}`.trim();
       }
 
       const subEl = membersSec.querySelector('.section-subtitle');
-      if (subEl && (membersSection.subtitle || membersSection.description)) {
-        subEl.textContent = membersSection.subtitle || membersSection.description;
+      if (subEl) {
+        subEl.textContent = membersSection.subtitle || membersSection.description || '';
       }
     }
 
@@ -196,7 +219,7 @@
           card.dataset.department = depts.join(' ');
           card.dataset.id = member.id || member._id;
 
-          const imgUrl = member.imageUrl || 'https://res.cloudinary.com/frjck4sc/image/upload/v1784469376/Team_Captain_jokdch.png';
+          const imgUrl = (member.imageUrl && member.imageUrl.trim()) ? member.imageUrl.trim() : DEFAULT_AVATAR;
           const name = escapeHtml(member.fullName || member.displayName || 'Team Member');
           const role = escapeHtml(member.position || member.role || 'Member');
           const deptLabel = member.department ? (member.department.charAt(0).toUpperCase() + member.department.slice(1)) : '';
@@ -241,50 +264,6 @@
 
       // Rebind filter buttons
       bindFilterEvents();
-    }
-
-    // ─── 03. Recruitment CTA ──────────────────────────────────
-    const ctaSec = document.querySelector('.cta-rider');
-    if (ctaSec && cta) {
-      if (cta.visible === false) {
-        ctaSec.style.display = 'none';
-      } else {
-        ctaSec.style.display = 'block';
-
-        if (cta.backgroundColor) {
-          ctaSec.style.backgroundColor = cta.backgroundColor;
-        }
-        if (cta.bgImageUrl) {
-          ctaSec.style.backgroundImage = `url("${cta.bgImageUrl}")`;
-          ctaSec.style.backgroundSize = 'cover';
-        }
-
-        const h2 = ctaSec.querySelector('h2');
-        if (h2 && (cta.heading || cta.highlightedHeading)) {
-          const mainH = escapeHtml(cta.heading || 'Become a');
-          const hlH = escapeHtml(cta.highlightedHeading || 'Rider');
-          h2.innerHTML = `${mainH} <span class="text-gradient">${hlH}</span>`;
-        }
-
-        const p = ctaSec.querySelector('p');
-        if (p && cta.description !== undefined) {
-          p.textContent = cta.description;
-        }
-
-        const btn = ctaSec.querySelector('.btn');
-        if (btn) {
-          if (cta.buttonUrl) btn.setAttribute('href', cta.buttonUrl);
-          const iconHtml = cta.buttonIcon ? `<i class="${escapeHtml(cta.buttonIcon)}"></i> ` : '<i class="fas fa-user-plus"></i> ';
-          btn.innerHTML = `${iconHtml}${escapeHtml(cta.buttonText || 'Apply Now')}`;
-          if (cta.openInNewTab) {
-            btn.setAttribute('target', '_blank');
-            btn.setAttribute('rel', 'noopener');
-          } else {
-            btn.removeAttribute('target');
-            btn.removeAttribute('rel');
-          }
-        }
-      }
     }
 
     // ─── 04. Global Footer ────────────────────────────────────
@@ -361,7 +340,8 @@
 
         teamCards.forEach(card => {
           const deptStr = (card.dataset.department || '').toLowerCase();
-          if (filter === 'all' || deptStr.includes(filter)) {
+          const deptList = deptStr.split(/\s+/).filter(Boolean);
+          if (filter === 'all' || deptList.includes(filter) || deptStr.includes(filter)) {
             card.style.display = 'block';
             card.classList.add('visible');
           } else {
@@ -376,17 +356,6 @@
   //  INIT
   // ============================================================
   async function initTeamCms() {
-    // 0. Session cache fast-path (instant 0ms paint)
-    try {
-      const cached = sessionStorage.getItem('ar_team_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object') {
-          hydrateTeamPage(parsed);
-        }
-      }
-    } catch (e) {}
-
     // 1. Immediately hydrate from preloaded SSR data if available
     if (window.__INITIAL_TEAM_DATA__) {
       try {
@@ -396,22 +365,17 @@
       }
     }
 
-    // 2. Fetch fresh live data from API to sync any new changes
+    // 2. Fetch fresh live data from authoritative API (single source of truth: MongoDB)
     try {
       const data = await fetchTeamData();
       if (data) {
         hydrateTeamPage(data);
+      } else {
+        showControlledError('No team data returned by service.');
       }
     } catch (err) {
-      console.warn('Team CMS dynamic hydration note:', err.message);
-      const teamGrid = document.getElementById('teamGrid');
-      if (teamGrid && !teamGrid.querySelector('.team-card:not(.team-skeleton-card)')) {
-        teamGrid.innerHTML = `
-          <div style="grid-column: 1 / -1; padding: 48px 24px; text-align: center; color: var(--ink-faint, #9696A0); font-family: var(--font-mono, monospace);">
-            <p>Team roster temporarily unavailable.</p>
-          </div>
-        `;
-      }
+      console.error('Team CMS dynamic hydration note:', err.message);
+      showControlledError(err.message);
     }
   }
 

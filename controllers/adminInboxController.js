@@ -8,7 +8,6 @@ const { sendSuccess, sendError, sendPaginated } = require('../utils/responseHelp
 const { logActivity } = require('../utils/publishingHelper');
 
 const ContactMessage = require('../models/ContactMessage');
-const JoinApplication = require('../models/JoinApplication');
 const SponsorRequest = require('../models/SponsorRequest');
 
 // ─── 1. CONTACT MESSAGES ────────────────────────────────────
@@ -70,57 +69,7 @@ const deleteContactMessage = async (req, res) => {
   }
 };
 
-// ─── 2. RECRUITMENT APPLICATIONS ────────────────────────────
-const getJoinApplications = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
-    const skip = (page - 1) * limit;
-    const statusFilter = req.query.status;
-
-    const filter = {};
-    if (statusFilter) filter.status = statusFilter;
-
-    const total = await JoinApplication.countDocuments(filter);
-    const apps = await JoinApplication.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    return sendPaginated(res, 'Join applications fetched.', apps, page, limit, total);
-  } catch (err) {
-    console.error('getJoinApplications Error:', err);
-    return sendError(res, 500, 'Error fetching applications: ' + err.message);
-  }
-};
-
-const updateJoinApplicationStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status, adminNotes } = req.body;
-
-    const appDoc = await JoinApplication.findById(id);
-    if (!appDoc) return sendError(res, 404, 'Application not found.');
-
-    if (status) {
-      if (!['Pending', 'Under Review', 'Accepted', 'Rejected'].includes(status)) {
-        return sendError(res, 400, 'Invalid application status value. Must be Pending, Under Review, Accepted, or Rejected.');
-      }
-      appDoc.status = status;
-    }
-    if (adminNotes !== undefined) appDoc.adminNotes = adminNotes;
-
-    await appDoc.save();
-    await logActivity({ user: req.user, action: 'STATUS_UPDATE', resource: 'JoinApplication', resourceId: id, summary: `Updated application status to ${appDoc.status}`, req });
-
-    return sendSuccess(res, 200, 'Application status updated.', appDoc);
-  } catch (err) {
-    console.error('updateJoinApplicationStatus Error:', err);
-    return sendError(res, 500, 'Error updating application: ' + err.message);
-  }
-};
-
-// ─── 3. SPONSOR REQUESTS ────────────────────────────────────
+// ─── 2. SPONSOR REQUESTS ────────────────────────────────────
 const getSponsorRequests = async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
@@ -170,20 +119,18 @@ const updateSponsorRequestStatus = async (req, res) => {
   }
 };
 
-// ─── 4. LIVE INBOX BADGE COUNTERS ───────────────────────────
+// ─── 3. LIVE INBOX BADGE COUNTERS ───────────────────────────
 const getInboxCounts = async (req, res) => {
   try {
-    const [newMessages, pendingJoinApps, pendingSponsorReqs] = await Promise.all([
+    const [newMessages, pendingSponsorReqs] = await Promise.all([
       ContactMessage.countDocuments({ status: { $regex: /^new$/i } }),
-      JoinApplication.countDocuments({ status: { $regex: /^pending$/i } }),
       SponsorRequest.countDocuments({ status: { $regex: /^pending$/i } }),
     ]);
 
     return sendSuccess(res, 200, 'Inbox counts retrieved.', {
       newContactMessages: newMessages,
-      pendingJoinApplications: pendingJoinApps,
       pendingSponsorRequests: pendingSponsorReqs,
-      totalUnreadItems: newMessages + pendingJoinApps + pendingSponsorReqs,
+      totalUnreadItems: newMessages + pendingSponsorReqs,
     });
   } catch (err) {
     console.error('getInboxCounts Error:', err);
@@ -195,8 +142,6 @@ module.exports = {
   getContactMessages,
   updateMessageStatus,
   deleteContactMessage,
-  getJoinApplications,
-  updateJoinApplicationStatus,
   getSponsorRequests,
   updateSponsorRequestStatus,
   getInboxCounts,

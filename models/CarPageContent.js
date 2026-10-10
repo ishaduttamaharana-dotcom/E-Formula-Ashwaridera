@@ -215,21 +215,21 @@ const carPageContentSchema = new mongoose.Schema(
       cards: [visualCardSchema],
     },
 
-    // 06. OPEN POSITIONS (RECRUITMENT CTA)
+    // 06. OPEN POSITIONS (RECRUITMENT CTA - DISABLED)
     openPositionsSection: {
-      visible: { type: Boolean, default: true },
-      eyebrow: { type: String, default: 'Open Positions', trim: true },
-      heading: { type: String, default: 'Want to Build the Next Machine?', trim: true },
-      headingHighlight: { type: String, default: 'Next Machine?', trim: true },
+      visible: { type: Boolean, default: false },
+      eyebrow: { type: String, default: '', trim: true },
+      heading: { type: String, default: '', trim: true },
+      headingHighlight: { type: String, default: '', trim: true },
       description: {
         type: String,
-        default: 'Join our team of engineers and help design, build, and race the next generation of Ashwa Formula cars.',
+        default: '',
         trim: true,
       },
       primaryCta: {
-        text: { type: String, default: 'Join the Team', trim: true },
-        link: { type: String, default: 'index.html#recruitment', trim: true },
-        enabled: { type: Boolean, default: true },
+        text: { type: String, default: '', trim: true },
+        link: { type: String, default: '', trim: true },
+        enabled: { type: Boolean, default: false },
       },
       secondaryCta: {
         text: { type: String, default: 'Get in Touch', trim: true },

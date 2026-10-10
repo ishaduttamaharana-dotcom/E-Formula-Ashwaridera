@@ -347,7 +347,7 @@ const updateAboutDraft = async (req, res) => {
     const doc = await getOrSeedAboutDoc();
 
     const sections = [
-      'settings', 'hero', 'whoWeAre', 'story', 'visionMission',
+      'settings', 'hero', 'whoWeAre', 'story', 'history', 'visionMission',
       'coreValues', 'teamStructure', 'departments', 'process',
       'formulaBharat', 'workshop', 'peopleMessages', 'whyJoin', 'cta'
     ];
@@ -388,8 +388,9 @@ const publishAbout = async (req, res) => {
   try {
     const doc = await getOrSeedAboutDoc();
 
-    const snapshot = doc.draftVersion || buildSnapshot(doc.toObject());
+    const snapshot = buildSnapshot(doc.toObject());
     doc.publishedVersion = snapshot;
+    doc.draftVersion = snapshot;
     doc.status = 'published';
     doc.version += 1;
     doc.lastPublishedAt = new Date();
@@ -451,8 +452,13 @@ const getPublicAbout = async (req, res) => {
       hero: data.hero,
       whoWeAre: data.whoWeAre,
       story: data.story,
+      history: data.history,
+      timeline: (data.story && data.story.blocks) ? data.story.blocks : [],
       visionMission: data.visionMission,
+      mission: data.visionMission?.mission,
+      vision: data.visionMission?.vision,
       coreValues: data.coreValues,
+      values: (data.coreValues && data.coreValues.items) ? data.coreValues.items : [],
       teamStructure: data.teamStructure,
       departments: data.departments,
       process: data.process,

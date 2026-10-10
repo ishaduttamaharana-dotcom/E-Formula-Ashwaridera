@@ -258,7 +258,6 @@
     if (!container) return;
 
     const contactCount = inbox.newContactMessages || 0;
-    const joinCount = inbox.pendingJoinApplications || 0;
     const sponsorCount = inbox.pendingSponsorRequests || 0;
 
     container.innerHTML = `
@@ -270,16 +269,6 @@
           <span class="attention-label">Contact Messages</span>
         </div>
         <span class="attention-badge ${contactCount > 0 ? 'badge-orange' : 'badge-neutral'}">${contactCount}</span>
-      </a>
-
-      <a href="/admin/join-applications" data-link class="attention-row">
-        <div class="attention-row-left">
-          <div class="attention-icon-box">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <span class="attention-label">Join Applications</span>
-        </div>
-        <span class="attention-badge ${joinCount > 0 ? 'badge-orange' : 'badge-neutral'}">${joinCount}</span>
       </a>
 
       <a href="/admin/sponsor-requests" data-link class="attention-row">

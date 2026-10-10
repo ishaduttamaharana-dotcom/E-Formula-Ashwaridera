@@ -149,9 +149,8 @@ const DEFAULT_LINK_GROUPS = [
     order: 1,
     links: [
       { id: 'grp-1-lnk-1', label: 'Members', url: 'team.html', visible: true, order: 1 },
-      { id: 'grp-1-lnk-2', label: 'Join Us', url: 'index.html#recruitment', visible: true, order: 2 },
-      { id: 'grp-1-lnk-3', label: 'Our Car', url: 'car.html', visible: true, order: 3 },
-      { id: 'grp-1-lnk-4', label: 'Achievements', url: 'achievements.html', visible: true, order: 4 },
+      { id: 'grp-1-lnk-2', label: 'Our Car', url: 'car.html', visible: true, order: 2 },
+      { id: 'grp-1-lnk-3', label: 'Achievements', url: 'achievements.html', visible: true, order: 3 },
     ],
   },
   {
@@ -193,9 +192,9 @@ const ensureNavDefaults = (doc) => {
   }
   if (!doc.headerCta) {
     doc.headerCta = {
-      label: doc.ctaLabel || 'Join Team',
-      url: doc.ctaUrl || 'index.html#recruitment',
-      visible: true,
+      label: doc.ctaLabel || '',
+      url: doc.ctaUrl || '',
+      visible: false,
     };
     modified = true;
   }

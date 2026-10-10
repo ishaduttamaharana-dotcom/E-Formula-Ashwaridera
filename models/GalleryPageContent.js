@@ -92,15 +92,15 @@ const galleryPageContentSchema = new mongoose.Schema(
       ],
     },
 
-    // ─── 03. RECRUITMENT CTA ─────────────────────────────────
+    // ─── 03. CTA (DISABLED) ──────────────────────────────────
     cta: {
-      visible: { type: Boolean, default: true },
-      heading: { type: String, default: 'BE PART OF THE', trim: true },
-      highlightedHeading: { type: String, default: 'STORY', trim: true },
-      description: { type: String, default: 'Join our team and create your own moments of engineering excellence.', trim: true },
-      buttonText: { type: String, default: 'JOIN THE TEAM', trim: true },
-      buttonUrl: { type: String, default: 'index.html#recruitment', trim: true },
-      buttonIcon: { type: String, default: 'fas fa-user-plus', trim: true },
+      visible: { type: Boolean, default: false },
+      heading: { type: String, default: '', trim: true },
+      highlightedHeading: { type: String, default: '', trim: true },
+      description: { type: String, default: '', trim: true },
+      buttonText: { type: String, default: '', trim: true },
+      buttonUrl: { type: String, default: '', trim: true },
+      buttonIcon: { type: String, default: '', trim: true },
       openInNewTab: { type: Boolean, default: false },
       backgroundColor: { type: String, default: '#000000', trim: true },
       bgImageUrl: { type: String, default: '', trim: true },

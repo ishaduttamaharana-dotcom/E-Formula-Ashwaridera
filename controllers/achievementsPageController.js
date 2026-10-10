@@ -455,6 +455,62 @@ const computeCategoryCounts = (categories, achievements) => {
 };
 
 /**
+ * Bridges standalone Achievement collection documents into the achievements array
+ */
+const bridgeStandaloneAchievements = async (baseList, isPreview) => {
+  try {
+    const Achievement = require('../models/Achievement');
+    const filter = isPreview ? { status: { $ne: 'archived' } } : { status: 'published' };
+    const standaloneItems = await Achievement.find(filter).lean();
+
+    const merged = [...baseList];
+
+    standaloneItems.forEach((standalone) => {
+      const sId = String(standalone._id);
+      const existingIdx = merged.findIndex(
+        (a) => (a.id && String(a.id) === sId) || (a.title && a.title.trim().toLowerCase() === standalone.title.trim().toLowerCase())
+      );
+
+      const isItemPublished = standalone.status === 'published' || (standalone.isActive !== false && standalone.status !== 'archived');
+      const mapped = {
+        id: sId,
+        year: standalone.date || '2026',
+        title: standalone.title,
+        description: standalone.description || '',
+        category: (standalone.category || 'competition').toLowerCase(),
+        imageUrl: standalone.imageUrl || '',
+        imageAlt: standalone.title,
+        event: standalone.competitionName || '',
+        rank: standalone.position || '',
+        awardName: '',
+        location: 'India',
+        organization: standalone.competitionName || '',
+        externalUrl: standalone.buttonLink || '',
+        tags: [standalone.competitionName, standalone.position].filter(Boolean),
+        order: standalone.order !== undefined ? standalone.order : (standalone.displayOrder !== undefined ? standalone.displayOrder : 99),
+        published: isItemPublished,
+        featured: standalone.featured || false,
+      };
+
+      if (existingIdx >= 0) {
+        merged[existingIdx] = {
+          ...merged[existingIdx],
+          ...mapped,
+          published: isItemPublished && merged[existingIdx].published !== false,
+        };
+      } else {
+        merged.push(mapped);
+      }
+    });
+
+    return merged;
+  } catch (err) {
+    console.warn('Notice: Could not bridge standalone achievements:', err.message);
+    return baseList;
+  }
+};
+
+/**
  * Public Endpoint: GET /api/v1/achievements/page
  * Returns published version (or draft if ?preview=true)
  */
@@ -472,8 +528,11 @@ const getPublicAchievementsContent = async (req, res) => {
       content = doc.toObject();
     }
 
+    const rawAchievements = content.achievementsSection?.achievements || [];
+    const bridgedAchievements = await bridgeStandaloneAchievements(rawAchievements, isPreview);
+
     // Filter achievements and timeline events for public visibility
-    const visibleAchievements = (content.achievementsSection?.achievements || [])
+    const visibleAchievements = bridgedAchievements
       .filter((a) => isPreview || a.published !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -496,6 +555,7 @@ const getPublicAchievementsContent = async (req, res) => {
       version: doc.version,
       lastPublishedAt: doc.lastPublishedAt,
       settings: content.settings,
+      achievements: visibleAchievements,
       achievementsSection: {
         ...content.achievementsSection,
         allCount,
@@ -522,11 +582,11 @@ const getAdminAchievementsContent = async (req, res) => {
     const doc = await getOrSeedAchievementsPageDoc();
 
     const data = doc.draftVersion || doc.toObject();
-    const publishedData = doc.publishedVersion || doc.toObject();
+    const rawAchievements = data.achievementsSection?.achievements || [];
+    const bridgedAchievements = await bridgeStandaloneAchievements(rawAchievements, true);
 
-    const achievements = data.achievementsSection?.achievements || [];
     const categories = data.achievementsSection?.categories || [];
-    const { allCount, categories: computedCategories } = computeCategoryCounts(categories, achievements);
+    const { allCount, categories: computedCategories } = computeCategoryCounts(categories, bridgedAchievements);
 
     // Fetch shared footer reference for status display
     const footerRef = await NavFooterSettings.findOne().lean().catch(() => null);
@@ -541,7 +601,7 @@ const getAdminAchievementsContent = async (req, res) => {
         ...data.achievementsSection,
         allCount,
         categories: computedCategories,
-        achievements: data.achievementsSection?.achievements || [],
+        achievements: bridgedAchievements,
       },
       timelineSection: data.timelineSection,
       footerSummary: footerRef ? {

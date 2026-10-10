@@ -277,13 +277,13 @@ const aboutContentSchema = new mongoose.Schema(
     // 13 GET INVOLVED CTA
     cta: {
       visible: { type: Boolean, default: true },
-      eyebrow: { type: String, default: 'Get Involved' },
+      eyebrow: { type: String, default: 'Partner With Us' },
       title: { type: String, default: 'Ready to Race With Us?' },
       highlightText: { type: String, default: 'Race' },
-      description: { type: String, default: 'Join a team of passionate engineers and innovators, or help power our next season as a sponsor.' },
-      primaryBtnText: { type: String, default: 'Become a Team Member' },
-      primaryBtnUrl: { type: String, default: 'index.html#recruitment' },
-      primaryBtnVisible: { type: Boolean, default: true },
+      description: { type: String, default: 'Help power our next season of Formula Student Electric engineering as a sponsor or technical partner.' },
+      primaryBtnText: { type: String, default: '' },
+      primaryBtnUrl: { type: String, default: '' },
+      primaryBtnVisible: { type: Boolean, default: false },
       secondaryBtnText: { type: String, default: 'Become a Sponsor' },
       secondaryBtnUrl: { type: String, default: 'sponsors.html' },
       secondaryBtnVisible: { type: Boolean, default: true },

@@ -8,6 +8,9 @@
 //    5. Sponsors Preview (HomeSponsor -> home_sponsors)
 // ============================================================
 
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const HomeHero                           = require('../models/HomeHero');
 const GarageCard                         = require('../models/GarageCard');
 const HomeNews                           = require('../models/HomeNews');
@@ -66,11 +69,50 @@ const uploadHeroVideo = async (req, res, next) => {
       return sendError(res, 400, 'Please select a video file to upload.');
     }
 
-    const result = await uploadVideoToCloudinary(req.file.buffer, 'ashwa_hero_videos');
+    const fileSize = req.file.size || 0;
+    const CLOUD_MAX_VIDEO = 95 * 1024 * 1024; // 95 MB safe Cloudinary Free limit
+    let videoUrl = '';
+    let publicId = '';
 
-    return sendSuccess(res, 200, 'Video uploaded successfully to Cloudinary.', {
-      videoUrl: result.url,
-      publicId: result.publicId,
+    if (fileSize <= CLOUD_MAX_VIDEO) {
+      try {
+        const fileBuffer = req.file.buffer || (req.file.path && fs.existsSync(req.file.path) ? fs.readFileSync(req.file.path) : null);
+        if (fileBuffer) {
+          const result = await uploadVideoToCloudinary(fileBuffer, 'ashwa_hero_videos');
+          videoUrl = result.url;
+          publicId = result.publicId;
+          if (req.file.path && fs.existsSync(req.file.path)) {
+            try { fs.unlinkSync(req.file.path); } catch (e) {}
+          }
+        }
+      } catch (cloudErr) {
+        console.warn('[HERO VIDEO] Cloudinary upload bypassed or failed, saving to local server:', cloudErr.message);
+      }
+    }
+
+    if (!videoUrl) {
+      const uploadDir = path.join(__dirname, '..', 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      let localFilename = req.file.filename;
+      if (!localFilename) {
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        localFilename = `${uuidv4()}${ext}`;
+        const localPath = path.join(uploadDir, localFilename);
+        if (req.file.buffer) {
+          fs.writeFileSync(localPath, req.file.buffer);
+        }
+      }
+      videoUrl = `/uploads/${localFilename}`;
+      publicId = `local_${localFilename}`;
+      console.log(`[HERO VIDEO] Video saved to local storage: ${videoUrl}`);
+    }
+
+    return sendSuccess(res, 200, 'Video uploaded successfully.', {
+      videoUrl,
+      publicId,
     });
   } catch (error) {
     return sendError(res, 500, `Video upload failed: ${error.message}`);
