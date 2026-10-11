@@ -19,6 +19,14 @@
       headers['Content-Type'] = 'application/json';
     }
 
+    const token =
+      localStorage.getItem('token') ||
+      localStorage.getItem('adminToken') ||
+      sessionStorage.getItem('adminToken');
+    if (token && !headers['Authorization']) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const config = {
       credentials: 'include',
       headers,

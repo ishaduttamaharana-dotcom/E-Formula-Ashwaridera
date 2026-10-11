@@ -2037,13 +2037,30 @@ window.AdminHomeModule = (function () {
 
         try {
           Toast().info(`Uploading ${isVideo ? 'video' : 'image'} (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('altText', file.name.replace(/\.[^/.]+$/, ''));
+          let uploadRes;
 
-          const res = await API().post('/admin/media/upload', formData);
-          if (res && res.success && res.data) {
-            const url = res.data.secureUrl || res.data.url;
+          if (window.AdminUploader && window.AdminUploader.uploadFile) {
+            uploadRes = await window.AdminUploader.uploadFile(file, {
+              allowedType: isVideo ? 'video' : 'image',
+              folder: isVideo ? 'ashwa_cms/videos' : 'ashwa_cms/images',
+              onProgress: (pct, msg) => {
+                if (pct % 25 === 0) Toast().info(msg);
+              },
+            });
+          } else {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('altText', file.name.replace(/\.[^/.]+$/, ''));
+            const res = await API().post('/admin/media/upload', formData);
+            if (res && res.success && res.data) {
+              uploadRes = res.data;
+            } else {
+              throw new Error(res?.message || 'Upload failed');
+            }
+          }
+
+          const url = uploadRes.secureUrl || uploadRes.url;
+          if (url) {
             if (homeData.hero.slides[idx]) {
               if (isVideo) {
                 homeData.hero.slides[idx].videoUrl = url;
@@ -2060,7 +2077,7 @@ window.AdminHomeModule = (function () {
             Toast().success(`${isVideo ? 'Video' : 'Image'} uploaded and set to slide!`);
             renderInterface(container);
           } else {
-            throw new Error(res?.message || 'Upload failed');
+            throw new Error('Upload succeeded but no usable URL was returned.');
           }
         } catch (err) {
           console.error('Slide upload error:', err);

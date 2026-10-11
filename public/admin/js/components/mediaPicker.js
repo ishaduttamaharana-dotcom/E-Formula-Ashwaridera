@@ -90,7 +90,7 @@ const MediaPicker = (function () {
               </div>
               <h4 style="color:#FFFFFF; font-weight:700; font-size:1.05rem; margin-bottom:6px;">Drag & drop media files here, or click to browse</h4>
               <p style="color:var(--text-muted, #6B7280); font-size:0.82rem; font-family:var(--font-mono, monospace);">
-                PNG, JPG, WEBP, GIF, MP4, WEBM, PDF (Max: 1000MB Images, Videos & Docs)
+                PNG, JPG, WEBP, GIF (up to 25MB) • MP4, WEBM (up to 100MB) • PDF (up to 10MB)
               </p>
               <input type="file" id="pickerFileInput" style="display:none;" accept="image/*,video/*,application/pdf" />
             </div>
@@ -277,13 +277,22 @@ const MediaPicker = (function () {
     }
   };
 
+  let isUploading = false;
   const uploadFile = async (file) => {
-    if (!file) return;
+    if (!file || isUploading) return;
 
     const progress = document.getElementById('pickerUploadProgress');
     const label = document.getElementById('pickerProgressLabel');
     const percent = document.getElementById('pickerPercentLabel');
     const bar = document.getElementById('pickerProgressBar');
+    const dropzone = document.getElementById('pickerDropzone');
+    const fileInput = document.getElementById('pickerFileInput');
+
+    isUploading = true;
+    if (dropzone) {
+      dropzone.style.pointerEvents = 'none';
+      dropzone.style.opacity = '0.5';
+    }
 
     if (progress) progress.style.display = 'block';
     if (label) label.textContent = `Preparing ${file.name}...`;
@@ -304,36 +313,37 @@ const MediaPicker = (function () {
           onProgress: updateProgress,
         });
       } else {
-        // Fallback directly to API if AdminUploader isn't initialized yet
-        const api = window.AdminApi || window.API;
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('altText', file.name.replace(/\.[^/.]+$/, ''));
-        updateProgress(50, 'Uploading to server...');
-        const res = await api.post('/admin/media/upload', formData);
-        if (res && res.success && res.data) {
-          uploadRes = { success: true, asset: res.data };
-        } else {
-          throw new Error((res && res.message) || 'Upload failed.');
-        }
+        throw new Error('Upload subsystem (AdminUploader) is unavailable. Please refresh and try again.');
       }
 
-      updateProgress(100, 'Upload verified and saved!');
+      updateProgress(100, 'Upload complete and verified!');
       if (uploadRes && uploadRes.success && uploadRes.asset) {
         if (window.AdminToast) window.AdminToast.success('File uploaded and verified successfully!');
         selectedAsset = uploadRes.asset;
 
-        // Switch to browse view and refresh
-        document.getElementById('tabBrowse').click();
-        await fetchAssets();
+        setTimeout(async () => {
+          if (progress) progress.style.display = 'none';
+          const tabBrowse = document.getElementById('tabBrowse');
+          if (tabBrowse) tabBrowse.click();
+          await fetchAssets();
+        }, 600);
       }
     } catch (err) {
       if (window.AdminToast) window.AdminToast.error('Upload error: ' + err.message);
-      if (label) label.textContent = `Failed: ${err.message}`;
+      if (label) {
+        label.innerHTML = `<span style="color:#FF4D4D;">Failed: ${escapeHtml(err.message)}</span> <button type="button" class="btn btn-sm btn-secondary" style="margin-left:10px; padding:2px 8px; cursor:pointer;" id="pickerRetryBtn"><i class="fas fa-redo"></i> Retry</button>`;
+        document.getElementById('pickerRetryBtn')?.addEventListener('click', () => {
+          uploadFile(file);
+        });
+      }
+      if (percent) percent.textContent = '!';
     } finally {
-      setTimeout(() => {
-        if (progress) progress.style.display = 'none';
-      }, 1500);
+      isUploading = false;
+      if (fileInput) fileInput.value = '';
+      if (dropzone) {
+        dropzone.style.pointerEvents = 'auto';
+        dropzone.style.opacity = '1';
+      }
     }
   };
 

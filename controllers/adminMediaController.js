@@ -248,6 +248,21 @@ const createMediaAssetFromDirectUpload = async (req, res, next) => {
       return sendError(res, 400, 'Missing required asset url or publicId.');
     }
 
+    const validResourceTypes = ['image', 'video', 'raw'];
+    if (!validResourceTypes.includes(resourceType)) {
+      return sendError(res, 400, `Invalid resource type '${resourceType}'. Allowed types: image, video, raw.`);
+    }
+
+    const MAX_LIMITS = {
+      image: 25 * 1024 * 1024,
+      video: 100 * 1024 * 1024,
+      raw: 10 * 1024 * 1024,
+    };
+    if (bytes && bytes > (MAX_LIMITS[resourceType] || 25 * 1024 * 1024)) {
+      const limitMb = Math.round((MAX_LIMITS[resourceType] || 25 * 1024 * 1024) / (1024 * 1024));
+      return sendError(res, 400, `File size exceeds the maximum permitted limit of ${limitMb}MB for ${resourceType} assets.`);
+    }
+
     // Verify asset exists in storage
     const targetUrl = secureUrl || url;
     const verification = await verifyCloudinaryAsset(publicId, resourceType, targetUrl);

@@ -1,29 +1,25 @@
 /* ============================================================
    public/admin/js/components/uploader.js
-   Centralized Admin Media Uploader & Pipeline Manager.
+   Authoritative Admin Media Uploader & Pipeline Manager.
    Guarantees:
-   1. Client-Side Image Optimization: High-res images (>10MB) are
-      intelligently optimized on-the-fly to fit Cloudinary Free Plan limits
-      while maintaining crisp 4K quality.
-   2. Direct Cloudinary Signed CDN Upload for all eligible assets.
-   3. Large video fallback up to 1000MB to server disk storage.
-   4. Real-time XHR upload progress (0-100%).
-   5. Universal compatibility with MediaPicker, Hero, News, Gallery,
-      Team, Sponsors, Car, About, etc.
+   1. Direct Cloudinary Signed CDN Upload for all media types (Images, Videos, PDFs).
+   2. Zero Serverless Payload 413 Errors: Files bypass Vercel's 4.5MB limit completely.
+   3. Automatic Client-Side Image Optimization: High-res images (>10MB up to 25MB)
+      are dynamically compressed in 4K UHD to fit Cloudinary Free tier limits.
+   4. Accurate Real-Time Progress: Progress bar tracks true transfer bytes (0-80%),
+      asset verification (85%), and database recording (95%) until 100% confirmation.
+   5. Authentic file size limits enforced truthfully without false 1000MB advertising.
+   6. Idempotent asset recording in MongoDB via /api/v1/admin/media/direct-record.
    ============================================================ */
 
 (function () {
   'use strict';
 
-  // Overall system limits (1000 MB / 1 GB)
-  const MAX_IMAGE_SIZE = 1000 * 1024 * 1024;  // 1000 MB (1 GB)
-  const MAX_VIDEO_SIZE = 1000 * 1024 * 1024;  // 1000 MB (1 GB)
-  const MAX_DOC_SIZE   = 1000 * 1024 * 1024;  // 1000 MB (1 GB)
-
-  // Cloudinary Free tier plan limits
-  const CLOUDINARY_MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB Cloudinary Free limit
-  const CLOUDINARY_MAX_VIDEO_SIZE = 95 * 1024 * 1024; // 95 MB Cloudinary Free safe margin
-  const CLOUDINARY_MAX_DOC_SIZE   = 10 * 1024 * 1024; // 10 MB Cloudinary Free limit
+  // Realistic supported limits for Cloudinary Free Tier architecture
+  const MAX_IMAGE_SIZE = 25 * 1024 * 1024;  // 25 MB max (auto-optimized via 4K canvas if >10MB)
+  const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB max (Cloudinary Free account single video limit)
+  const MAX_DOC_SIZE   = 10 * 1024 * 1024;  // 10 MB max (Cloudinary Free account single raw file limit)
+  const CLOUDINARY_MAX_DIRECT_IMAGE = 10 * 1024 * 1024; // 10 MB Cloudinary Free single image limit
 
   const ALLOWED_IMAGE_TYPES = [
     'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
@@ -39,7 +35,7 @@
   ];
 
   /**
-   * Validate file against MIME types and overall bounds
+   * Validate file against MIME types and storage tier bounds.
    */
   function validateFile(file, allowedType = 'all') {
     if (!file) throw new Error('No file selected for upload.');
@@ -49,9 +45,9 @@
     const ext = (name.split('.').pop() || '').toLowerCase();
     const size = file.size || 0;
 
-    let isImage = ALLOWED_IMAGE_TYPES.includes(type) || type.startsWith('image/') || /^(jpg|jpeg|png|webp|gif|svg|bmp|tiff)$/i.test(ext);
-    let isVideo = ALLOWED_VIDEO_TYPES.includes(type) || type.startsWith('video/') || /^(mp4|webm|ogg|mov|avi|mkv)$/i.test(ext);
-    let isDoc = ALLOWED_DOC_TYPES.includes(type) || /^(pdf|doc|docx)$/i.test(ext);
+    const isImage = ALLOWED_IMAGE_TYPES.includes(type) || type.startsWith('image/') || /^(jpg|jpeg|png|webp|gif|svg|bmp|tiff)$/i.test(ext);
+    const isVideo = ALLOWED_VIDEO_TYPES.includes(type) || type.startsWith('video/') || /^(mp4|webm|ogg|mov|avi|mkv)$/i.test(ext);
+    const isDoc   = ALLOWED_DOC_TYPES.includes(type) || /^(pdf|doc|docx)$/i.test(ext);
 
     if (allowedType === 'image' && !isImage) {
       throw new Error(`Unsupported file type (${type || ext}). Please upload an image (PNG, JPG, WEBP, SVG, GIF).`);
@@ -62,15 +58,18 @@
     if (allowedType === 'document' && !isDoc) {
       throw new Error(`Unsupported file type (${type || ext}). Please upload a PDF or Word document.`);
     }
+    if (allowedType === 'all' && !isImage && !isVideo && !isDoc) {
+      throw new Error(`Unsupported file format (${ext}). Supported formats: PNG, JPG, WEBP, GIF, MP4, WEBM, PDF.`);
+    }
 
     if (isImage && size > MAX_IMAGE_SIZE) {
-      throw new Error(`Image is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed is 1000MB (1GB).`);
+      throw new Error(`Image is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 25 MB.`);
     }
     if (isVideo && size > MAX_VIDEO_SIZE) {
-      throw new Error(`Video is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed is 1000MB (1GB).`);
+      throw new Error(`Video is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 100 MB.`);
     }
     if (isDoc && size > MAX_DOC_SIZE) {
-      throw new Error(`Document is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed is 1000MB (1GB).`);
+      throw new Error(`Document is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 10 MB.`);
     }
 
     return {
@@ -84,8 +83,8 @@
 
   /**
    * Client-Side Image Optimizer:
-   * When a high-res photo exceeds Cloudinary's 10 MB limit (e.g. DSLR/iPhone RAW or 35MB PNG),
-   * dynamically resizes to crisp 4K UHD and compresses to high-quality JPEG/WebP.
+   * When a high-res photo exceeds Cloudinary's 10 MB limit (e.g. DSLR/RAW or 20MB PNG),
+   * dynamically resizes to crisp 4K UHD and compresses to high-quality JPEG.
    * Enables immediate Cloudinary CDN acceptance without any "File size too large" error.
    */
   async function compressImageIfNeeded(file, maxBytes = 9.5 * 1024 * 1024) {
@@ -159,10 +158,129 @@
   }
 
   /**
-   * Upload file using intelligent routing:
-   * - Optimizes images > 10MB to fit within Cloudinary Free tier.
-   * - Directly streams large videos (>95MB) to server storage.
-   * - Real-time progress updates (0-100%).
+   * Helper: Direct Cloudinary XHR upload with real progress tracking.
+   * Uploads file directly to api.cloudinary.com so no file bytes touch Vercel functions.
+   */
+  const executeDirectUpload = (sigData, targetFile, resourceType, onProgress) => {
+    return new Promise((resolve, reject) => {
+      const cloudUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/${resourceType}/upload`;
+      const cfd = new FormData();
+      cfd.append('file', targetFile);
+      cfd.append('api_key', sigData.apiKey);
+      cfd.append('timestamp', sigData.timestamp);
+      cfd.append('signature', sigData.signature);
+      cfd.append('folder', sigData.folder);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', cloudUrl);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          // Transfer represents 15% to 80% of entire pipeline
+          const p = 15 + Math.round((e.loaded / e.total) * 65);
+          const loadedMb = (e.loaded / (1024 * 1024)).toFixed(1);
+          const totalMb = (e.total / (1024 * 1024)).toFixed(1);
+          onProgress(p, `Uploading directly to Cloudinary CDN (${loadedMb}MB / ${totalMb}MB)...`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const resData = JSON.parse(xhr.responseText);
+            resolve(resData);
+          } catch (err) {
+            reject(new Error('Invalid JSON response from Cloudinary.'));
+          }
+        } else {
+          let errorMsg = `Cloudinary rejected upload (HTTP ${xhr.status})`;
+          try {
+            const parsed = JSON.parse(xhr.responseText);
+            if (parsed.error && parsed.error.message) {
+              errorMsg = `Cloudinary rejected upload: ${parsed.error.message}`;
+            }
+          } catch (e) {}
+          reject(new Error(errorMsg));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network connection error while uploading to Cloudinary CDN.'));
+      xhr.ontimeout = () => reject(new Error('Cloudinary upload timed out after 5 minutes.'));
+      xhr.timeout = 300000; // 5 min timeout
+      xhr.send(cfd);
+    });
+  };
+
+  /**
+   * Helper: Local server stream upload fallback (STRICTLY for small files <= 4.5MB in local development).
+   */
+  const executeServerUpload = (targetFile, folder, options, onProgress) => {
+    return new Promise((resolve, reject) => {
+      // Guard against Vercel 4.5MB payload limit
+      if (targetFile.size > 4.5 * 1024 * 1024) {
+        return reject(
+          new Error(
+            `File size (${(targetFile.size / (1024 * 1024)).toFixed(1)} MB) exceeds server upload limit (4.5 MB). Direct cloud upload is required.`
+          )
+        );
+      }
+
+      const xhr = new XMLHttpRequest();
+      const fd = new FormData();
+      fd.append('file', targetFile);
+      fd.append('folder', folder);
+      if (options.altText) fd.append('altText', options.altText);
+      if (options.caption) fd.append('caption', options.caption);
+
+      xhr.open('POST', '/api/v1/admin/media/upload');
+      const token =
+        localStorage.getItem('token') ||
+        localStorage.getItem('adminToken') ||
+        sessionStorage.getItem('adminToken');
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.withCredentials = true;
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const p = 15 + Math.round((e.loaded / e.total) * 65);
+          const loadedMb = (e.loaded / (1024 * 1024)).toFixed(1);
+          const totalMb = (e.total / (1024 * 1024)).toFixed(1);
+          onProgress(p, `Uploading to server storage (${loadedMb}MB / ${totalMb}MB)...`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const resData = JSON.parse(xhr.responseText);
+            if (resData.success && resData.data) {
+              resolve(resData.data);
+            } else {
+              reject(new Error(resData.message || 'Server upload failed.'));
+            }
+          } catch (err) {
+            reject(new Error('Invalid response from server.'));
+          }
+        } else {
+          let errorMsg = `Server upload failed (HTTP ${xhr.status})`;
+          try {
+            const parsed = JSON.parse(xhr.responseText);
+            if (parsed.message) errorMsg = parsed.message;
+          } catch (e) {}
+          reject(new Error(errorMsg));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error during server upload.'));
+      xhr.ontimeout = () => reject(new Error('Server upload timed out.'));
+      xhr.send(fd);
+    });
+  };
+
+  /**
+   * Main Upload Function:
+   * Direct Browser -> Cloudinary CDN -> Backend Record Verification.
+   * Eliminates Vercel 4.5MB payload limit completely.
    *
    * @param {File} file - Browser File object
    * @param {Object} [options]
@@ -175,11 +293,11 @@
    */
   async function uploadFile(file, options = {}) {
     const onProgress = options.onProgress || (() => {});
-    const onStatus = (statusText, pct) => {
+    const onStatus = (pct, statusText) => {
       onProgress(pct, statusText);
     };
 
-    onStatus('Validating file...', 5);
+    onStatus(5, 'Validating file format and size...');
     const meta = validateFile(file, options.allowedType || 'all');
     const folder = options.folder || meta.folder;
     const api = window.AdminApi || window.API;
@@ -188,181 +306,87 @@
       throw new Error('Admin API client not initialized.');
     }
 
-    // Step 1: Client-Side Optimization for oversized images
+    // Step 1: Client-Side Optimization for high-res images (>10MB up to 25MB)
     let uploadTarget = file;
-    if (meta.isImage && file.size > CLOUDINARY_MAX_IMAGE_SIZE) {
-      onStatus(`Optimizing high-resolution image (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`, 10);
+    if (meta.isImage && file.size > CLOUDINARY_MAX_DIRECT_IMAGE) {
+      onStatus(8, `Optimizing high-resolution image (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
       try {
-        uploadTarget = await compressImageIfNeeded(file, CLOUDINARY_MAX_IMAGE_SIZE);
-        onStatus(`Optimized to ${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB`, 15);
+        uploadTarget = await compressImageIfNeeded(file, CLOUDINARY_MAX_DIRECT_IMAGE);
+        onStatus(12, `Optimized to ${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB`);
       } catch (e) {
         uploadTarget = file;
       }
     }
 
-    // Helper: Direct Cloudinary XHR upload
-    const executeDirectUpload = (sigData, targetFile) => {
-      return new Promise((resolve, reject) => {
-        const fileToUpload = targetFile || uploadTarget;
-        const cloudUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/${meta.resourceType}/upload`;
-        const cfd = new FormData();
-        cfd.append('file', fileToUpload);
-        cfd.append('api_key', sigData.apiKey);
-        cfd.append('timestamp', sigData.timestamp);
-        cfd.append('signature', sigData.signature);
-        cfd.append('folder', sigData.folder);
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', cloudUrl);
-
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const p = 15 + Math.round((e.loaded / e.total) * 75); // 15% to 90%
-            const loadedMb = (e.loaded / (1024 * 1024)).toFixed(1);
-            const totalMb = (e.total / (1024 * 1024)).toFixed(1);
-            onStatus(`Uploading to cloud storage (${loadedMb}MB / ${totalMb}MB)...`, p);
-          }
+    // Step 2: Request Signed Upload Parameters from Backend
+    onStatus(14, 'Requesting secure cloud upload authorization...');
+    let sigRes;
+    try {
+      sigRes = await api.get('/admin/media/signature', { folder });
+    } catch (sigErr) {
+      // If signature endpoint failed and file is <= 4.5MB, attempt local server upload
+      if (uploadTarget.size <= 4.5 * 1024 * 1024) {
+        console.warn('[UPLOADER] Cloud authorization unavailable. Falling back to small-file server storage:', sigErr.message);
+        onStatus(20, `Cloud authorization unavailable. Using server storage (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB)...`);
+        const serverAsset = await executeServerUpload(uploadTarget, folder, options, onStatus);
+        onStatus(100, 'Upload complete and verified!');
+        return {
+          success: true,
+          url: serverAsset.secureUrl || serverAsset.url,
+          secureUrl: serverAsset.secureUrl || serverAsset.url,
+          publicId: serverAsset.publicId,
+          asset: serverAsset,
         };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const resData = JSON.parse(xhr.responseText);
-              resolve(resData);
-            } catch (err) {
-              reject(new Error('Invalid JSON response from Cloudinary.'));
-            }
-          } else {
-            let errorMsg = `Cloudinary rejected upload (HTTP ${xhr.status})`;
-            try {
-              const parsed = JSON.parse(xhr.responseText);
-              if (parsed.error && parsed.error.message) {
-                errorMsg = parsed.error.message;
-              }
-            } catch (e) {}
-            reject(new Error(errorMsg));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Network error during cloud storage upload.'));
-        xhr.ontimeout = () => reject(new Error('Cloud storage upload timed out.'));
-        xhr.send(cfd);
-      });
-    };
-
-    // Helper: Local Server Stream upload (with real-time XHR progress)
-    const executeServerUpload = (targetFile) => {
-      return new Promise((resolve, reject) => {
-        const fileToUpload = targetFile || uploadTarget;
-        const xhr = new XMLHttpRequest();
-        const fd = new FormData();
-        fd.append('file', fileToUpload);
-        fd.append('folder', folder);
-        if (options.altText) fd.append('altText', options.altText);
-        if (options.caption) fd.append('caption', options.caption);
-
-        xhr.open('POST', '/api/v1/admin/media/upload');
-        const token = localStorage.getItem('token') || localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
-        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        xhr.withCredentials = true;
-
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const p = 15 + Math.round((e.loaded / e.total) * 75); // 15% to 90%
-            const loadedMb = (e.loaded / (1024 * 1024)).toFixed(1);
-            const totalMb = (e.total / (1024 * 1024)).toFixed(1);
-            onStatus(`Uploading to server storage (${loadedMb}MB / ${totalMb}MB)...`, p);
-          }
-        };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const resData = JSON.parse(xhr.responseText);
-              if (resData.success && resData.data) {
-                resolve(resData.data);
-              } else {
-                reject(new Error(resData.message || 'Server upload failed.'));
-              }
-            } catch (err) {
-              reject(new Error('Invalid response from server.'));
-            }
-          } else {
-            let errorMsg = `Server upload failed (HTTP ${xhr.status})`;
-            try {
-              const parsed = JSON.parse(xhr.responseText);
-              if (parsed.message) errorMsg = parsed.message;
-            } catch (e) {}
-            reject(new Error(errorMsg));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Network error during server upload.'));
-        xhr.ontimeout = () => reject(new Error('Server upload timed out.'));
-        xhr.send(fd);
-      });
-    };
-
-    let assetRecord = null;
-    const fitsInCloudinary =
-      (meta.isImage && uploadTarget.size <= CLOUDINARY_MAX_IMAGE_SIZE) ||
-      (meta.isVideo && uploadTarget.size <= CLOUDINARY_MAX_VIDEO_SIZE) ||
-      (meta.isDoc   && uploadTarget.size <= CLOUDINARY_MAX_DOC_SIZE);
-
-    if (fitsInCloudinary) {
-      // Step 2: Attempt Direct Signed Upload to Cloudinary CDN
-      try {
-        onStatus('Requesting secure cloud authorization...', 12);
-        const sigRes = await api.get(`/admin/media/signature?folder=${encodeURIComponent(folder)}`);
-
-        if (sigRes && sigRes.success && sigRes.data && sigRes.data.signature) {
-          onStatus(`Uploading directly to Cloudinary CDN (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB)...`, 18);
-          const cloudResult = await executeDirectUpload(sigRes.data, uploadTarget);
-
-          onStatus('Verifying asset and recording in CMS database...', 90);
-          const recordRes = await api.post('/admin/media/direct-record', {
-            publicId: cloudResult.public_id,
-            url: cloudResult.secure_url || cloudResult.url,
-            secureUrl: cloudResult.secure_url || cloudResult.url,
-            resourceType: cloudResult.resource_type || meta.resourceType,
-            format: cloudResult.format || (uploadTarget.name.split('.').pop() || '').toLowerCase(),
-            bytes: cloudResult.bytes || uploadTarget.size,
-            width: cloudResult.width || 0,
-            height: cloudResult.height || 0,
-            duration: cloudResult.duration || 0,
-            altText: options.altText || file.name.replace(/\.[^/.]+$/, ''),
-            caption: options.caption || '',
-            folder: sigRes.data.folder || folder,
-            originalName: file.name,
-            mimeType: uploadTarget.type || file.type,
-          });
-
-          if (recordRes && recordRes.success && recordRes.data) {
-            assetRecord = recordRes.data;
-          } else {
-            throw new Error((recordRes && recordRes.message) || 'Database record creation failed.');
-          }
-        } else {
-          throw new Error('Cloudinary signature could not be generated.');
-        }
-      } catch (cloudErr) {
-        console.warn('Cloudinary upload bypassed/failed:', cloudErr.message, 'Falling back to server storage.');
-        onStatus(`Cloud storage unavailable, switching to server storage (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB)...`, 20);
-        assetRecord = await executeServerUpload(uploadTarget);
       }
-    } else {
-      // Step 3: Large videos (>95MB up to 1000MB) stream directly to server storage
-      onStatus(`Large media (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB) streaming directly to server storage...`, 15);
-      assetRecord = await executeServerUpload(uploadTarget);
+      throw new Error(`Cloud upload authorization failed: ${sigErr.message || 'Server rejected signature request'}`);
     }
 
-    onStatus('Upload complete and verified!', 100);
+    if (!sigRes || !sigRes.success || !sigRes.data || !sigRes.data.signature) {
+      throw new Error((sigRes && sigRes.message) || 'Cloudinary signature could not be generated.');
+    }
+
+    const sigData = sigRes.data;
+
+    // Step 3: Direct-to-Cloudinary Upload via XHR
+    onStatus(15, `Uploading directly to Cloudinary CDN (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB)...`);
+    const cloudResult = await executeDirectUpload(sigData, uploadTarget, meta.resourceType, onStatus);
+
+    if (!cloudResult || (!cloudResult.secure_url && !cloudResult.url)) {
+      throw new Error('Cloudinary finished without returning a valid asset URL.');
+    }
+
+    // Step 4: Verify Asset with Backend & Record in Database
+    onStatus(85, 'Verifying asset in cloud storage...');
+    const recordPayload = {
+      publicId: cloudResult.public_id,
+      url: cloudResult.secure_url || cloudResult.url,
+      secureUrl: cloudResult.secure_url || cloudResult.url,
+      resourceType: cloudResult.resource_type || meta.resourceType,
+      format: cloudResult.format || (uploadTarget.name.split('.').pop() || '').toLowerCase(),
+      bytes: cloudResult.bytes || uploadTarget.size,
+      width: cloudResult.width || 0,
+      height: cloudResult.height || 0,
+      duration: cloudResult.duration || 0,
+      altText: options.altText || file.name.replace(/\.[^/.]+$/, ''),
+      caption: options.caption || '',
+      folder: sigData.folder || folder,
+      originalName: file.name,
+      mimeType: uploadTarget.type || file.type,
+    };
+
+    onStatus(92, 'Recording asset in CMS Media Library database...');
+    const recordRes = await api.post('/admin/media/direct-record', recordPayload);
+
+    if (!recordRes || !recordRes.success || !recordRes.data) {
+      throw new Error((recordRes && recordRes.message) || 'Failed to save media asset reference in database.');
+    }
+
+    const assetRecord = recordRes.data;
+
+    // Step 5: Confirmed Complete
+    onStatus(100, 'Upload complete and verified!');
 
     const finalUrl = assetRecord.secureUrl || assetRecord.url;
-    if (!finalUrl) {
-      throw new Error('Pipeline error: no usable URL returned after upload.');
-    }
-
     return {
       success: true,
       url: finalUrl,
@@ -398,8 +422,8 @@
     MAX_IMAGE_SIZE,
     MAX_VIDEO_SIZE,
     MAX_DOC_SIZE,
-    CLOUDINARY_MAX_IMAGE_SIZE,
-    CLOUDINARY_MAX_VIDEO_SIZE,
-    CLOUDINARY_MAX_DOC_SIZE,
+    CLOUDINARY_MAX_IMAGE_SIZE: CLOUDINARY_MAX_DIRECT_IMAGE,
+    CLOUDINARY_MAX_VIDEO_SIZE: MAX_VIDEO_SIZE,
+    CLOUDINARY_MAX_DOC_SIZE: MAX_DOC_SIZE,
   };
 })();

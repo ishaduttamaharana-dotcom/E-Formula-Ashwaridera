@@ -37,6 +37,10 @@
           throw new Error('Access denied. Only administrator accounts can access the CMS.');
         }
         currentUser = res.data.user;
+        if (res.data.token) {
+          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('adminToken', res.data.token);
+        }
         return currentUser;
       }
       throw new Error(res.message || 'Login failed.');
@@ -55,6 +59,9 @@
       // Ignore logout errors
     } finally {
       currentUser = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('adminToken');
+      sessionStorage.removeItem('adminToken');
       showLoginScreen();
     }
   }
