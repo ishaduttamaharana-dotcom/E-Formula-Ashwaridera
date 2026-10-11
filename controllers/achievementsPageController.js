@@ -16,6 +16,18 @@ const NavFooterSettings = require('../models/NavFooterSettings');
 const { sendSuccess, sendError } = require('../utils/responseHelper');
 const { logActivity } = require('../utils/publishingHelper');
 
+const DEFAULT_HERO = {
+  eyebrow: 'Achievements',
+  title: 'Our Legacy Of Excellence',
+  description: "From our founding in 2020 to becoming central India's first Formula Student Electric team, every result on this page reflects work our members put in at Formula Bharat and beyond.",
+  stats: [
+    { id: 'stat-founded', count: 2020, label: 'Team Founded', order: 1 },
+    { id: 'stat-fb', count: 5, label: 'Formula Bharat Appearances', order: 2 },
+    { id: 'stat-ev', count: 2, label: 'Electric Vehicles Built', order: 3 },
+    { id: 'stat-rank', count: 8, label: 'Best Overall Rank — AIR 8 (2026)', order: 4 },
+  ],
+};
+
 const DEFAULT_CATEGORIES = [
   { id: 'cat-comp', name: 'Competitions', slug: 'competition', icon: 'fas fa-flag-checkered', order: 1, enabled: true },
   { id: 'cat-award', name: 'Awards', slug: 'award', icon: 'fas fa-star', order: 2, enabled: true },
@@ -399,6 +411,7 @@ const getOrSeedAchievementsPageDoc = async () => {
       canonicalUrl: 'achievements.html',
       visible: true,
     },
+    hero: DEFAULT_HERO,
     achievementsSection: {
       eyebrow: 'Our Achievements',
       eyebrowIcon: 'fas fa-medal',
@@ -555,6 +568,7 @@ const getPublicAchievementsContent = async (req, res) => {
       version: doc.version,
       lastPublishedAt: doc.lastPublishedAt,
       settings: content.settings,
+      hero: content.hero || DEFAULT_HERO,
       achievements: visibleAchievements,
       achievementsSection: {
         ...content.achievementsSection,
@@ -597,6 +611,7 @@ const getAdminAchievementsContent = async (req, res) => {
       lastPublishedAt: doc.lastPublishedAt,
       lastEditedAt: doc.lastEditedAt,
       settings: data.settings,
+      hero: data.hero || DEFAULT_HERO,
       achievementsSection: {
         ...data.achievementsSection,
         allCount,
@@ -629,6 +644,7 @@ const updateAchievementsDraft = async (req, res) => {
     const updatedDraft = {
       ...currentDraft,
       settings: payload.settings !== undefined ? payload.settings : currentDraft.settings,
+      hero: payload.hero !== undefined ? payload.hero : currentDraft.hero,
       achievementsSection: payload.achievementsSection !== undefined ? payload.achievementsSection : currentDraft.achievementsSection,
       timelineSection: payload.timelineSection !== undefined ? payload.timelineSection : currentDraft.timelineSection,
     };
@@ -669,6 +685,7 @@ const publishAchievements = async (req, res) => {
 
     // Also update root fields for consistency
     if (draft.settings) doc.settings = draft.settings;
+    if (draft.hero) doc.hero = draft.hero;
     if (draft.achievementsSection) doc.achievementsSection = draft.achievementsSection;
     if (draft.timelineSection) doc.timelineSection = draft.timelineSection;
 

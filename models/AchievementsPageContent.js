@@ -64,6 +64,49 @@ const achievementsPageContentSchema = new mongoose.Schema(
         default: true,
       },
     },
+    hero: {
+      eyebrow: {
+        type: String,
+        default: 'Achievements',
+        trim: true,
+      },
+      title: {
+        type: String,
+        default: 'Our Legacy Of Excellence',
+        trim: true,
+      },
+      description: {
+        type: String,
+        default: "From our founding in 2020 to becoming central India's first Formula Student Electric team, every result on this page reflects work our members put in at Formula Bharat and beyond.",
+        trim: true,
+      },
+      stats: [
+        {
+          id: { type: String, default: 'stat-founded' },
+          count: { type: Number, default: 2020 },
+          label: { type: String, default: 'Team Founded' },
+          order: { type: Number, default: 1 },
+        },
+        {
+          id: { type: String, default: 'stat-fb' },
+          count: { type: Number, default: 5 },
+          label: { type: String, default: 'Formula Bharat Appearances' },
+          order: { type: Number, default: 2 },
+        },
+        {
+          id: { type: String, default: 'stat-ev' },
+          count: { type: Number, default: 2 },
+          label: { type: String, default: 'Electric Vehicles Built' },
+          order: { type: Number, default: 3 },
+        },
+        {
+          id: { type: String, default: 'stat-rank' },
+          count: { type: Number, default: 8 },
+          label: { type: String, default: 'Best Overall Rank — AIR 8 (2026)' },
+          order: { type: Number, default: 4 },
+        },
+      ],
+    },
     achievementsSection: {
       eyebrow: {
         type: String,

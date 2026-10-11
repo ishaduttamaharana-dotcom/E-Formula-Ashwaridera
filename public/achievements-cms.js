@@ -101,6 +101,28 @@
       document.title = data.settings.seoTitle;
     }
 
+    // 01b Hero Section & Stats Hydration
+    if (data.hero) {
+      if (data.hero.description) {
+        const heroDesc = document.querySelector('.achievements-hero .hero-content p');
+        if (heroDesc) heroDesc.textContent = data.hero.description;
+      }
+      if (Array.isArray(data.hero.stats) && data.hero.stats.length > 0) {
+        const statIds = ['statAwards', 'statCompetitions', 'statRecords', 'statCertificates'];
+        data.hero.stats.forEach((st, idx) => {
+          const el = document.getElementById(statIds[idx]);
+          if (el) {
+            el.setAttribute('data-count', st.count);
+            el.textContent = st.count;
+            const labelEl = el.nextElementSibling;
+            if (labelEl && labelEl.classList.contains('stat-label') && st.label) {
+              labelEl.textContent = st.label;
+            }
+          }
+        });
+      }
+    }
+
     // 02 Our Achievements Section Settings
     const achSec = data.achievementsSection;
     if (achSec) {
