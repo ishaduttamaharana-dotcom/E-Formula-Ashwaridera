@@ -187,13 +187,19 @@ const getMediaAssets = async (req, res, next) => {
       MediaAsset.countDocuments(filter),
     ]);
 
-    return sendSuccess(res, 200, 'Media assets retrieved successfully.', items, {
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit) || 1,
-      },
+    const pagination = {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit) || 1,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: 'Media assets retrieved successfully.',
+      data: items,
+      pagination,
+      meta: { pagination },
     });
   } catch (error) {
     next(error);

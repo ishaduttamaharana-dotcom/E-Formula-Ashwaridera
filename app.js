@@ -46,30 +46,67 @@ app.use(
 //  CORS
 // ============================================================
 
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+const defaultAllowedOrigins = [
+  'https://www.e-formulaashwariders.in',
+  'https://e-formulaashwariders.in',
+  'http://www.e-formulaashwariders.in',
+  'http://e-formulaashwariders.in',
+  'http://localhost:5000',
+  'http://localhost:5173',
+  'http://localhost:3000',
 ];
+
+const envAllowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.ALLOWED_ORIGINS,
+]
+  .filter(Boolean)
+  .flatMap((val) => val.split(',').map((o) => o.trim()).filter(Boolean));
+
+const allowedOriginsSet = new Set([...defaultAllowedOrigins, ...envAllowedOrigins]);
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true; // Allow requests with no origin (e.g. mobile apps, curl, Postman, same-origin)
+
+  if (allowedOriginsSet.has(origin)) return true;
+
+  try {
+    const parsed = new URL(origin);
+    const host = parsed.hostname.toLowerCase();
+
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === 'e-formulaashwariders.in' ||
+      host.endsWith('.e-formulaashwariders.in') ||
+      host === 'ashwariders.in' ||
+      host.endsWith('.ashwariders.in') ||
+      host === 'ashwariders.com' ||
+      host.endsWith('.ashwariders.com') ||
+      host.endsWith('.vercel.app')
+    ) {
+      return true;
+    }
+  } catch (e) {
+    // URL parse failed, reject unknown origin format
+  }
+
+  return false;
+};
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. curl, Postman, server-to-server)
-    if (!origin) return callback(null, true);
-
-    const isAllowed =
-      allowedOrigins.includes(origin) ||
-      /^https:\/\/.*\.vercel\.app$/.test(origin) ||
-      /^http:\/\/localhost(:\d+)?$/.test(origin) ||
-      /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
-
-    if (isAllowed) {
+    if (isOriginAllowed(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS policy: origin ${origin} is not allowed.`));
+      const corsErr = new Error(`CORS policy: origin ${origin} is not allowed.`);
+      corsErr.statusCode = 403;
+      callback(corsErr);
     }
   },
   credentials: true,              // Allow cookies / Authorization headers
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 200,      // Some legacy browsers choke on 204
 };
 

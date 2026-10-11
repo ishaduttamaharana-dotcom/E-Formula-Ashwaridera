@@ -211,134 +211,13 @@
     });
   };
 
-  /**
-   * Helper: Local server stream upload fallback (STRICTLY for small files <= 4.5MB in local development).
-   */
-  const executeServerUpload = (targetFile, folder, options, onProgress) => {
-    return new Promise((resolve, reject) => {
-      // Guard against Vercel 4.5MB payload limit
-      if (targetFile.size > 4.5 * 1024 * 1024) {
-        return reject(
-          new Error(
-            `File size (${(targetFile.size / (1024 * 1024)).toFixed(1)} MB) exceeds server upload limit (4.5 MB). Direct cloud upload is required.`
-          )
-        );
-      }
-
-      const xhr = new XMLHttpRequest();
-      const fd = new FormData();
-      fd.append('file', targetFile);
-      fd.append('folder', folder);
-      if (options.altText) fd.append('altText', options.altText);
-      if (options.caption) fd.append('caption', options.caption);
-
-      xhr.open('POST', '/api/v1/admin/media/upload');
-      const token =
-        localStorage.getItem('token') ||
-        localStorage.getItem('adminToken') ||
-        sessionStorage.getItem('adminToken');
-      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      xhr.withCredentials = true;
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const p = 15 + Math.round((e.loaded / e.total) * 65);
-          const loadedMb = (e.loaded / (1024 * 1024)).toFixed(1);
-          const totalMb = (e.total / (1024 * 1024)).toFixed(1);
-          onProgress(p, `Uploading to server storage (${loadedMb}MB / ${totalMb}MB)...`);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const resData = JSON.parse(xhr.responseText);
-            if (resData.success && resData.data) {
-              resolve(resData.data);
-            } else {
-              reject(new Error(resData.message || 'Server upload failed.'));
-            }
-          } catch (err) {
-            reject(new Error('Invalid response from server.'));
-          }
-        } else {
-          let errorMsg = `Server upload failed (HTTP ${xhr.status})`;
-          try {
-            const parsed = JSON.parse(xhr.responseText);
-            if (parsed.message) errorMsg = parsed.message;
-          } catch (e) {}
-          reject(new Error(errorMsg));
-        }
-      };
-
-      xhr.onerror = () => reject(new Error('Network error during server upload.'));
-      xhr.ontimeout = () => reject(new Error('Server upload timed out.'));
-      xhr.send(fd);
-    });
-  };
-
-  /**
-   * Main Upload Function:
-   * Direct Browser -> Cloudinary CDN -> Backend Record Verification.
-   * Eliminates Vercel 4.5MB payload limit completely.
-   *
-   * @param {File} file - Browser File object
-   * @param {Object} [options]
-   * @param {string} [options.allowedType='all'] - 'image', 'video', 'document', 'all'
-   * @param {string} [options.folder]           - Target folder
-   * @param {string} [options.altText]          - Optional alt text
-   * @param {string} [options.caption]          - Optional caption
-   * @param {function} [options.onProgress]     - (percent: number, statusText: string) => void
-   * @returns {Promise<{ success: boolean, url: string, secureUrl: string, publicId: string, asset: object }>}
-   */
-  async function uploadFile(file, options = {}) {
-    const onProgress = options.onProgress || (() => {});
-    const onStatus = (pct, statusText) => {
-      onProgress(pct, statusText);
-    };
-
-    onStatus(5, 'Validating file format and size...');
-    const meta = validateFile(file, options.allowedType || 'all');
-    const folder = options.folder || meta.folder;
-    const api = window.AdminApi || window.API;
-
-    if (!api) {
-      throw new Error('Admin API client not initialized.');
-    }
-
-    // Step 1: Client-Side Optimization for high-res images (>10MB up to 25MB)
-    let uploadTarget = file;
-    if (meta.isImage && file.size > CLOUDINARY_MAX_DIRECT_IMAGE) {
-      onStatus(8, `Optimizing high-resolution image (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
-      try {
-        uploadTarget = await compressImageIfNeeded(file, CLOUDINARY_MAX_DIRECT_IMAGE);
-        onStatus(12, `Optimized to ${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB`);
-      } catch (e) {
-        uploadTarget = file;
-      }
-    }
-
     // Step 2: Request Signed Upload Parameters from Backend
     onStatus(14, 'Requesting secure cloud upload authorization...');
     let sigRes;
     try {
       sigRes = await api.get('/admin/media/signature', { folder });
     } catch (sigErr) {
-      // If signature endpoint failed and file is <= 4.5MB, attempt local server upload
-      if (uploadTarget.size <= 4.5 * 1024 * 1024) {
-        console.warn('[UPLOADER] Cloud authorization unavailable. Falling back to small-file server storage:', sigErr.message);
-        onStatus(20, `Cloud authorization unavailable. Using server storage (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB)...`);
-        const serverAsset = await executeServerUpload(uploadTarget, folder, options, onStatus);
-        onStatus(100, 'Upload complete and verified!');
-        return {
-          success: true,
-          url: serverAsset.secureUrl || serverAsset.url,
-          secureUrl: serverAsset.secureUrl || serverAsset.url,
-          publicId: serverAsset.publicId,
-          asset: serverAsset,
-        };
-      }
-      throw new Error(`Cloud upload authorization failed: ${sigErr.message || 'Server rejected signature request'}`);
+      throw new Error(`Cloud upload authorization failed: ${sigErr.message || 'Server rejected signature request. Please verify your session.'}`);
     }
 
     if (!sigRes || !sigRes.success || !sigRes.data || !sigRes.data.signature) {

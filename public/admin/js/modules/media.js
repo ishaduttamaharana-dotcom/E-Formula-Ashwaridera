@@ -167,7 +167,13 @@
       const res = await window.AdminApi.get(`/admin/media?${query}`);
 
       if (res.success && res.data) {
-        renderGrid(container, res.data, res.pagination);
+        const pagination = res.pagination || res.meta?.pagination || {
+          page: currentParams.page || 1,
+          pages: 1,
+          total: Array.isArray(res.data) ? res.data.length : 0,
+          limit: currentParams.limit || 24,
+        };
+        renderGrid(container, res.data, pagination);
       } else {
         container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--admin-danger);">Failed to load media.</div>`;
       }
