@@ -193,6 +193,21 @@
       }
     });
 
+    // Synchronize canvas experience stageDefinitions if present
+    if (window.carCanvasExperience && Array.isArray(window.carCanvasExperience.stageDefinitions)) {
+      stages.forEach((st, idx) => {
+        const sDef = window.carCanvasExperience.stageDefinitions[idx];
+        if (sDef) {
+          if (st.stageName) sDef.label = `${String(idx).padStart(2, '0')} // ${st.stageName.toUpperCase()}`;
+          if (st.minScroll !== undefined && st.minScroll !== null) sDef.min = st.minScroll;
+          if (st.maxScroll !== undefined && st.maxScroll !== null) sDef.max = st.maxScroll;
+        }
+      });
+      if (typeof window.carCanvasExperience.updateScrollState === 'function') {
+        window.carCanvasExperience.updateScrollState();
+      }
+    }
+
     // Update document title if hero stage heading is present
     const heroStage = stages.find(s => s.stageNumber === 0) || stages[0];
     if (heroStage && heroStage.heading) {
@@ -444,9 +459,20 @@
 
     // Directly fetch live CMS data from authoritative API (no localStorage / sessionStorage cache)
     try {
-      const res = await fetch(CAR_API, { credentials: 'include', cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      let json = null;
+      if (window.__CAR_CMS_FETCH__) {
+        try {
+          json = await window.__CAR_CMS_FETCH__;
+        } catch (e) {
+          json = null;
+        }
+      }
+
+      if (!json || !json.success) {
+        const res = await fetch(CAR_API, { credentials: 'include', cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        json = await res.json();
+      }
 
       if (json && json.success && json.data) {
         const data = json.data;

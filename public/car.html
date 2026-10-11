@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ashwa Riders — Ashwa-3 Race Car</title>
+    <title>Ashwa Riders — E-Formula Ashwa Riders</title>
+    <script>
+        // Authoritative Car CMS early prefetch: initiates API fetch in parallel with HTML parsing
+        window.__CAR_CMS_FETCH__ = fetch('/api/v1/car' + (window.location.search.includes('preview=true') ? '?preview=true&_t=' : '?_t=') + Date.now(), { credentials: 'include', cache: 'no-store' })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .catch(function() { return null; });
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -266,35 +272,35 @@
         <div class="story-side">
             <div class="story-side-watermark">A3</div>
             <div class="stage-panel active" id="stage-0">
-                <div class="stage-badge">// 2026 E-Formula</div><div class="stage-number">00</div>
-                <h1 class="stage-title">Ashwa<em>-3</em><br>Race Car</h1>
+                <div class="stage-badge">SEASON 2026</div><div class="stage-number">00</div>
+                <h1 class="stage-title">E-Formula Ashwa Riders</h1>
                 <p class="stage-desc">India's most advanced Formula Student electric race car. Engineered for precision, built for speed.</p>
-                <div class="stage-stats"><div><div class="stage-stat-label">Peak Power</div><div class="stage-stat-val">120<sub>kW</sub></div></div><div><div class="stage-stat-label">0–100 km/h</div><div class="stage-stat-val">3.2<sub>sec</sub></div></div></div>
+                <div class="stage-stats"><div><div class="stage-stat-label">Peak Power</div><div class="stage-stat-val">30<sub>kW</sub></div></div><div><div class="stage-stat-label">0–100</div><div class="stage-stat-val">6<sub>sec</sub></div></div></div>
                 <div class="stage-btn-row"><a href="#specs-section" class="btn btn-primary"><i class="fas fa-play"></i> Explore Specs</a><a href="index.html#recruitment" class="btn btn-outline"><i class="fas fa-user-plus"></i> Join Team</a></div>
             </div>
             <div class="stage-panel" id="stage-1">
                 <div class="stage-badge">Stage 01 // Reveal</div><div class="stage-number">01</div>
                 <h2 class="stage-title">Engineered<br><em>Without</em> Compromise</h2>
                 <p class="stage-desc">Scroll deeper as internal mechanical components separate and body panels unveil raw carbon engineering beneath.</p>
-                <div class="stage-stats"><div><div class="stage-stat-label">Frame Weight</div><div class="stage-stat-val">28<sub>kg</sub></div></div><div><div class="stage-stat-label">Downforce</div><div class="stage-stat-val">450<sub>kg</sub></div></div></div>
+                <div class="stage-stats"><div><div class="stage-stat-label">Chassis Weight</div><div class="stage-stat-val">28<sub>kg</sub></div></div><div><div class="stage-stat-label">Vehicle weight with driver</div><div class="stage-stat-val">300<sub>kg</sub></div></div></div>
             </div>
             <div class="stage-panel" id="stage-2">
                 <div class="stage-badge">Stage 02 // Tech</div><div class="stage-number">02</div>
                 <h2 class="stage-title">Precision in<br><em>Every</em> Component</h2>
                 <p class="stage-desc">Double wishbone Öhlins TTX suspension, 600V battery pack, and Motec M150 ECU in perfect synchronicity.</p>
-                <div class="stage-stats"><div><div class="stage-stat-label">Voltage</div><div class="stage-stat-val">600<sub>V</sub></div></div><div><div class="stage-stat-label">Sensors</div><div class="stage-stat-val">40<sub>+Ch</sub></div></div></div>
+                <div class="stage-stats"><div><div class="stage-stat-label">Voltage</div><div class="stage-stat-val">84<sub>V</sub></div></div><div><div class="stage-stat-label">Sensors</div><div class="stage-stat-val">10<sub>+</sub></div></div></div>
             </div>
             <div class="stage-panel" id="stage-3">
                 <div class="stage-badge">Stage 03 // Performance</div><div class="stage-number">03</div>
                 <h2 class="stage-title">Built to<br><em>Move</em> You</h2>
                 <p class="stage-desc">Extreme downforce, active DRS drag reduction, and real-time AI telematics engineered to shatter lap records.</p>
-                <div class="stage-stats"><div><div class="stage-stat-label">Top Speed</div><div class="stage-stat-val">140<sub>km/h</sub></div></div><div><div class="stage-stat-label">Torque</div><div class="stage-stat-val">240<sub>Nm</sub></div></div></div>
+                <div class="stage-stats"><div><div class="stage-stat-label">Top Speed</div><div class="stage-stat-val">120<sub>km/h</sub></div></div><div><div class="stage-stat-label">Torque</div><div class="stage-stat-val">240<sub>Nm</sub></div></div></div>
             </div>
             <div class="stage-panel" id="stage-4">
                 <div class="stage-badge">Stage 04 // Final Hero</div><div class="stage-number">04</div>
                 <h2 class="stage-title">Built for<br><em>What's</em> Next.</h2>
                 <p class="stage-desc">Components return to full assembly. The race car is ready to set new benchmarks on circuit.</p>
-                <div class="stage-stats"><div><div class="stage-stat-label">Total Power</div><div class="stage-stat-val">120<sub>kW</sub></div></div><div><div class="stage-stat-label">Total Weight</div><div class="stage-stat-val">220<sub>kg</sub></div></div></div>
+                <div class="stage-stats"><div><div class="stage-stat-label">Total Power</div><div class="stage-stat-val">30<sub>kW</sub></div></div><div><div class="stage-stat-label">Total Weight</div><div class="stage-stat-val">300<sub>kg</sub></div></div></div>
                 <div class="stage-btn-row"><a href="index.html#recruitment" class="btn btn-primary"><i class="fas fa-user-plus"></i> Join Team</a></div>
             </div>
         </div>
@@ -319,10 +325,10 @@
 
 <div class="stats-strip">
     <div class="stats-strip-inner">
-        <div class="stat-block"><div class="stat-key">Peak Power</div><div class="stat-num"><span class="counter" data-target="120">0</span><span class="unit">kW</span></div><div class="stat-sub">Electric Motor Output</div></div>
-        <div class="stat-block"><div class="stat-key">0–100 km/h</div><div class="stat-num"><span class="counter" data-target="3" data-decimal="1">0</span><span class="unit">s</span></div><div class="stat-sub">Sprint Acceleration</div></div>
-        <div class="stat-block"><div class="stat-key">Downforce</div><div class="stat-num"><span class="counter" data-target="450">0</span><span class="unit">kg</span></div><div class="stat-sub">@ 100 km/h</div></div>
-        <div class="stat-block"><div class="stat-key">Vehicle Weight</div><div class="stat-num"><span class="counter" data-target="220">0</span><span class="unit">kg</span></div><div class="stat-sub">Total with Driver</div></div>
+        <div class="stat-block"><div class="stat-key">Peak Power</div><div class="stat-num"><span class="counter" data-target="30">30</span><span class="unit">kW</span></div><div class="stat-sub">Electric Motor Output</div></div>
+        <div class="stat-block"><div class="stat-key">0–100</div><div class="stat-num"><span class="counter" data-target="6.0" data-decimal="1">6.0</span><span class="unit">s</span></div><div class="stat-sub">Acceleration</div></div>
+        <div class="stat-block"><div class="stat-key">Vehicle Weight</div><div class="stat-num"><span class="counter" data-target="300">300</span><span class="unit">kg</span></div><div class="stat-sub">Total with Driver</div></div>
+        <div class="stat-block"><div class="stat-key">Battery Power</div><div class="stat-num"><span class="counter" data-target="60.5" data-decimal="1">60.5</span><span class="unit">KW</span></div><div class="stat-sub"></div></div>
     </div>
 </div>
 
@@ -338,8 +344,8 @@
             <button class="sys-tab" data-tab="ai"><i class="fas fa-brain"></i> AI &amp; Data</button>
         </div>
         <div class="sys-panel active" id="tab-chassis">
-            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-cubes"></i></div><h3>Carbon Monocoque Chassis</h3><p>Full carbon fiber monocoque designed for maximum structural rigidity and driver safety conforming to FIA Formula Student standards.</p><ul class="spec-list"><li><span class="k">Material</span><span class="v">Carbon Fiber / Honeycomb</span></li><li><span class="k">Weight</span><span class="v">28 kg</span></li><li><span class="k">Torsional Rigidity</span><span class="v">45,000 Nm/deg</span></li><li><span class="k">Safety Standard</span><span class="v">FIA Formula Student</span></li></ul></div>
-            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-ruler-combined"></i></div><h3>Chassis Dimensions</h3><p>Optimized geometry providing ideal weight distribution and driver ergonomics at maximum cornering loads.</p><ul class="spec-list"><li><span class="k">Wheelbase</span><span class="v">1,550 mm</span></li><li><span class="k">Front Track</span><span class="v">1,200 mm</span></li><li><span class="k">Rear Track</span><span class="v">1,180 mm</span></li><li><span class="k">CoG Height</span><span class="v">265 mm</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-cubes"></i></div><h3>Chassis</h3><p>Tubular spaceframe constructed from AISI 4130 Chromoly steel tubes conforming to Formula Student regulations.</p><ul class="spec-list"><li><span class="k">Material</span><span class="v">AISI 4130 Chromoly steel tubes.</span></li><li><span class="k">Weight</span><span class="v">28 kg</span></li><li><span class="k">Torsional Rigidity</span><span class="v">14000 Nm/deg</span></li><li><span class="k">Safety Standard</span><span class="v">Formula Student</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-ruler-combined"></i></div><h3>Chassis Dimensions</h3><p>Optimized geometry providing ideal weight distribution and driver ergonomics at maximum cornering loads.</p><ul class="spec-list"><li><span class="k">Wheelbase</span><span class="v">1680 mm</span></li><li><span class="k">Front Track</span><span class="v">1250 mm</span></li><li><span class="k">Rear Track</span><span class="v">1240 mm</span></li></ul></div>
         </div>
         <div class="sys-panel" id="tab-suspension">
             <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-car-side"></i></div><h3>Suspension Architecture</h3><p>Double wishbone push-rod suspension at all four corners delivers precise handling and adjustable setup for varying circuit conditions.</p><ul class="spec-list"><li><span class="k">Type</span><span class="v">Double Wishbone Push-Rod</span></li><li><span class="k">Dampers</span><span class="v">Öhlins TTX 2-way</span></li><li><span class="k">Anti-roll Bars</span><span class="v">Adjustable Front &amp; Rear</span></li><li><span class="k">Wheel Travel</span><span class="v">60 mm</span></li></ul></div>
@@ -351,7 +357,7 @@
         </div>
         <div class="sys-panel" id="tab-electronics">
             <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-microchip"></i></div><h3>Vehicle Control Unit</h3><p>Motec M150 ECU running proprietary real-time vehicle control software, power management, and safety interlocks.</p><ul class="spec-list"><li><span class="k">ECU</span><span class="v">Motec M150</span></li><li><span class="k">Sensors</span><span class="v">40+ Active Channels</span></li><li><span class="k">Telemetry</span><span class="v">4G / Wi-Fi Real-time</span></li><li><span class="k">Data Logging</span><span class="v">100 Hz Frequency</span></li></ul></div>
-            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-battery-full"></i></div><h3>Battery System</h3><p>600V high-voltage lithium-ion battery pack with active thermal management and multi-layer BMS protection.</p><ul class="spec-list"><li><span class="k">Pack Voltage</span><span class="v">600 V nominal</span></li><li><span class="k">Capacity</span><span class="v">7.2 kWh usable</span></li><li><span class="k">Thermal Mgmt.</span><span class="v">Active liquid cooling</span></li><li><span class="k">BMS</span><span class="v">Multi-layer protection</span></li></ul></div>
+            <div class="sys-card"><div class="sys-card-icon"><i class="fas fa-battery-full"></i></div><h3>Battery System</h3><p>High-voltage lithium-ion battery pack with active thermal management and multi-layer BMS protection.</p><ul class="spec-list"><li><span class="k">Pack Voltage</span><span class="v">84 V nominal</span></li><li><span class="k">Capacity</span><span class="v">6.04 kWh usable</span></li><li><span class="k">Thermal Mgmt.</span><span class="v">Forced air cooling</span></li><li><span class="k">BMS</span><span class="v">Orion BMS2</span></li></ul></div>
         </div>
         <div class="sys-panel" id="tab-ai">
             <div class="sys-card full"><div class="sys-card-icon"><i class="fas fa-brain"></i></div><h3>AI &amp; Predictive Performance</h3><p>Machine learning models running on-board analyze lap telematics in real-time for thermal optimization, traction control, and race strategy simulation.</p><ul class="spec-list"><li><span class="k">Telemetry AI</span><span class="v">Real-time lap analytics</span></li><li><span class="k">Predictive Model</span><span class="v">Thermal &amp; energy forecasting</span></li><li><span class="k">Driver Assist</span><span class="v">Dynamic traction slip control</span></li><li><span class="k">Race Strategy</span><span class="v">Automated stint simulations</span></li><li><span class="k">Vision System</span><span class="v">Camera-based track mapping</span></li><li><span class="k">Compute Platform</span><span class="v">NVIDIA Jetson embedded AI</span></li></ul></div>
@@ -381,11 +387,9 @@
         <h2 class="section-title">In the <em>Details</em></h2>
         <p class="section-subtitle">A closer look at Ashwa-3's high-performance precision craftsmanship and engineering systems.</p>
         <div class="gallery-masonry">
-            <div class="g-item"><div class="g-label">Front Aero Wing</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
-            <div class="g-item"><div class="g-label">Carbon Monocoque</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
-            <div class="g-item"><div class="g-label">600V Battery Module</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
-            <div class="g-item"><div class="g-label">Rear Diffuser &amp; DRS</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
-            <div class="g-item"><div class="g-label">Öhlins Suspension</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item featured"><div class="g-label">Front Aero Wing</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item"><div class="g-label">CHASSIS TUBULAR SPACEFRAME</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
+            <div class="g-item"><div class="g-label">21V Battery Module</div><div class="g-overlay"><i class="fas fa-expand"></i></div></div>
         </div>
     </div>
 </section>
@@ -426,11 +430,26 @@
     }
     function showToast(msg, icon='fa-check-circle') { const t=document.getElementById('toast'); document.getElementById('toast-message').textContent=msg; t.querySelector('.toast-icon').className='toast-icon fas '+icon; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),3200); }
     document.querySelectorAll('.sys-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.sys-tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.sys-panel').forEach(p=>p.classList.remove('active')); tab.classList.add('active'); const p=document.getElementById('tab-'+tab.dataset.tab); if(p)p.classList.add('active'); }); });
-    (function(){
-        const counters=document.querySelectorAll('.counter'); let animated=false;
-        function run(){ if(animated)return; const s=document.querySelector('.stats-strip'); if(!s)return; if(s.getBoundingClientRect().top<window.innerHeight*0.9){ animated=true; counters.forEach(el=>{ const target=parseFloat(el.dataset.target); const isD=el.dataset.decimal; const dur=1600; const st=performance.now(); function step(now){ const p=Math.min((now-st)/dur,1); const e=1-Math.pow(1-p,3); el.textContent=isD?(target*e).toFixed(1):Math.round(target*e); if(p<1)requestAnimationFrame(step); } requestAnimationFrame(step); }); } }
-        window.addEventListener('scroll',run); run();
-    })();
+    window.initCarCounters = function() {
+        const counters = document.querySelectorAll('.counter');
+        if (!counters.length) return;
+        counters.forEach(el => {
+            const raw = el.dataset.target || el.textContent;
+            const target = parseFloat(raw);
+            if (isNaN(target)) return;
+            const isD = el.dataset.decimal;
+            const dur = 1400;
+            const st = performance.now();
+            function step(now) {
+                const p = Math.min((now - st) / dur, 1);
+                const e = 1 - Math.pow(1 - p, 3);
+                el.textContent = isD ? (target * e).toFixed(1) : Math.round(target * e);
+                if (p < 1) requestAnimationFrame(step);
+                else el.textContent = isD ? target.toFixed(1) : String(target);
+            }
+            requestAnimationFrame(step);
+        });
+    };
     (function initCarCanvasExperience(){
         const TOTAL_FRAMES = 240;
         const frameImages = [];
@@ -551,6 +570,10 @@
             { id: 'stage-3', label: '03 // PERFORMANCE', min: 0.65, max: 0.85 },
             { id: 'stage-4', label: '04 // FINAL HERO', min: 0.85, max: 1.00 }
         ];
+        window.carCanvasExperience = {
+            stageDefinitions: stageDefinitions,
+            updateScrollState: updateScrollState
+        };
 
         function updateScrollState(){
             if(!carScrollTrack) return;
