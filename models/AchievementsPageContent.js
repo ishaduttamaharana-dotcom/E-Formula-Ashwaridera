@@ -95,7 +95,7 @@ const achievementsPageContentSchema = new mongoose.Schema(
         },
         {
           id: { type: String, default: 'stat-ev' },
-          count: { type: Number, default: 2 },
+          count: { type: Number, default: 5 },
           label: { type: String, default: 'Electric Vehicles Built' },
           order: { type: Number, default: 3 },
         },

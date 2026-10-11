@@ -23,7 +23,7 @@ const DEFAULT_HERO = {
   stats: [
     { id: 'stat-founded', count: 2020, label: 'Team Founded', order: 1 },
     { id: 'stat-fb', count: 5, label: 'Formula Bharat Appearances', order: 2 },
-    { id: 'stat-ev', count: 2, label: 'Electric Vehicles Built', order: 3 },
+    { id: 'stat-ev', count: 5, label: 'Electric Vehicles Built', order: 3 },
     { id: 'stat-rank', count: 8, label: 'Best Overall Rank — AIR 8 (2026)', order: 4 },
   ],
 };
