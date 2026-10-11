@@ -314,8 +314,10 @@ const getPublicNavFooter = async (req, res) => {
       visible: isJoinOrAuthCta ? false : (source.headerCta?.visible !== false && !!ctaLabel),
     };
 
+    const rawFtBrand = source.footerBrand?.brandTitle || branding.brandTitle || 'E-Formula Ashwa Riders';
+    const ftBrandTitle = /^ashwa\s*riders$/i.test(rawFtBrand) ? 'E-Formula Ashwa Riders' : rawFtBrand;
     const footerBrand = {
-      brandTitle: source.footerBrand?.brandTitle || branding.brandTitle,
+      brandTitle: ftBrandTitle,
       description: source.footerBrand?.description || source.footerSummary || source.footer?.slogan || '',
       logoUrl: source.footerBrand?.logoUrl || '',
       logoLink: source.footerBrand?.logoLink || 'index.html',

@@ -1562,8 +1562,12 @@
           copyEl.textContent = companyData.copyrightText || companyData.copyright;
         }
         const brandLogo = document.querySelector('.footer-brand .logo');
-        if (brandLogo && companyData.brandName) {
-          brandLogo.innerHTML = companyData.brandName;
+        if (brandLogo) {
+          const rawName = companyData.brandName || '';
+          const brandName = !rawName || /^ashwariders$/i.test(rawName.trim()) || /^ashwa\s*riders$/i.test(rawName.trim())
+            ? 'E-Formula Ashwa Riders'
+            : rawName;
+          brandLogo.textContent = brandName;
         }
       }
 

@@ -195,7 +195,7 @@
               <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted, #8E929E); margin-bottom:6px;">
                 Footer Brand Title
               </label>
-              <input type="text" class="cms-input" id="inpFooterBrandTitle" placeholder="Ashwa Riders"
+              <input type="text" class="cms-input" id="inpFooterBrandTitle" placeholder="E-Formula Ashwa Riders"
                 style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" />
             </div>
 
@@ -590,7 +590,7 @@
           visible: draft.headerCta?.visible === true && !/join|recruitment|login/i.test(draft.headerCta?.label || ''),
         },
         footerBrand: {
-          brandTitle: draft.footerBrand?.brandTitle || draft.brandTitle || 'Ashwa Riders',
+          brandTitle: draft.footerBrand?.brandTitle || draft.brandTitle || 'E-Formula Ashwa Riders',
           description: draft.footerBrand?.description || draft.footerSummary || draft.footer?.slogan || '',
           logoUrl: draft.footerBrand?.logoUrl || '',
           logoLink: draft.footerBrand?.logoLink || 'index.html',
@@ -1238,7 +1238,7 @@
     // 2. Simulated Footer
     const footerContainer = document.getElementById('simulatedFooter');
     if (footerContainer) {
-      const brand = currentData.footerBrand.brandTitle || currentData.branding.brandTitle || 'Ashwa Riders';
+      const brand = currentData.footerBrand.brandTitle || currentData.branding.brandTitle || 'E-Formula Ashwa Riders';
       const desc = currentData.footerBrand.description || '';
       const copyright = currentData.copyright.text || '© 2026 Ashwa Riders. All rights reserved.';
       const credit = currentData.credit.text || 'Built by the Ashwa Riders Team';

@@ -247,7 +247,7 @@ const homePageContentSchema = new mongoose.Schema(
         brochureFile: { type: String, default: '' },
       },
       company: {
-        brandName: { type: String, default: 'AshwaRiders' },
+        brandName: { type: String, default: 'E-Formula Ashwa Riders' },
         description: {
           type: String,
           default: '',

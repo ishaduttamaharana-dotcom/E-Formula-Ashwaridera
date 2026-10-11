@@ -200,7 +200,7 @@ const ensureNavDefaults = (doc) => {
   }
   if (!doc.footerBrand) {
     doc.footerBrand = {
-      brandTitle: doc.brandTitle || 'Ashwa Riders',
+      brandTitle: doc.brandTitle || 'E-Formula Ashwa Riders',
       description: doc.footerSummary || doc.footer?.slogan || 'Building Central India’s first Formula Student Electric race car. Driven by excellence, fueled by passion.',
       logoUrl: '',
       logoLink: 'index.html',

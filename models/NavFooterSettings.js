@@ -64,7 +64,7 @@ const navFooterSettingsSchema = new mongoose.Schema(
 
     // Footer Configuration
     footerBrand: {
-      brandTitle: { type: String, default: 'Ashwa Riders' },
+      brandTitle: { type: String, default: 'E-Formula Ashwa Riders' },
       description: { type: String, default: 'Building Central India’s first Formula Student Electric race car. Driven by excellence, fueled by passion.' },
       logoUrl: { type: String, default: '' },
       logoLink: { type: String, default: 'index.html' },

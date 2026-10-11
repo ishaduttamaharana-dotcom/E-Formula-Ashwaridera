@@ -519,7 +519,22 @@
         .form-row textarea { resize: vertical; min-height: 90px; }
         .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-        /* ─── FOOTER ─── */
+        /* ─── FOOTER (shared) ─── */
+        .footer { background: var(--void); color: var(--steel, #96a3ba); padding: 70px 0 30px; border-top: 1px solid var(--hairline); }
+        .footer .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+        .footer .footer-brand .logo { font-family: var(--font-display, inherit); font-size: 1.4rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+        .footer .footer-brand .logo span { color: var(--logo-orange, #f25912); }
+        .footer .footer-brand p { display: none !important; }
+        .footer h4 { color: #fff; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; margin-bottom: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .footer ul { list-style: none; display: flex; flex-direction: column; gap: 11px; padding: 0; margin: 0; }
+        .footer ul a { color: var(--steel, #96a3ba); text-decoration: none; font-size: 0.88rem; transition: color var(--ease); }
+        .footer ul a:hover { color: var(--signal-bright, #f25912); }
+        .footer .social-links { display: flex; gap: 10px; margin-top: 20px; }
+        .footer .social-links a { width: 38px; height: 38px; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--steel, #96a3ba); transition: all var(--ease); text-decoration: none; }
+        .footer .social-links a:hover { border-color: var(--signal-bright, #f25912); color: var(--signal-bright, #f25912); }
+        .footer .footer-bottom { border-top: 1px solid var(--hairline); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; }
+        @media (max-width: 1024px) { .footer .footer-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .footer .footer-grid { grid-template-columns: 1fr; gap: 34px; } .footer .footer-bottom { flex-direction: column; gap: 10px; text-align: center; } }
         .footer-mini {
             background: var(--void);
             color: var(--steel, #96a3ba);
@@ -761,17 +776,52 @@
     </section>
 
     <!-- ══════════════════════════════════════════════
-         FOOTER
+         FOOTER (shared)
     ══════════════════════════════════════════════ -->
-    <footer class="footer-mini">
+    <footer class="footer">
         <div class="container">
-            <p>© 2026 Ashwa Riders — Built by the team, driven by sponsors like you.</p>
-            <p style="margin-top: 6px; font-size: 0.75rem; opacity: 0.6;">
-                <a href="#"><i class="fab fa-instagram"></i></a> &nbsp;
-                <a href="#"><i class="fab fa-linkedin-in"></i></a> &nbsp;
-                <a href="#"><i class="fab fa-youtube"></i></a> &nbsp;
-                <a href="#"><i class="fab fa-x-twitter"></i></a>
-            </p>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">E-Formula Ashwa Riders</div>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/eformula_ashwariders/" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/e-formula-ashwa-riders" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4>Team</h4>
+                    <ul>
+                        <li><a href="team.html">Members</a></li>
+                        <li><a href="car.html">Our Car</a></li>
+                        <li><a href="achievements.html">Achievements</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="#">Press Kit</a></li>
+                        <li><a href="/api/v1/sponsors/brochure" target="_blank" rel="noopener noreferrer">Brochure</a></li>
+                        <li><a href="#">Donate</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="contact.html">Get in Touch</a></li>
+                        <li><a href="sponsors.html">Sponsor Us</a></li>
+                        <li><a href="#">Merchandise</a></li>
+                        <li><a href="#">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 Ashwa Riders. All rights reserved.</span>
+                <span>Built by the Ashwa Riders Team</span>
+            </div>
         </div>
     </footer>
 

@@ -540,7 +540,7 @@ const getOrSeedHomeDoc = async () => {
         brochureFile: '/api/v1/sponsors/brochure',
       },
       company: {
-        brandName: (existingNavFooter && existingNavFooter.logo && existingNavFooter.logo.brandText) || 'AshwaRiders',
+        brandName: (existingNavFooter && existingNavFooter.logo && existingNavFooter.logo.brandText) || 'E-Formula Ashwa Riders',
         description: footerCompany.slogan || '',
         copyrightText: footerCompany.copyrightText || '© 2026 Ashwa Riders. All rights reserved.',
         builtByText: footerCompany.builtByText || 'Built by the Ashwa Riders Team',
@@ -783,8 +783,14 @@ const getPublicHome = async (req, res) => {
       publicSponsorCta.brochureFile = '/api/v1/sponsors/brochure';
     }
 
+    const publicCompany = { ...(data.footerSponsors?.company || {}) };
+    if (!publicCompany.brandName || /^ashwariders$/i.test(publicCompany.brandName.trim())) {
+      publicCompany.brandName = 'E-Formula Ashwa Riders';
+    }
+
     const publicFooterSponsors = {
       ...data.footerSponsors,
+      company: publicCompany,
       sponsorCTA: publicSponsorCta,
       sponsorSection: {
         ...rawSection,

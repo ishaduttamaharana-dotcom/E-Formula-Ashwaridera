@@ -801,7 +801,13 @@
       if (mobileBrand) mobileBrand.textContent = branding.brandTitle;
 
       const footerLogo = document.querySelector('.footer-brand .logo');
-      if (footerLogo && footerBrand?.brandTitle) footerLogo.innerHTML = renderBrandTitleHtml(footerBrand.brandTitle);
+      if (footerLogo) {
+        const ftRaw = footerBrand?.brandTitle || '';
+        const ftBrand = !ftRaw || /^ashwa\s*riders$/i.test(ftRaw.trim())
+          ? 'E-Formula Ashwa Riders'
+          : ftRaw;
+        footerLogo.textContent = ftBrand;
+      }
     }
 
     if (branding.subtitle) {
