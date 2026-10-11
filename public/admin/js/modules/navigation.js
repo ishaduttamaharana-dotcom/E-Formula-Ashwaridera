@@ -80,7 +80,7 @@
               <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted, #8E929E); margin-bottom:6px;">
                 Brand Title *
               </label>
-              <input type="text" class="cms-input" id="inpBrandTitle" required placeholder="Ashwa Riders"
+              <input type="text" class="cms-input" id="inpBrandTitle" required placeholder="E-Formula Ashwa Riders"
                 style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" />
             </div>
 
@@ -88,7 +88,7 @@
               <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted, #8E929E); margin-bottom:6px;">
                 Secondary Subtitle / Text
               </label>
-              <input type="text" class="cms-input" id="inpSubtitle" placeholder="E-FORMULA · SVPCET"
+              <input type="text" class="cms-input" id="inpSubtitle" placeholder="SVPCET"
                 style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" />
             </div>
           </div>
@@ -570,9 +570,9 @@
 
       currentData = {
         branding: {
-          brandTitle: draft.branding?.brandTitle || draft.brandTitle || 'Ashwa Riders',
+          brandTitle: draft.branding?.brandTitle || draft.brandTitle || 'E-Formula Ashwa Riders',
           logoUrl: draft.branding?.logoUrl || draft.logoUrl || '',
-          subtitle: draft.branding?.subtitle || draft.logo?.subtitle || 'E-FORMULA · SVPCET',
+          subtitle: draft.branding?.subtitle || draft.logo?.subtitle || 'SVPCET',
           homeUrl: draft.branding?.homeUrl || 'index.html',
         },
         navigation: Array.isArray(draft.navigation) && draft.navigation.length > 0
@@ -1204,8 +1204,8 @@
     // 1. Simulated Navbar
     const navContainer = document.getElementById('simulatedNavbar');
     if (navContainer) {
-      const brand = currentData.branding.brandTitle || 'Ashwa Riders';
-      const sub = currentData.branding.subtitle || 'E-FORMULA · SVPCET';
+      const brand = currentData.branding.brandTitle || 'E-Formula Ashwa Riders';
+      const sub = currentData.branding.subtitle || 'SVPCET';
       const logo = currentData.branding.logoUrl || '';
       const ctaLabel = currentData.headerCta.label || 'Join Team';
       const showCta = currentData.headerCta.visible !== false;

@@ -50,9 +50,9 @@ const navFooterSettingsSchema = new mongoose.Schema(
   {
     // Branding & Header
     branding: {
-      brandTitle: { type: String, default: 'Ashwa Riders' },
+      brandTitle: { type: String, default: 'E-Formula Ashwa Riders' },
       logoUrl: { type: String, default: 'https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png' },
-      subtitle: { type: String, default: 'E-FORMULA · SVPCET' },
+      subtitle: { type: String, default: 'SVPCET' },
       homeUrl: { type: String, default: 'index.html' },
     },
     navigation: [navigationItemSchema],
@@ -90,7 +90,7 @@ const navFooterSettingsSchema = new mongoose.Schema(
     },
 
     // Legacy Support & Flat Convenience Aliases
-    brandTitle: { type: String, default: 'Ashwa Riders' },
+    brandTitle: { type: String, default: 'E-Formula Ashwa Riders' },
     logoUrl: { type: String, default: 'https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png' },
     ctaLabel: { type: String, default: '' },
     ctaUrl: { type: String, default: '' },
@@ -99,9 +99,9 @@ const navFooterSettingsSchema = new mongoose.Schema(
     designedBy: { type: String, default: 'Built by the Ashwa Riders Team' },
 
     logo: {
-      brandText: { type: String, default: 'Ashwa Riders' },
+      brandText: { type: String, default: 'E-Formula Ashwa Riders' },
       markImageUrl: { type: String, default: 'https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png' },
-      subtitle: { type: String, default: 'E-FORMULA · SVPCET' },
+      subtitle: { type: String, default: 'SVPCET' },
     },
     navLinks: [
       {

@@ -183,9 +183,9 @@ const ensureNavDefaults = (doc) => {
   let modified = false;
   if (!doc.branding) {
     doc.branding = {
-      brandTitle: doc.brandTitle || 'Ashwa Riders',
+      brandTitle: doc.brandTitle || 'E-Formula Ashwa Riders',
       logoUrl: doc.logoUrl || 'https://res.cloudinary.com/frjck4sc/image/upload/v1785320787/092-removebg-preview_jwh6b6.png',
-      subtitle: doc.logo?.subtitle || 'E-FORMULA · SVPCET',
+      subtitle: doc.logo?.subtitle || 'SVPCET',
       homeUrl: 'index.html',
     };
     modified = true;

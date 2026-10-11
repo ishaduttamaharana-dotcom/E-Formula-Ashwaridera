@@ -276,10 +276,15 @@ const getPublicNavFooter = async (req, res) => {
     // Strictly enforce published version snapshot
     const source = doc.publishedVersion || (doc.status === 'published' ? doc.toObject() : {});
 
+    const rawBrand = source.branding?.brandTitle || source.brandTitle || source.logo?.brandText || 'E-Formula Ashwa Riders';
+    const brandTitle = rawBrand.toLowerCase() === 'ashwa riders' ? 'E-Formula Ashwa Riders' : rawBrand;
+    const rawSub = source.branding?.subtitle || source.logo?.subtitle || 'SVPCET';
+    const subtitle = rawSub.replace(/E-FORMULA\s*·?\s*/gi, '').trim() || 'SVPCET';
+
     const branding = {
-      brandTitle: source.branding?.brandTitle || source.brandTitle || source.logo?.brandText || 'Ashwa Riders',
+      brandTitle,
       logoUrl: source.branding?.logoUrl || source.logoUrl || source.logo?.markImageUrl || '/logo.png',
-      subtitle: source.branding?.subtitle || source.logo?.subtitle || 'E-FORMULA · SVPCET',
+      subtitle,
       homeUrl: source.branding?.homeUrl || 'index.html',
     };
 

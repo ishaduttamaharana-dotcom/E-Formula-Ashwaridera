@@ -687,28 +687,37 @@
   const NAV_CACHE_KEY = 'ar_nav_cache';
 
   const renderBrandTitleHtml = (title) => {
-    if (!title) return 'Ashwa<span>Riders</span>';
+    if (!title) return 'E-Formula Ashwa <span>Riders</span>';
     if (title.includes('<span')) return title;
-    const parts = title.trim().split(/\s+/);
+    const clean = title.trim();
+    if (/^e-formula\s+ashwa\s+riders$/i.test(clean)) {
+      return 'E-Formula Ashwa <span>Riders</span>';
+    }
+    const parts = clean.split(/\s+/);
     if (parts.length >= 2) {
-      return `${parts[0]}<span>${parts.slice(1).join(' ')}</span>`;
+      return `${parts.slice(0, -1).join(' ')} <span>${parts[parts.length - 1]}</span>`;
     }
-    const camelMatch = title.match(/^([A-Z][a-z0-9]+)([A-Z].*)$/);
+    const camelMatch = clean.match(/^([A-Z][a-z0-9]+)([A-Z].*)$/);
     if (camelMatch) {
-      return `${camelMatch[1]}<span>${camelMatch[2]}</span>`;
+      return `${camelMatch[1]} <span>${camelMatch[2]}</span>`;
     }
-    return title;
+    return clean;
   };
 
   const renderNavDom = (nav) => {
     if (!nav) return;
 
     // Extract unified schema fields with fallbacks
-    const branding = nav.branding || {
-      brandTitle: nav.brandTitle || nav.logo?.brandText || 'Ashwa Riders',
-      logoUrl: nav.logoAsset || nav.logoUrl || nav.logo?.markImageUrl || '',
-      subtitle: nav.logo?.subtitle || 'E-FORMULA · SVPCET',
-      homeUrl: 'index.html',
+    const rawBrandTitle = nav.branding?.brandTitle || nav.brandTitle || nav.logo?.brandText || 'E-Formula Ashwa Riders';
+    const brandTitle = rawBrandTitle.toLowerCase() === 'ashwa riders' ? 'E-Formula Ashwa Riders' : rawBrandTitle;
+    const rawSubtitle = nav.branding?.subtitle || nav.logo?.subtitle || 'SVPCET';
+    const cleanSubtitle = rawSubtitle.replace(/E-FORMULA\s*·?\s*/gi, '').trim() || 'SVPCET';
+
+    const branding = {
+      brandTitle,
+      logoUrl: nav.branding?.logoUrl || nav.logoAsset || nav.logoUrl || nav.logo?.markImageUrl || '',
+      subtitle: cleanSubtitle,
+      homeUrl: nav.branding?.homeUrl || 'index.html',
     };
 
     const navItems = Array.isArray(nav.navigation) && nav.navigation.length > 0
@@ -784,7 +793,7 @@
         const navLogo = document.querySelector('.nav-logo');
         if (navLogo) {
           const wrapper = navLogo.querySelector('.nav-logo-wrapper');
-          if (wrapper) wrapper.innerHTML = `<span>${renderBrandTitleHtml(branding.brandTitle)}</span><span class="nav-subtitle">${branding.subtitle || 'E-FORMULA · SVPCET'}</span>`;
+          if (wrapper) wrapper.innerHTML = `<span>${renderBrandTitleHtml(branding.brandTitle)}</span><span class="nav-subtitle">${branding.subtitle || 'SVPCET'}</span>`;
         }
       }
 
@@ -792,7 +801,7 @@
       if (mobileBrand) mobileBrand.textContent = branding.brandTitle;
 
       const footerLogo = document.querySelector('.footer-brand .logo');
-      if (footerLogo) footerLogo.innerHTML = renderBrandTitleHtml(branding.brandTitle);
+      if (footerLogo && footerBrand?.brandTitle) footerLogo.innerHTML = renderBrandTitleHtml(footerBrand.brandTitle);
     }
 
     if (branding.subtitle) {
