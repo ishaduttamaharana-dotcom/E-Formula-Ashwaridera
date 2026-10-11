@@ -593,12 +593,6 @@ a, button, input, select, textarea {
     padding: 110px 16px 56px !important;
   }
 
-  .org-chart {
-    width: 100% !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-
   /* Team cards */
   .team-grid {
     gap: 14px !important;
@@ -1658,13 +1652,6 @@ a, button, input, select, textarea {
     flex-direction: column !important;
     gap: 10px !important;
     text-align: center !important;
-  }
-
-  .org-chart {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
   }
 
   .toolbar-row {

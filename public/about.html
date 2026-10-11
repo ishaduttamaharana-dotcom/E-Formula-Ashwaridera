@@ -266,20 +266,6 @@
     .philosophy-band .statement span { color: var(--signal-bright); }
     .philosophy-band p { color: rgba(255,255,255,0.55); font-weight: 300; max-width: 620px; margin: 0 auto; line-height: 1.85; font-size: 1.02rem; }
 
-    /* ═══════════════ TEAM STRUCTURE ═══════════════ */
-    .org-chart { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 50px; }
-    .org-node {
-      font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.03em;
-      padding: 16px 38px; border: 1px solid var(--line-dark); background: var(--paper);
-      text-decoration: none; color: var(--ink); font-size: 0.95rem; font-weight: 700;
-      transition: all var(--ease); position: relative;
-    }
-    .org-node:hover { border-color: var(--signal); color: var(--signal); background: #fff; }
-    .org-node.top { background: var(--void); color: #fff; border-color: var(--hairline); }
-    .org-node.top:hover { border-color: var(--signal-bright); color: var(--signal-bright); }
-    .org-connector { width: 1px; height: 30px; background: var(--line-dark); }
-    .org-node-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-
     /* ═══════════════ DEPARTMENTS ═══════════════ */
     .dept-grid-detailed { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
     .dept-card-x { background: var(--void); padding: 30px 26px; text-decoration: none; color: inherit; transition: all var(--ease); position: relative; overflow: hidden; }
@@ -585,18 +571,6 @@
         <p class="section-subtitle" style="margin: 0 auto;"></p>
       </div>
       <div class="value-grid-6 reveal-scale"></div>
-    </div>
-  </section>
-
-  <!-- ════════════════════════════════════ 7. TEAM STRUCTURE ════════════════════════════════════ -->
-  <section id="section-team-structure" class="section-padding" style="background: var(--paper);" data-cms-pending="true">
-    <div class="container">
-      <div class="reveal text-center" style="max-width: 700px; margin: 0 auto;">
-        <span class="eyebrow"></span>
-        <h2 class="section-title"></h2>
-        <p class="section-subtitle" style="margin: 0 auto;"></p>
-      </div>
-      <div class="org-chart reveal-scale"></div>
     </div>
   </section>
 

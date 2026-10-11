@@ -119,7 +119,7 @@ const getOrSeedAboutDoc = async () => {
       ],
     },
     teamStructure: {
-      visible: true,
+      visible: false,
       eyebrow: 'Team Structure',
       title: "How We're Organized",
       highlightText: 'Organized',

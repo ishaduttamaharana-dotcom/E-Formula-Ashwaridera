@@ -386,48 +386,6 @@
       }
     }
 
-    // ── 06. TEAM STRUCTURE ────────────────────────────────────────────
-    if (data.teamStructure) {
-      const tsSec = document.getElementById('section-team-structure');
-      if (tsSec) {
-        const isVisible = data.teamStructure.visible !== false && data.teamStructure.isVisible !== false;
-        if (!isVisible) {
-          tsSec.style.display = 'none';
-        } else {
-          tsSec.style.display = '';
-          const eb = tsSec.querySelector('.eyebrow');
-          if (eb) eb.textContent = data.teamStructure.eyebrow || '';
-
-          const title = tsSec.querySelector('.section-title');
-          if (title) {
-            const rawTitle = data.teamStructure.title || data.teamStructure.heading || '';
-            title.innerHTML = renderTitleWithHighlight(rawTitle, data.teamStructure.highlightText);
-          }
-
-          const sub = tsSec.querySelector('.section-subtitle');
-          if (sub) {
-            sub.textContent = data.teamStructure.description || '';
-            sub.style.display = data.teamStructure.description ? '' : 'none';
-          }
-
-          const orgChart = tsSec.querySelector('.org-chart');
-          const nodes = Array.isArray(data.teamStructure.nodes) ? data.teamStructure.nodes : [];
-          if (orgChart && nodes.length > 0) {
-            const visibleNodes = nodes.filter((n) => n.visible !== false && n.isVisible !== false);
-            let html = '';
-            visibleNodes.forEach((node, i) => {
-              const nodeClass = (node.level <= 3 || node.level === 'Coordinator' || node.level === 'Leadership') ? 'org-node top' : 'org-node';
-              html += `<a href="${node.linkUrl || 'team.html'}" class="${nodeClass}">${node.title}</a>`;
-              if (i < visibleNodes.length - 1) {
-                html += `<div class="org-connector"></div>`;
-              }
-            });
-            orgChart.innerHTML = html;
-          }
-        }
-      }
-    }
-
     // ── 07. DEPARTMENTS ───────────────────────────────────────────────
     if (data.departments) {
       const deptSec = document.getElementById('section-departments');
