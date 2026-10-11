@@ -213,6 +213,47 @@
     });
   };
 
+  /**
+   * Main Upload Function:
+   * Direct Browser -> Cloudinary CDN -> Backend Record Verification.
+   * Eliminates Vercel 4.5MB payload limit completely.
+   *
+   * @param {File} file - Browser File object
+   * @param {Object} [options]
+   * @param {string} [options.allowedType='all'] - 'image', 'video', 'document', 'all'
+   * @param {string} [options.folder]           - Target folder
+   * @param {string} [options.altText]          - Optional alt text
+   * @param {string} [options.caption]          - Optional caption
+   * @param {function} [options.onProgress]     - (percent: number, statusText: string) => void
+   * @returns {Promise<{ success: boolean, url: string, secureUrl: string, publicId: string, asset: object }>}
+   */
+  async function uploadFile(file, options = {}) {
+    const onProgress = options.onProgress || (() => {});
+    const onStatus = (pct, statusText) => {
+      onProgress(pct, statusText);
+    };
+
+    onStatus(5, 'Validating file format and size...');
+    const meta = validateFile(file, options.allowedType || 'all');
+    const folder = options.folder || meta.folder;
+    const api = window.AdminApi || window.API;
+
+    if (!api) {
+      throw new Error('Admin API client not initialized.');
+    }
+
+    // Step 1: Client-Side Optimization for high-res images (>10MB up to 25MB)
+    let uploadTarget = file;
+    if (meta.isImage && file.size > CLOUDINARY_MAX_DIRECT_IMAGE) {
+      onStatus(8, `Optimizing high-resolution image (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
+      try {
+        uploadTarget = await compressImageIfNeeded(file, CLOUDINARY_MAX_DIRECT_IMAGE);
+        onStatus(12, `Optimized to ${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB`);
+      } catch (e) {
+        uploadTarget = file;
+      }
+    }
+
     // Step 2: Request Signed Upload Parameters from Backend
     onStatus(14, 'Requesting secure cloud upload authorization...');
     let sigRes;
@@ -295,7 +336,7 @@
   }
 
   // Export globally to window
-  window.AdminUploader = {
+  const uploaderInstance = {
     uploadFile,
     validateFile,
     verifyMedia,
@@ -307,4 +348,14 @@
     CLOUDINARY_MAX_VIDEO_SIZE: MAX_VIDEO_SIZE,
     CLOUDINARY_MAX_DOC_SIZE: MAX_DOC_SIZE,
   };
+
+  window.AdminUploader = uploaderInstance;
+  window.MediaUploader = uploaderInstance;
+  window.Uploader = uploaderInstance;
+
+  try {
+    window.dispatchEvent(new CustomEvent('admin-uploader:ready', { detail: uploaderInstance }));
+  } catch (e) {}
+
+  console.log('✅ [AdminUploader] Subsystem initialized and ready (Limits: 1000MB Images/Videos/Docs).');
 })();

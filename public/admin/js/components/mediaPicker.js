@@ -322,8 +322,9 @@ const MediaPicker = (function () {
       updateProgress(5, 'Starting upload pipeline...');
       let uploadRes;
 
-      if (window.AdminUploader && window.AdminUploader.uploadFile) {
-        uploadRes = await window.AdminUploader.uploadFile(file, {
+      const uploader = window.AdminUploader || window.MediaUploader || window.Uploader;
+      if (uploader && typeof uploader.uploadFile === 'function') {
+        uploadRes = await uploader.uploadFile(file, {
           allowedType: currentConfig?.allowedType || 'all',
           onProgress: updateProgress,
         });
