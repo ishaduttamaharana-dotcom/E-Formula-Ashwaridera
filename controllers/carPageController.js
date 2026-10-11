@@ -468,6 +468,73 @@ const getOrSeedCarDoc = async () => {
   let doc = await CarPageContent.findOne();
   if (doc) {
     let modified = false;
+
+    // Auto-heal empty arrays from canonical defaults
+    if (!doc.carExperience || !Array.isArray(doc.carExperience.stages) || doc.carExperience.stages.length === 0) {
+      doc.carExperience = {
+        visible: true,
+        totalFrames: 240,
+        framePattern: 'assets/videotophoto/ezgif-frame-{num}.jpg',
+        stages: DEFAULT_STAGES,
+      };
+      modified = true;
+    }
+
+    if (!Array.isArray(doc.keySpecs) || doc.keySpecs.length === 0) {
+      doc.keySpecs = DEFAULT_KEY_SPECS;
+      modified = true;
+    }
+
+    if (!doc.engineeringSection || !Array.isArray(doc.engineeringSection.categories) || doc.engineeringSection.categories.length === 0) {
+      doc.engineeringSection = {
+        visible: true,
+        eyebrow: 'Engineering Systems',
+        heading: 'Built for Performance',
+        headingHighlight: 'Performance',
+        description: 'Every vehicle subsystem is engineered to operate in total harmony at race speed.',
+        watermarkText: 'TECH',
+        categories: DEFAULT_ENGINEERING_CATEGORIES,
+      };
+      modified = true;
+    }
+
+    if (!doc.buildJourneySection || !Array.isArray(doc.buildJourneySection.phases) || doc.buildJourneySection.phases.length === 0) {
+      doc.buildJourneySection = {
+        visible: true,
+        eyebrow: 'From Concept to Circuit',
+        heading: 'The Build Journey',
+        headingHighlight: 'Journey',
+        description: 'Ashwa-3 was designed, fabricated, and tested entirely by our student engineering team over 14 months.',
+        phases: DEFAULT_BUILD_PHASES,
+      };
+      modified = true;
+    }
+
+    if (!doc.visualBreakdownSection || !Array.isArray(doc.visualBreakdownSection.cards) || doc.visualBreakdownSection.cards.length === 0) {
+      doc.visualBreakdownSection = {
+        visible: true,
+        eyebrow: 'Visual Breakdown',
+        heading: 'In the Details',
+        headingHighlight: 'Details',
+        description: 'A closer look at Ashwa-3\'s high-performance precision craftsmanship and engineering systems.',
+        cards: DEFAULT_VISUAL_CARDS,
+      };
+      modified = true;
+    }
+
+    if (!doc.openPositionsSection || !doc.openPositionsSection.heading) {
+      doc.openPositionsSection = {
+        visible: true,
+        eyebrow: 'Open Positions',
+        heading: 'Want to Build the Next Machine?',
+        headingHighlight: 'Next Machine?',
+        description: 'Join our team of engineers and help design, build, and race the next generation of Ashwa Formula cars.',
+        primaryCta: { text: 'Join the Team', link: 'index.html#recruitment', enabled: true },
+        secondaryCta: { text: 'Get in Touch', link: 'contact.html', enabled: true },
+      };
+      modified = true;
+    }
+
     // Auto-repair legacy documents where specs have key but missing label
     const repairSpecs = (categories) => {
       if (!Array.isArray(categories)) return;
@@ -508,8 +575,56 @@ const getOrSeedCarDoc = async () => {
     repairKeySpecs(doc.draftVersion?.keySpecs);
     repairKeySpecs(doc.publishedVersion?.keySpecs);
 
+    // Ensure draftVersion and publishedVersion are not empty
+    const healVersionCopy = (ver) => {
+      if (!ver) return null;
+      let healed = false;
+      const copy = { ...ver };
+      if (!copy.carExperience || !Array.isArray(copy.carExperience.stages) || copy.carExperience.stages.length === 0) {
+        copy.carExperience = doc.carExperience;
+        healed = true;
+      }
+      if (!Array.isArray(copy.keySpecs) || copy.keySpecs.length === 0) {
+        copy.keySpecs = doc.keySpecs;
+        healed = true;
+      }
+      if (!copy.engineeringSection || !Array.isArray(copy.engineeringSection.categories) || copy.engineeringSection.categories.length === 0) {
+        copy.engineeringSection = doc.engineeringSection;
+        healed = true;
+      }
+      if (!copy.buildJourneySection || !Array.isArray(copy.buildJourneySection.phases) || copy.buildJourneySection.phases.length === 0) {
+        copy.buildJourneySection = doc.buildJourneySection;
+        healed = true;
+      }
+      if (!copy.visualBreakdownSection || !Array.isArray(copy.visualBreakdownSection.cards) || copy.visualBreakdownSection.cards.length === 0) {
+        copy.visualBreakdownSection = doc.visualBreakdownSection;
+        healed = true;
+      }
+      if (!copy.openPositionsSection || !copy.openPositionsSection.heading) {
+        copy.openPositionsSection = doc.openPositionsSection;
+        healed = true;
+      }
+      return healed ? copy : ver;
+    };
+
+    const healedDraft = healVersionCopy(doc.draftVersion);
+    if (healedDraft !== doc.draftVersion) {
+      doc.draftVersion = healedDraft;
+      modified = true;
+    }
+
+    const healedPub = healVersionCopy(doc.publishedVersion);
+    if (healedPub !== doc.publishedVersion) {
+      doc.publishedVersion = healedPub;
+      modified = true;
+    }
+
     if (modified) {
+      doc.markModified('carExperience');
       doc.markModified('engineeringSection');
+      doc.markModified('buildJourneySection');
+      doc.markModified('visualBreakdownSection');
+      doc.markModified('openPositionsSection');
       doc.markModified('draftVersion');
       doc.markModified('publishedVersion');
       doc.markModified('keySpecs');
@@ -597,37 +712,61 @@ const getPublicCarContent = async (req, res) => {
       ? doc.draftVersion || doc.toObject()
       : doc.publishedVersion || doc.toObject();
 
-    // Filter visible stages
-    const visibleStages = (content.carExperience?.stages || [])
+    // Filter visible stages (with canonical fallback)
+    let visibleStages = (content.carExperience?.stages || [])
       .filter((s) => isPreview || s.published !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!visibleStages.length) visibleStages = DEFAULT_STAGES;
 
-    // Filter visible key specs
-    const visibleKeySpecs = (content.keySpecs || [])
+    // Filter visible key specs (with canonical fallback)
+    let visibleKeySpecs = (content.keySpecs || [])
       .filter((s) => isPreview || s.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!visibleKeySpecs.length) visibleKeySpecs = DEFAULT_KEY_SPECS;
 
-    // Filter visible engineering categories and cards
+    // Filter visible engineering categories and cards (with canonical fallback)
+    let rawCategories = (content.engineeringSection?.categories || [])
+      .filter((cat) => isPreview || cat.visible !== false)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map((cat) => ({
+        ...cat,
+        cards: (cat.cards || []).sort((a, b) => (a.order || 0) - (b.order || 0)),
+      }));
+    if (!rawCategories.length) rawCategories = DEFAULT_ENGINEERING_CATEGORIES;
+
     const visibleEngineering = {
-      ...content.engineeringSection,
-      categories: (content.engineeringSection?.categories || [])
-        .filter((cat) => isPreview || cat.visible !== false)
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
-        .map((cat) => ({
-          ...cat,
-          cards: (cat.cards || []).sort((a, b) => (a.order || 0) - (b.order || 0)),
-        })),
+      ...(content.engineeringSection || {}),
+      eyebrow: content.engineeringSection?.eyebrow || 'Engineering Systems',
+      heading: content.engineeringSection?.heading || 'Built for Performance',
+      headingHighlight: content.engineeringSection?.headingHighlight || 'Performance',
+      description: content.engineeringSection?.description || 'Every vehicle subsystem is engineered to operate in total harmony at race speed.',
+      watermarkText: content.engineeringSection?.watermarkText || 'TECH',
+      categories: rawCategories,
     };
 
-    // Filter visible build journey phases
-    const visibleBuildPhases = (content.buildJourneySection?.phases || [])
+    // Filter visible build journey phases (with canonical fallback)
+    let visibleBuildPhases = (content.buildJourneySection?.phases || [])
       .filter((p) => isPreview || p.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!visibleBuildPhases.length) visibleBuildPhases = DEFAULT_BUILD_PHASES;
 
-    // Filter visible visual breakdown cards
-    const visibleVisualCards = (content.visualBreakdownSection?.cards || [])
+    // Filter visible visual breakdown cards (with canonical fallback)
+    let visibleVisualCards = (content.visualBreakdownSection?.cards || [])
       .filter((v) => isPreview || v.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!visibleVisualCards.length) visibleVisualCards = DEFAULT_VISUAL_CARDS;
+
+    const resolvedOpenPositions = (content.openPositionsSection && content.openPositionsSection.heading)
+      ? content.openPositionsSection
+      : {
+          visible: true,
+          eyebrow: 'Open Positions',
+          heading: 'Want to Build the Next Machine?',
+          headingHighlight: 'Next Machine?',
+          description: 'Join our team of engineers and help design, build, and race the next generation of Ashwa Formula cars.',
+          primaryCta: { text: 'Join the Team', link: 'index.html#recruitment', enabled: true },
+          secondaryCta: { text: 'Get in Touch', link: 'contact.html', enabled: true },
+        };
 
     return sendSuccess(res, 200, 'Car page content retrieved.', {
       isPreview,
@@ -635,20 +774,28 @@ const getPublicCarContent = async (req, res) => {
       version: doc.version,
       lastPublishedAt: doc.lastPublishedAt,
       carExperience: {
-        ...content.carExperience,
+        ...(content.carExperience || {}),
         stages: visibleStages,
       },
       keySpecs: visibleKeySpecs,
       engineeringSection: visibleEngineering,
       buildJourneySection: {
-        ...content.buildJourneySection,
+        ...(content.buildJourneySection || {}),
+        eyebrow: content.buildJourneySection?.eyebrow || 'From Concept to Circuit',
+        heading: content.buildJourneySection?.heading || 'The Build Journey',
+        headingHighlight: content.buildJourneySection?.headingHighlight || 'Journey',
+        description: content.buildJourneySection?.description || 'Ashwa-3 was designed, fabricated, and tested entirely by our student engineering team over 14 months.',
         phases: visibleBuildPhases,
       },
       visualBreakdownSection: {
-        ...content.visualBreakdownSection,
+        ...(content.visualBreakdownSection || {}),
+        eyebrow: content.visualBreakdownSection?.eyebrow || 'Visual Breakdown',
+        heading: content.visualBreakdownSection?.heading || 'In the Details',
+        headingHighlight: content.visualBreakdownSection?.headingHighlight || 'Details',
+        description: content.visualBreakdownSection?.description || 'A closer look at Ashwa-3\'s high-performance precision craftsmanship and engineering systems.',
         cards: visibleVisualCards,
       },
-      openPositionsSection: content.openPositionsSection,
+      openPositionsSection: resolvedOpenPositions,
     });
   } catch (err) {
     console.error('Error in getPublicCarContent:', err);
@@ -812,27 +959,80 @@ const updateCarDraft = async (req, res) => {
 
     const currentDraft = doc.draftVersion || doc.toObject();
 
-    // Normalize incoming payload sections to preserve schema compatibility
+    // Preserve non-empty engineering categories if partial update is provided
     let normalizedEngineering = currentDraft.engineeringSection;
     if (payload.engineeringSection !== undefined) {
+      const incomingCats = payload.engineeringSection?.categories;
+      const categoriesToUse = (Array.isArray(incomingCats) && incomingCats.length > 0)
+        ? incomingCats
+        : (currentDraft.engineeringSection?.categories || DEFAULT_ENGINEERING_CATEGORIES);
+
       normalizedEngineering = {
+        ...currentDraft.engineeringSection,
         ...payload.engineeringSection,
-        categories: normalizeEngineeringCategories(payload.engineeringSection.categories),
+        categories: normalizeEngineeringCategories(categoriesToUse),
       };
     }
 
+    // Preserve non-empty key specs if partial update is provided
     let normalizedKeySpecs = currentDraft.keySpecs;
     if (payload.keySpecs !== undefined) {
-      normalizedKeySpecs = normalizeKeySpecs(payload.keySpecs);
+      const incomingSpecs = payload.keySpecs;
+      const specsToUse = (Array.isArray(incomingSpecs) && incomingSpecs.length > 0)
+        ? incomingSpecs
+        : (currentDraft.keySpecs || DEFAULT_KEY_SPECS);
+      normalizedKeySpecs = normalizeKeySpecs(specsToUse);
+    }
+
+    // Preserve carExperience stages
+    let updatedCarExp = currentDraft.carExperience;
+    if (payload.carExperience !== undefined) {
+      const incomingStages = payload.carExperience?.stages;
+      const stagesToUse = (Array.isArray(incomingStages) && incomingStages.length > 0)
+        ? incomingStages
+        : (currentDraft.carExperience?.stages || DEFAULT_STAGES);
+      updatedCarExp = {
+        ...currentDraft.carExperience,
+        ...payload.carExperience,
+        stages: stagesToUse,
+      };
+    }
+
+    // Preserve buildJourney phases
+    let updatedBuild = currentDraft.buildJourneySection;
+    if (payload.buildJourneySection !== undefined) {
+      const incomingPhases = payload.buildJourneySection?.phases;
+      const phasesToUse = (Array.isArray(incomingPhases) && incomingPhases.length > 0)
+        ? incomingPhases
+        : (currentDraft.buildJourneySection?.phases || DEFAULT_BUILD_PHASES);
+      updatedBuild = {
+        ...currentDraft.buildJourneySection,
+        ...payload.buildJourneySection,
+        phases: phasesToUse,
+      };
+    }
+
+    // Preserve visualBreakdown cards
+    let updatedVisual = currentDraft.visualBreakdownSection;
+    if (payload.visualBreakdownSection !== undefined) {
+      const incomingCards = payload.visualBreakdownSection?.cards;
+      const cardsToUse = (Array.isArray(incomingCards) && incomingCards.length > 0)
+        ? incomingCards
+        : (currentDraft.visualBreakdownSection?.cards || DEFAULT_VISUAL_CARDS);
+      updatedVisual = {
+        ...currentDraft.visualBreakdownSection,
+        ...payload.visualBreakdownSection,
+        cards: cardsToUse,
+      };
     }
 
     const updatedDraft = {
       ...currentDraft,
-      carExperience: payload.carExperience !== undefined ? payload.carExperience : currentDraft.carExperience,
+      carExperience: updatedCarExp,
       keySpecs: normalizedKeySpecs,
       engineeringSection: normalizedEngineering,
-      buildJourneySection: payload.buildJourneySection !== undefined ? payload.buildJourneySection : currentDraft.buildJourneySection,
-      visualBreakdownSection: payload.visualBreakdownSection !== undefined ? payload.visualBreakdownSection : currentDraft.visualBreakdownSection,
+      buildJourneySection: updatedBuild,
+      visualBreakdownSection: updatedVisual,
       openPositionsSection: payload.openPositionsSection !== undefined ? payload.openPositionsSection : currentDraft.openPositionsSection,
     };
 
@@ -864,6 +1064,34 @@ const publishCar = async (req, res) => {
     const doc = await getOrSeedCarDoc();
 
     const draft = doc.draftVersion || doc.toObject();
+
+    // Ensure no section is empty before publishing live
+    if (!draft.carExperience?.stages?.length) {
+      draft.carExperience = { ...(draft.carExperience || {}), stages: DEFAULT_STAGES };
+    }
+    if (!draft.keySpecs?.length) {
+      draft.keySpecs = DEFAULT_KEY_SPECS;
+    }
+    if (!draft.engineeringSection?.categories?.length) {
+      draft.engineeringSection = { ...(draft.engineeringSection || {}), categories: DEFAULT_ENGINEERING_CATEGORIES };
+    }
+    if (!draft.buildJourneySection?.phases?.length) {
+      draft.buildJourneySection = { ...(draft.buildJourneySection || {}), phases: DEFAULT_BUILD_PHASES };
+    }
+    if (!draft.visualBreakdownSection?.cards?.length) {
+      draft.visualBreakdownSection = { ...(draft.visualBreakdownSection || {}), cards: DEFAULT_VISUAL_CARDS };
+    }
+    if (!draft.openPositionsSection || !draft.openPositionsSection.heading) {
+      draft.openPositionsSection = {
+        visible: true,
+        eyebrow: 'Open Positions',
+        heading: 'Want to Build the Next Machine?',
+        headingHighlight: 'Next Machine?',
+        description: 'Join our team of engineers and help design, build, and race the next generation of Ashwa Formula cars.',
+        primaryCta: { text: 'Join the Team', link: 'index.html#recruitment', enabled: true },
+        secondaryCta: { text: 'Get in Touch', link: 'contact.html', enabled: true },
+      };
+    }
 
     // Pre-validate before promoting to live
     validateEngineeringForPublish(draft.engineeringSection);

@@ -374,6 +374,41 @@
     }
   };
 
+  const hydrateOpenPositions = (cta) => {
+    if (!cta) return;
+    const sec = document.querySelector('.cta-section');
+    if (!sec) return;
+
+    if (cta.visible === false && !isPreview) {
+      sec.style.display = 'none';
+      return;
+    }
+    sec.style.display = '';
+
+    const eyebrow = sec.querySelector('.eyebrow');
+    if (eyebrow && cta.eyebrow) eyebrow.textContent = cta.eyebrow;
+
+    const title = sec.querySelector('.section-title');
+    if (title && cta.heading) {
+      title.innerHTML = formatHeadingWithHighlight(cta.heading, cta.headingHighlight);
+    }
+
+    const sub = sec.querySelector('.section-subtitle');
+    if (sub && cta.description) sub.textContent = cta.description;
+
+    const btnRow = sec.querySelector('.cta-inner div[style*="display:inline-flex"], .cta-btn-row');
+    if (btnRow) {
+      let btnsHtml = '';
+      if (cta.primaryCta && cta.primaryCta.enabled && cta.primaryCta.text) {
+        btnsHtml += `<a href="${escapeHtml(cta.primaryCta.link || '#')}" class="btn btn-primary"><i class="fas fa-user-plus"></i> ${escapeHtml(cta.primaryCta.text)}</a> `;
+      }
+      if (cta.secondaryCta && cta.secondaryCta.enabled && cta.secondaryCta.text) {
+        btnsHtml += `<a href="${escapeHtml(cta.secondaryCta.link || '#')}" class="btn btn-outline"><i class="fas fa-envelope"></i> ${escapeHtml(cta.secondaryCta.text)}</a>`;
+      }
+      if (btnsHtml) btnRow.innerHTML = btnsHtml;
+    }
+  };
+
   // ============================================================
   //  MAIN HYDRATION EXECUTION
   // ============================================================
@@ -394,6 +429,9 @@
 
     // 05. Visual Breakdown
     hydrateVisualBreakdown(data.visualBreakdownSection);
+
+    // 06. Open Positions CTA
+    hydrateOpenPositions(data.openPositionsSection);
 
     // Remove pending states
     document.querySelectorAll('[data-cms-pending="true"]').forEach(el => {
