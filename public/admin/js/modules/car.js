@@ -126,15 +126,47 @@
     currentData.carExperience.framePattern = currentData.carExperience.framePattern || 'assets/videotophoto/ezgif-frame-{num}.jpg';
 
     // 02. KEY SPECS
-    currentData.keySpecs = currentData.keySpecs || [];
+    currentData.keySpecs = (currentData.keySpecs || []).map((s, idx) => {
+      const lbl = (s.label || s.key || '').trim();
+      const val = (s.value !== undefined && s.value !== null ? String(s.value) : '').trim();
+      return {
+        ...s,
+        label: lbl,
+        key: lbl,
+        value: val,
+        order: s.order || idx + 1,
+      };
+    });
 
     // 03. ENGINEERING SYSTEMS
     currentData.engineeringSection = currentData.engineeringSection || {};
-    currentData.engineeringSection.categories = currentData.engineeringSection.categories || [];
     currentData.engineeringSection.heading = currentData.engineeringSection.heading || 'Built for Performance';
     currentData.engineeringSection.headingHighlight = currentData.engineeringSection.headingHighlight || 'Performance';
     currentData.engineeringSection.eyebrow = currentData.engineeringSection.eyebrow || 'Engineering Systems';
     currentData.engineeringSection.watermarkText = currentData.engineeringSection.watermarkText || 'TECH';
+    currentData.engineeringSection.categories = (currentData.engineeringSection.categories || []).map((cat, idx) => {
+      const catName = (cat.name || cat.title || `Category ${idx + 1}`).trim();
+      const cards = (cat.cards || []).map((card, cIdx) => {
+        const specs = (card.specs || []).map((sp) => {
+          const l = (sp.label || sp.key || '').trim();
+          const v = (sp.value !== undefined && sp.value !== null ? String(sp.value) : '').trim();
+          return { label: l, value: v, key: l };
+        });
+        return {
+          ...card,
+          title: (card.title || '').trim(),
+          order: card.order || cIdx + 1,
+          specs,
+        };
+      });
+      return {
+        ...cat,
+        name: catName,
+        title: catName,
+        order: cat.order || idx + 1,
+        cards,
+      };
+    });
 
     // 04. BUILD JOURNEY
     currentData.buildJourneySection = currentData.buildJourneySection || {};
@@ -948,7 +980,7 @@
             ${escapeHtml(spec.value || '0')} <span style="font-size:0.9rem; color:#F25912; font-weight:600;">${escapeHtml(spec.unit || '')}</span>
           </div>
           <div style="font-size:0.85rem; font-weight:700; color:#FFFFFF; margin-top:4px;">
-            ${escapeHtml(spec.key || 'Untitled Spec')}
+            ${escapeHtml(spec.label || spec.key || 'Untitled Spec')}
           </div>
           <div style="font-size:0.72rem; color:#8E929E; font-family:monospace; margin-top:2px;">
             ${escapeHtml(spec.subtitle || '')}
@@ -965,7 +997,7 @@
       return `
         <button type="button" class="btn-cat-tab" data-id="${escapeHtml(cat.id)}" 
           style="padding:6px 14px; border-radius:6px; font-size:0.8rem; font-family:monospace; font-weight:700; cursor:pointer; transition:all 0.2s ease; border:1px solid ${isActive ? '#F25912' : '#2D2D3B'}; background:${isActive ? 'rgba(242,89,18,0.15)' : '#141419'}; color:${isActive ? '#F25912' : '#ECECF1'};">
-          <i class="${escapeHtml(cat.icon || 'fas fa-cube')}" style="margin-right:6px;"></i> ${escapeHtml(cat.title)}
+          <i class="${escapeHtml(cat.icon || 'fas fa-cube')}" style="margin-right:6px;"></i> ${escapeHtml(cat.title || cat.name || '')}
         </button>
       `;
     }).join('');
@@ -987,7 +1019,7 @@
               <i class="${escapeHtml(active.icon || 'fas fa-cube')}"></i>
             </div>
             <div>
-              <span style="font-size:0.95rem; font-weight:800; color:#FFFFFF;">${escapeHtml(active.title)}</span>
+              <span style="font-size:0.95rem; font-weight:800; color:#FFFFFF;">${escapeHtml(active.title || active.name || '')}</span>
               <span style="font-family:monospace; font-size:0.72rem; color:#8E929E; margin-left:8px;">(slug: ${escapeHtml(active.id)})</span>
             </div>
           </div>
@@ -1032,8 +1064,8 @@
                 <span style="font-size:0.68rem; font-weight:700; color:#8E929E; text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:6px;">Specifications:</span>
                 ${(card.specs || []).map(row => `
                   <div style="display:flex; justify-content:space-between; font-size:0.75rem; padding:3px 0; border-bottom:1px dashed rgba(255,255,255,0.05);">
-                    <span style="color:#8E929E; font-family:monospace;">${escapeHtml(row.key)}</span>
-                    <span style="color:#FFFFFF; font-weight:600;">${escapeHtml(row.value)}</span>
+                    <span style="color:#8E929E; font-family:monospace;">${escapeHtml(row.label || row.key || '')}</span>
+                    <span style="color:#FFFFFF; font-weight:600;">${escapeHtml(row.value || '')}</span>
                   </div>
                 `).join('')}
               </div>
@@ -1181,20 +1213,20 @@
 
           <form id="keySpecModalForm" style="display:flex; flex-direction:column; gap:16px;">
             <div>
-              <label style="display:block; font-size:0.72rem; font-weight:700; color:#8E929E; margin-bottom:4px;">Key Spec Title *</label>
-              <input type="text" id="mSpecKey" class="cms-input" value="${escapeHtml(spec.key)}" placeholder="e.g. Peak Power, 0–100 km/h" required 
+              <label style="display:block; font-size:0.72rem; font-weight:700; color:#8E929E; margin-bottom:4px;">Key Spec Title / Label *</label>
+              <input type="text" id="mSpecKey" class="cms-input" value="${escapeHtml(spec.label || spec.key || '')}" placeholder="e.g. Peak Power, 0–100 km/h" required 
                 style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:6px; padding:8px 12px; color:#fff; font-size:0.85rem;" />
             </div>
 
             <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px;">
               <div>
-                <label style="display:block; font-size:0.72rem; font-weight:700; color:#8E929E; margin-bottom:4px;">Target Value</label>
-                <input type="text" id="mSpecVal" class="cms-input" value="${escapeHtml(spec.value)}" placeholder="120 or 3.2" required 
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#8E929E; margin-bottom:4px;">Target Value *</label>
+                <input type="text" id="mSpecVal" class="cms-input" value="${escapeHtml(spec.value || '')}" placeholder="120 or 3.2" required 
                   style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:6px; padding:8px 12px; color:#fff; font-size:0.85rem; font-family:monospace;" />
               </div>
               <div>
                 <label style="display:block; font-size:0.72rem; font-weight:700; color:#8E929E; margin-bottom:4px;">Unit</label>
-                <input type="text" id="mSpecUnit" class="cms-input" value="${escapeHtml(spec.unit)}" placeholder="kW, s, kg" 
+                <input type="text" id="mSpecUnit" class="cms-input" value="${escapeHtml(spec.unit || '')}" placeholder="kW, s, kg" 
                   style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:6px; padding:8px 12px; color:#fff; font-size:0.85rem;" />
               </div>
               <div>
@@ -1206,7 +1238,7 @@
 
             <div>
               <label style="display:block; font-size:0.72rem; font-weight:700; color:#8E929E; margin-bottom:4px;">Subtitle / Note</label>
-              <input type="text" id="mSpecSub" class="cms-input" value="${escapeHtml(spec.subtitle)}" placeholder="e.g. Electric Motor Output, @ 100 km/h" 
+              <input type="text" id="mSpecSub" class="cms-input" value="${escapeHtml(spec.subtitle || spec.description || '')}" placeholder="e.g. Electric Motor Output, @ 100 km/h" 
                 style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:6px; padding:8px 12px; color:#fff; font-size:0.85rem;" />
             </div>
 
@@ -1225,11 +1257,27 @@
 
     document.getElementById('keySpecModalForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      spec.key = document.getElementById('mSpecKey').value.trim();
-      spec.value = document.getElementById('mSpecVal').value.trim();
+      const rawTitle = document.getElementById('mSpecKey').value.trim();
+      const rawVal = document.getElementById('mSpecVal').value.trim();
+
+      if (!rawTitle) {
+        showToast('Key Spec Title / Label is required.', 'error');
+        document.getElementById('mSpecKey').focus();
+        return;
+      }
+      if (!rawVal) {
+        showToast('Key Spec Target Value is required.', 'error');
+        document.getElementById('mSpecVal').focus();
+        return;
+      }
+
+      spec.label = rawTitle;
+      spec.key = rawTitle;
+      spec.value = rawVal;
       spec.unit = document.getElementById('mSpecUnit').value.trim();
       spec.decimalPlaces = parseInt(document.getElementById('mSpecDec').value || 0, 10);
       spec.subtitle = document.getElementById('mSpecSub').value.trim();
+      spec.description = spec.subtitle;
 
       if (isNew) {
         specs.push(spec);
@@ -1257,7 +1305,7 @@
           icon: 'fas fa-cube',
           isFullWidth: false,
           specs: [
-            { key: 'Specification', value: 'Value' }
+            { label: 'Specification', value: 'Value', key: 'Specification' }
           ],
         }
       : cat.cards.find(c => c.id === cardId);
@@ -1311,12 +1359,17 @@
                   <i class="fas fa-plus"></i> Add Row
                 </button>
               </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr 28px; gap:8px; padding:0 4px 4px; font-size:0.68rem; font-weight:700; color:#8E929E; text-transform:uppercase;">
+                <span>Specification Label *</span>
+                <span>Value *</span>
+                <span></span>
+              </div>
               <div id="mSpecRowsContainer" style="display:flex; flex-direction:column; gap:6px;">
                 ${(card.specs || []).map((row, rIdx) => `
                   <div class="m-spec-row" style="display:grid; grid-template-columns:1fr 1fr 28px; gap:8px; align-items:center;">
-                    <input type="text" class="m-row-key cms-input" value="${escapeHtml(row.key)}" placeholder="Key (e.g. Material)" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:5px 8px; color:#fff; font-size:0.78rem;" />
-                    <input type="text" class="m-row-val cms-input" value="${escapeHtml(row.value)}" placeholder="Value (e.g. Carbon Fiber)" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:5px 8px; color:#fff; font-size:0.78rem;" />
-                    <button type="button" class="btn-del-row" style="background:none; border:none; color:#FF4D4D; cursor:pointer; font-size:0.8rem;">
+                    <input type="text" class="m-row-key cms-input" value="${escapeHtml(row.label || row.key || '')}" placeholder="Label (e.g. Wheelbase)" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:6px 8px; color:#fff; font-size:0.78rem;" />
+                    <input type="text" class="m-row-val cms-input" value="${escapeHtml(row.value || '')}" placeholder="Value (e.g. 1,550 mm)" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:6px 8px; color:#fff; font-size:0.78rem;" />
+                    <button type="button" class="btn-del-row" title="Delete row" style="background:none; border:none; color:#FF4D4D; cursor:pointer; font-size:0.8rem;">
                       <i class="fas fa-times"></i>
                     </button>
                   </div>
@@ -1343,9 +1396,9 @@
       div.className = 'm-spec-row';
       div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr 28px; gap:8px; align-items:center;';
       div.innerHTML = `
-        <input type="text" class="m-row-key cms-input" placeholder="Key" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:5px 8px; color:#fff; font-size:0.78rem;" />
-        <input type="text" class="m-row-val cms-input" placeholder="Value" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:5px 8px; color:#fff; font-size:0.78rem;" />
-        <button type="button" class="btn-del-row" style="background:none; border:none; color:#FF4D4D; cursor:pointer; font-size:0.8rem;">
+        <input type="text" class="m-row-key cms-input" placeholder="Label (e.g. Material)" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:6px 8px; color:#fff; font-size:0.78rem;" />
+        <input type="text" class="m-row-val cms-input" placeholder="Value (e.g. Carbon Fiber)" style="background:#0B0B0E; border:1px solid #2D2D3B; border-radius:4px; padding:6px 8px; color:#fff; font-size:0.78rem;" />
+        <button type="button" class="btn-del-row" title="Delete row" style="background:none; border:none; color:#FF4D4D; cursor:pointer; font-size:0.8rem;">
           <i class="fas fa-times"></i>
         </button>
       `;
@@ -1365,11 +1418,34 @@
       card.isFullWidth = document.getElementById('mCardFullWidth').checked;
 
       const newSpecs = [];
-      rowsWrap.querySelectorAll('.m-spec-row').forEach(row => {
-        const k = row.querySelector('.m-row-key').value.trim();
-        const v = row.querySelector('.m-row-val').value.trim();
-        if (k || v) newSpecs.push({ key: k, value: v });
-      });
+      const rows = rowsWrap.querySelectorAll('.m-spec-row');
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const keyInput = row.querySelector('.m-row-key');
+        const valInput = row.querySelector('.m-row-val');
+        const k = (keyInput.value || '').trim();
+        const v = (valInput.value || '').trim();
+
+        keyInput.style.borderColor = '#2D2D3B';
+        valInput.style.borderColor = '#2D2D3B';
+
+        if (!k && v) {
+          keyInput.style.borderColor = '#FF4D4D';
+          keyInput.focus();
+          showToast(`Specification row #${i + 1} has a value "${v}" but is missing a required Label.`, 'error');
+          return;
+        }
+        if (k && !v) {
+          valInput.style.borderColor = '#FF4D4D';
+          valInput.focus();
+          showToast(`Specification "${k}" is missing a required Value.`, 'error');
+          return;
+        }
+        if (k && v) {
+          newSpecs.push({ label: k, value: v, key: k });
+        }
+      }
+
       card.specs = newSpecs;
 
       if (isNew) {
@@ -2059,10 +2135,17 @@
         })),
       },
 
-      keySpecs: (currentData.keySpecs || []).map((s, idx) => ({
-        ...s,
-        order: idx + 1,
-      })),
+      keySpecs: (currentData.keySpecs || []).map((s, idx) => {
+        const l = (s.label || s.key || '').trim();
+        const v = (s.value !== undefined && s.value !== null ? String(s.value) : '').trim();
+        return {
+          ...s,
+          label: l,
+          key: l,
+          value: v,
+          order: idx + 1,
+        };
+      }),
 
       engineeringSection: {
         visible: true,
@@ -2071,10 +2154,25 @@
         headingHighlight: document.getElementById('engHeadingHighlight')?.value.trim() || 'Performance',
         description: document.getElementById('engDescription')?.value.trim() || '',
         watermarkText: document.getElementById('engWatermark')?.value.trim() || 'TECH',
-        categories: (currentData.engineeringSection.categories || []).map((cat, idx) => ({
-          ...cat,
-          order: idx + 1,
-        })),
+        categories: (currentData.engineeringSection.categories || []).map((cat, idx) => {
+          const catName = (cat.name || cat.title || `Category ${idx + 1}`).trim();
+          return {
+            ...cat,
+            name: catName,
+            title: catName,
+            order: idx + 1,
+            cards: (cat.cards || []).map((c, cIdx) => ({
+              ...c,
+              title: (c.title || '').trim(),
+              order: cIdx + 1,
+              specs: (c.specs || []).map((sp) => {
+                const l = (sp.label || sp.key || '').trim();
+                const v = (sp.value !== undefined && sp.value !== null ? String(sp.value) : '').trim();
+                return { label: l, value: v, key: l };
+              }),
+            })),
+          };
+        }),
       },
 
       buildJourneySection: {
@@ -2156,6 +2254,58 @@
   async function publishLive() {
     if (isSaving) return;
 
+    // Client-side pre-validation: check every category, card, and spec for required fields
+    const cats = currentData.engineeringSection?.categories || [];
+    for (let cIdx = 0; cIdx < cats.length; cIdx++) {
+      const cat = cats[cIdx];
+      const catName = cat.name || cat.title || `Category #${cIdx + 1}`;
+      for (let crdIdx = 0; crdIdx < (cat.cards || []).length; crdIdx++) {
+        const crd = cat.cards[crdIdx];
+        const cardTitle = crd.title || `Card #${crdIdx + 1}`;
+        for (let sIdx = 0; sIdx < (crd.specs || []).length; sIdx++) {
+          const sp = crd.specs[sIdx];
+          const l = (sp.label || sp.key || '').trim();
+          const v = (sp.value !== undefined && sp.value !== null ? String(sp.value) : '').trim();
+          if (!l) {
+            activeEngTabId = cat.id;
+            const tabsList = document.getElementById('engCategoryTabsList');
+            const panel = document.getElementById('activeCategoryContentContainer');
+            if (tabsList) tabsList.innerHTML = renderCategoryTabs(cats);
+            if (panel) panel.innerHTML = renderActiveCategoryPanel(cats);
+            bindCategoryTabsEvents();
+            bindSysCardsEvents();
+            showToast(`Validation Error: Category "${catName}" → Card "${cardTitle}" → Specification #${sIdx + 1} is missing a required Label.`, 'error');
+            return;
+          }
+          if (!v) {
+            activeEngTabId = cat.id;
+            const tabsList = document.getElementById('engCategoryTabsList');
+            const panel = document.getElementById('activeCategoryContentContainer');
+            if (tabsList) tabsList.innerHTML = renderCategoryTabs(cats);
+            if (panel) panel.innerHTML = renderActiveCategoryPanel(cats);
+            bindCategoryTabsEvents();
+            bindSysCardsEvents();
+            showToast(`Validation Error: Category "${catName}" → Card "${cardTitle}" → Specification "${l}" is missing a required Value.`, 'error');
+            return;
+          }
+        }
+      }
+    }
+
+    for (let kIdx = 0; kIdx < (currentData.keySpecs || []).length; kIdx++) {
+      const ks = currentData.keySpecs[kIdx];
+      const l = (ks.label || ks.key || '').trim();
+      const v = (ks.value !== undefined && ks.value !== null ? String(ks.value) : '').trim();
+      if (!l) {
+        showToast(`Validation Error: Vehicle Key Spec #${kIdx + 1} is missing a required Label.`, 'error');
+        return;
+      }
+      if (!v) {
+        showToast(`Validation Error: Vehicle Key Spec "${l}" is missing a required Value.`, 'error');
+        return;
+      }
+    }
+
     if (!confirm('Are you sure you want to publish these changes live to the public Car page?')) {
       return;
     }
@@ -2166,7 +2316,10 @@
     try {
       // First save current draft to ensure all form inputs are stored
       const payload = gatherPayload();
-      await API().patch('/admin/car/page', payload);
+      const saveRes = await API().patch('/admin/car/page', payload);
+      if (!saveRes || !saveRes.success) {
+        throw new Error(saveRes?.message || 'Failed to save draft before publishing.');
+      }
 
       // Now trigger publish
       const res = await API().post('/admin/car/page/publish');
@@ -2188,7 +2341,7 @@
     } catch (err) {
       console.error('Publish Error:', err);
       updateSaveBadge('dirty');
-      showToast('Error publishing live: ' + err.message, 'error');
+      showToast('Error publishing live: ' + (err.message || 'Publishing failed.'), 'error');
     } finally {
       isSaving = false;
     }

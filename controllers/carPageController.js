@@ -466,7 +466,57 @@ const DEFAULT_VISUAL_CARDS = [
  */
 const getOrSeedCarDoc = async () => {
   let doc = await CarPageContent.findOne();
-  if (doc) return doc;
+  if (doc) {
+    let modified = false;
+    // Auto-repair legacy documents where specs have key but missing label
+    const repairSpecs = (categories) => {
+      if (!Array.isArray(categories)) return;
+      categories.forEach((cat) => {
+        if (!cat.name && cat.title) cat.name = cat.title;
+        (cat.cards || []).forEach((card) => {
+          (card.specs || []).forEach((spec) => {
+            if (!spec.label && spec.key) {
+              spec.label = String(spec.key).trim();
+              modified = true;
+            }
+            if (spec.label && !spec.key) {
+              spec.key = spec.label;
+            }
+          });
+        });
+      });
+    };
+
+    const repairKeySpecs = (specs) => {
+      if (!Array.isArray(specs)) return;
+      specs.forEach((spec) => {
+        if (!spec.label && spec.key) {
+          spec.label = String(spec.key).trim();
+          modified = true;
+        }
+        if (spec.label && !spec.key) {
+          spec.key = spec.label;
+        }
+      });
+    };
+
+    repairSpecs(doc.engineeringSection?.categories);
+    repairSpecs(doc.draftVersion?.engineeringSection?.categories);
+    repairSpecs(doc.publishedVersion?.engineeringSection?.categories);
+
+    repairKeySpecs(doc.keySpecs);
+    repairKeySpecs(doc.draftVersion?.keySpecs);
+    repairKeySpecs(doc.publishedVersion?.keySpecs);
+
+    if (modified) {
+      doc.markModified('engineeringSection');
+      doc.markModified('draftVersion');
+      doc.markModified('publishedVersion');
+      doc.markModified('keySpecs');
+      await doc.save().catch((err) => console.warn('CarPageContent auto-repair warning:', err.message));
+    }
+    return doc;
+  }
 
   console.log('⚡ Initializing Car Page Control Center document with authentic defaults...');
 
@@ -645,6 +695,107 @@ const getAdminCarContent = async (req, res) => {
 };
 
 /**
+ * Normalizes engineering categories and card specs so label & value are always trimmed strings,
+ * and key is maintained as an alias for label.
+ */
+const normalizeEngineeringCategories = (categories) => {
+  if (!Array.isArray(categories)) return [];
+  return categories.map((cat, catIdx) => {
+    const catName = (cat.name || cat.title || `Category ${catIdx + 1}`).trim();
+    const cards = (cat.cards || []).map((card, cardIdx) => {
+      const specs = (card.specs || [])
+        .map((s) => {
+          const l = (s.label || s.key || '').trim();
+          const v = (s.value !== undefined && s.value !== null ? String(s.value) : '').trim();
+          return { label: l, value: v, key: l };
+        })
+        .filter((s) => s.label.length > 0 || s.value.length > 0);
+      return {
+        ...card,
+        specs,
+        order: card.order || cardIdx + 1,
+      };
+    });
+    return {
+      ...cat,
+      name: catName,
+      title: catName,
+      cards,
+      order: cat.order || catIdx + 1,
+    };
+  });
+};
+
+/**
+ * Normalizes key specifications strip so label & value are always trimmed strings.
+ */
+const normalizeKeySpecs = (specs) => {
+  if (!Array.isArray(specs)) return [];
+  return specs.map((s, idx) => {
+    const l = (s.label || s.key || '').trim();
+    const v = (s.value !== undefined && s.value !== null ? String(s.value) : '').trim();
+    return {
+      ...s,
+      label: l,
+      key: l,
+      value: v,
+      order: s.order || idx + 1,
+    };
+  });
+};
+
+/**
+ * Validates engineering categories and card specs prior to publishing live.
+ * Throws a human-readable Error identifying the exact category, card, and spec.
+ */
+const validateEngineeringForPublish = (engineeringSection) => {
+  const categories = engineeringSection?.categories || [];
+  for (let catIdx = 0; catIdx < categories.length; catIdx++) {
+    const cat = categories[catIdx];
+    const catName = cat.name || cat.title || `Category #${catIdx + 1}`;
+    const cards = cat.cards || [];
+    for (let cardIdx = 0; cardIdx < cards.length; cardIdx++) {
+      const card = cards[cardIdx];
+      const cardTitle = card.title || `Card #${cardIdx + 1}`;
+      const specs = card.specs || [];
+      for (let sIdx = 0; sIdx < specs.length; sIdx++) {
+        const spec = specs[sIdx];
+        const label = (spec.label || spec.key || '').trim();
+        const value = (spec.value !== undefined && spec.value !== null ? String(spec.value) : '').trim();
+        if (!label) {
+          throw new Error(
+            `Engineering Category "${catName}" → Card "${cardTitle}" → Specification #${sIdx + 1} is missing a required label.`
+          );
+        }
+        if (!value) {
+          throw new Error(
+            `Engineering Category "${catName}" → Card "${cardTitle}" → Specification "${label}" is missing a required value.`
+          );
+        }
+      }
+    }
+  }
+};
+
+/**
+ * Validates key specifications strip prior to publishing live.
+ */
+const validateKeySpecsForPublish = (keySpecs) => {
+  const specs = keySpecs || [];
+  for (let sIdx = 0; sIdx < specs.length; sIdx++) {
+    const spec = specs[sIdx];
+    const label = (spec.label || spec.key || '').trim();
+    const value = (spec.value !== undefined && spec.value !== null ? String(spec.value) : '').trim();
+    if (!label) {
+      throw new Error(`Vehicle Key Spec #${sIdx + 1} is missing a required label.`);
+    }
+    if (!value) {
+      throw new Error(`Vehicle Key Spec "${label}" is missing a required value.`);
+    }
+  }
+};
+
+/**
  * Admin Endpoint: PATCH / PUT /api/v1/admin/car/page (and /admin/car)
  * Saves updates to draftVersion without publishing live
  */
@@ -661,17 +812,32 @@ const updateCarDraft = async (req, res) => {
 
     const currentDraft = doc.draftVersion || doc.toObject();
 
+    // Normalize incoming payload sections to preserve schema compatibility
+    let normalizedEngineering = currentDraft.engineeringSection;
+    if (payload.engineeringSection !== undefined) {
+      normalizedEngineering = {
+        ...payload.engineeringSection,
+        categories: normalizeEngineeringCategories(payload.engineeringSection.categories),
+      };
+    }
+
+    let normalizedKeySpecs = currentDraft.keySpecs;
+    if (payload.keySpecs !== undefined) {
+      normalizedKeySpecs = normalizeKeySpecs(payload.keySpecs);
+    }
+
     const updatedDraft = {
       ...currentDraft,
       carExperience: payload.carExperience !== undefined ? payload.carExperience : currentDraft.carExperience,
-      keySpecs: payload.keySpecs !== undefined ? payload.keySpecs : currentDraft.keySpecs,
-      engineeringSection: payload.engineeringSection !== undefined ? payload.engineeringSection : currentDraft.engineeringSection,
+      keySpecs: normalizedKeySpecs,
+      engineeringSection: normalizedEngineering,
       buildJourneySection: payload.buildJourneySection !== undefined ? payload.buildJourneySection : currentDraft.buildJourneySection,
       visualBreakdownSection: payload.visualBreakdownSection !== undefined ? payload.visualBreakdownSection : currentDraft.visualBreakdownSection,
       openPositionsSection: payload.openPositionsSection !== undefined ? payload.openPositionsSection : currentDraft.openPositionsSection,
     };
 
     doc.draftVersion = updatedDraft;
+    doc.markModified('draftVersion');
     doc.status = 'draft';
     doc.lastEditedAt = new Date();
 
@@ -699,7 +865,25 @@ const publishCar = async (req, res) => {
 
     const draft = doc.draftVersion || doc.toObject();
 
-    doc.publishedVersion = JSON.parse(JSON.stringify(draft));
+    // Pre-validate before promoting to live
+    validateEngineeringForPublish(draft.engineeringSection);
+    validateKeySpecsForPublish(draft.keySpecs);
+
+    // Normalize before saving to root strictly-typed Mongoose schema
+    const normalizedEngineering = draft.engineeringSection
+      ? {
+          ...draft.engineeringSection,
+          categories: normalizeEngineeringCategories(draft.engineeringSection.categories),
+        }
+      : doc.engineeringSection;
+
+    const normalizedKey = draft.keySpecs ? normalizeKeySpecs(draft.keySpecs) : doc.keySpecs;
+
+    const publishedCopy = JSON.parse(JSON.stringify(draft));
+    publishedCopy.engineeringSection = normalizedEngineering;
+    publishedCopy.keySpecs = normalizedKey;
+
+    doc.publishedVersion = publishedCopy;
     doc.status = 'published';
     doc.version = (doc.version || 1) + 1;
     doc.lastPublishedAt = new Date();
@@ -707,11 +891,15 @@ const publishCar = async (req, res) => {
 
     // Also update root fields for consistency
     if (draft.carExperience) doc.carExperience = draft.carExperience;
-    if (draft.keySpecs) doc.keySpecs = draft.keySpecs;
-    if (draft.engineeringSection) doc.engineeringSection = draft.engineeringSection;
+    doc.keySpecs = normalizedKey;
+    doc.engineeringSection = normalizedEngineering;
     if (draft.buildJourneySection) doc.buildJourneySection = draft.buildJourneySection;
     if (draft.visualBreakdownSection) doc.visualBreakdownSection = draft.visualBreakdownSection;
     if (draft.openPositionsSection) doc.openPositionsSection = draft.openPositionsSection;
+
+    doc.markModified('publishedVersion');
+    doc.markModified('engineeringSection');
+    doc.markModified('keySpecs');
 
     await doc.save();
 
@@ -749,7 +937,13 @@ const publishCar = async (req, res) => {
     });
   } catch (err) {
     console.error('Error in publishCar:', err);
-    return sendError(res, 500, 'Error publishing Car page: ' + err.message);
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors || {})
+        .map((e) => e.message)
+        .join('; ');
+      return sendError(res, 400, `Car validation failed: ${messages || err.message}`);
+    }
+    return sendError(res, 400, err.message || 'Error publishing Car page');
   }
 };
 
