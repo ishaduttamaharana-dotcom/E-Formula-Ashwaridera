@@ -15,11 +15,11 @@
 (function () {
   'use strict';
 
-  // Realistic supported limits for Cloudinary Free Tier architecture
-  const MAX_IMAGE_SIZE = 25 * 1024 * 1024;  // 25 MB max (auto-optimized via 4K canvas if >10MB)
-  const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB max (Cloudinary Free account single video limit)
-  const MAX_DOC_SIZE   = 10 * 1024 * 1024;  // 10 MB max (Cloudinary Free account single raw file limit)
-  const CLOUDINARY_MAX_DIRECT_IMAGE = 10 * 1024 * 1024; // 10 MB Cloudinary Free single image limit
+  // Authoritative upload size limits (1000 MB for all media formats)
+  const MAX_IMAGE_SIZE = 1000 * 1024 * 1024; // 1000 MB max (auto-optimized via 4K canvas if >10MB)
+  const MAX_VIDEO_SIZE = 1000 * 1024 * 1024; // 1000 MB max
+  const MAX_DOC_SIZE   = 1000 * 1024 * 1024; // 1000 MB max
+  const CLOUDINARY_MAX_DIRECT_IMAGE = 10 * 1024 * 1024; // 10 MB Cloudinary Free single image limit (auto-optimized)
 
   const ALLOWED_IMAGE_TYPES = [
     'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
@@ -65,13 +65,13 @@
     }
 
     if (isImage && size > MAX_IMAGE_SIZE) {
-      throw new Error(`Image is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 25 MB.`);
+      throw new Error(`Image is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1000 MB.`);
     }
     if (isVideo && size > MAX_VIDEO_SIZE) {
-      throw new Error(`Video is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 100 MB.`);
+      throw new Error(`Video is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1000 MB.`);
     }
     if (isDoc && size > MAX_DOC_SIZE) {
-      throw new Error(`Document is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 10 MB.`);
+      throw new Error(`Document is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1000 MB.`);
     }
 
     return {
