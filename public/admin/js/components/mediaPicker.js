@@ -14,6 +14,16 @@ const MediaPicker = (function () {
   let activeType = 'all';
   let selectedAsset = null;
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const getModalHtml = () => `
     <div class="admin-modal-backdrop" id="adminMediaPickerModal" style="position:fixed; inset:0; z-index:999999; background:rgba(8,8,12,0.85); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; overflow-y:auto; padding:20px; font-family:var(--font-main, sans-serif);">
       <div class="admin-modal" style="max-width: 940px; width: 92vw; max-height:90vh; overflow-y:auto; background:var(--surface-dark, #181820); border:1px solid var(--border-hairline, #2D2D3B); border-radius:12px; box-shadow:0 30px 90px rgba(0,0,0,0.85); display:flex; flex-direction:column;">
@@ -92,7 +102,7 @@ const MediaPicker = (function () {
               <p style="color:var(--text-muted, #6B7280); font-size:0.82rem; font-family:var(--font-mono, monospace);">
                 PNG, JPG, WEBP, GIF (up to 25MB) • MP4, WEBM (up to 100MB) • PDF (up to 10MB)
               </p>
-              <input type="file" id="pickerFileInput" style="display:none;" accept="image/*,video/*,application/pdf" />
+              <input type="file" id="pickerFileInput" style="display:none;" accept="image/*,video/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             </div>
 
             <div id="pickerUploadProgress" style="display:none; margin-top:20px; background:var(--panel-dark, #20202B); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:16px;">
@@ -150,7 +160,12 @@ const MediaPicker = (function () {
       const api = window.AdminApi || window.API;
       const res = await api.get('/admin/media', params);
       if (res.success && res.data) {
-        renderGrid(res.data, res.pagination);
+        const pagination = res.pagination || res.meta?.pagination || {
+          page: activePage,
+          pages: 1,
+          total: Array.isArray(res.data) ? res.data.length : 0,
+        };
+        renderGrid(res.data, pagination);
       } else {
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--admin-danger, #ef4444); padding:30px;">Failed to load assets.</div>`;
       }
@@ -487,7 +502,17 @@ const MediaPicker = (function () {
     const dropzone = document.getElementById('pickerDropzone');
     const fileInput = document.getElementById('pickerFileInput');
 
-    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.value = '';
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target !== fileInput) {
+        fileInput.value = '';
+        fileInput.click();
+      }
+    });
 
     fileInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
@@ -497,17 +522,24 @@ const MediaPicker = (function () {
 
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropzone.style.borderColor = 'var(--admin-orange, #F25912)';
+      e.stopPropagation();
+      dropzone.style.borderColor = 'var(--accent-orange, #F25912)';
+      dropzone.style.background = 'rgba(242,89,18,0.08)';
     });
 
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.style.borderColor = 'var(--admin-border, #2D2D3B)';
+    dropzone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.style.borderColor = 'var(--border-hairline, #2D2D3B)';
+      dropzone.style.background = 'var(--bg-dark, #111116)';
     });
 
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropzone.style.borderColor = 'var(--admin-border, #2D2D3B)';
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      e.stopPropagation();
+      dropzone.style.borderColor = 'var(--border-hairline, #2D2D3B)';
+      dropzone.style.background = 'var(--bg-dark, #111116)';
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
         uploadFile(e.dataTransfer.files[0]);
       }
     });

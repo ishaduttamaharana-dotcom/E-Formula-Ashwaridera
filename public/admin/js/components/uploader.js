@@ -45,21 +45,23 @@
     const ext = (name.split('.').pop() || '').toLowerCase();
     const size = file.size || 0;
 
-    const isImage = ALLOWED_IMAGE_TYPES.includes(type) || type.startsWith('image/') || /^(jpg|jpeg|png|webp|gif|svg|bmp|tiff)$/i.test(ext);
-    const isVideo = ALLOWED_VIDEO_TYPES.includes(type) || type.startsWith('video/') || /^(mp4|webm|ogg|mov|avi|mkv)$/i.test(ext);
-    const isDoc   = ALLOWED_DOC_TYPES.includes(type) || /^(pdf|doc|docx)$/i.test(ext);
+    const isImage = ALLOWED_IMAGE_TYPES.includes(type) || type.startsWith('image/') || /^(jpg|jpeg|png|webp|gif|svg|bmp|tiff|avif|ico)$/i.test(ext);
+    const isVideo = ALLOWED_VIDEO_TYPES.includes(type) || type.startsWith('video/') || /^(mp4|webm|ogg|mov|avi|mkv|m4v)$/i.test(ext);
+    const isDoc   = ALLOWED_DOC_TYPES.includes(type) || /^(pdf|doc|docx)$/i.test(ext) || type.includes('pdf');
 
-    if (allowedType === 'image' && !isImage) {
+    const targetType = (allowedType || 'all').toLowerCase();
+
+    if (targetType === 'image' && !isImage) {
       throw new Error(`Unsupported file type (${type || ext}). Please upload an image (PNG, JPG, WEBP, SVG, GIF).`);
     }
-    if (allowedType === 'video' && !isVideo) {
+    if (targetType === 'video' && !isVideo) {
       throw new Error(`Unsupported file type (${type || ext}). Please upload a video (MP4, WEBM, MOV).`);
     }
-    if (allowedType === 'document' && !isDoc) {
+    if ((targetType === 'document' || targetType === 'raw' || targetType === 'doc') && !isDoc) {
       throw new Error(`Unsupported file type (${type || ext}). Please upload a PDF or Word document.`);
     }
-    if (allowedType === 'all' && !isImage && !isVideo && !isDoc) {
-      throw new Error(`Unsupported file format (${ext}). Supported formats: PNG, JPG, WEBP, GIF, MP4, WEBM, PDF.`);
+    if (targetType === 'all' && !isImage && !isVideo && !isDoc) {
+      throw new Error(`Unsupported file format (.${ext}). Supported formats: PNG, JPG, WEBP, GIF, MP4, WEBM, PDF.`);
     }
 
     if (isImage && size > MAX_IMAGE_SIZE) {
