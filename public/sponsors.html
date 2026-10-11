@@ -942,7 +942,15 @@
                         railSec.style.display = 'none';
                     } else {
                         railSec.style.display = 'block';
-                        const railItems = (rail.items || []).filter(item => item.visible !== false);
+                        const isTeamLogoOrName = (item) => {
+                            if (!item) return false;
+                            const name = (item.name || item.altText || '').toLowerCase().trim();
+                            if (name === 'e-formula ashwa riders' || name === 'ashwa riders' || name === 'ashwariders' || name.includes('ashwa riders')) return true;
+                            const logo = (item.logoUrl || '').toLowerCase();
+                            if (logo.includes('092-removebg-preview_jwh6b6') || logo.includes('save_20260111')) return true;
+                            return false;
+                        };
+                        const railItems = (rail.items || []).filter(item => item.visible !== false && !isTeamLogoOrName(item));
                         if (railItems.length > 0) {
                             const wrapper = document.getElementById('sponsorScrollWrapper');
                             if (wrapper) {

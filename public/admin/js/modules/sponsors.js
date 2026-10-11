@@ -1062,7 +1062,12 @@
         try {
           const res = await API().get('/admin/sponsors');
           if (res && res.success && Array.isArray(res.data)) {
-            list = list.concat(res.data);
+            const valid = res.data.filter((s) => {
+              const name = (s.name || '').toLowerCase();
+              const logo = (s.logoUrl || '').toLowerCase();
+              return !name.includes('ashwa riders') && !logo.includes('092-removebg-preview_jwh6b6');
+            });
+            list = list.concat(valid);
           }
         } catch (_) {}
 

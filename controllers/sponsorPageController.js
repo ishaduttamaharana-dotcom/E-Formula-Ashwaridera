@@ -25,14 +25,13 @@ const { logActivity } = require('../utils/publishingHelper');
 
 
 const DEFAULT_SPONSORS = [
-  { id: 'sp-1', name: 'E-Formula Ashwa Riders', tier: 'Title', logoUrl: '', altText: 'E-Formula Ashwa Riders', websiteUrl: '', icon: 'fas fa-bolt', order: 1, visible: true },
-  { id: 'sp-2', name: 'MORP', tier: 'Gold', logoUrl: '', altText: 'MORP', websiteUrl: '', icon: 'fas fa-cog', order: 2, visible: true },
-  { id: 'sp-3', name: 'MATLAB', tier: 'Gold', logoUrl: '', altText: 'MATLAB', websiteUrl: '', icon: 'fas fa-chart-simple', order: 3, visible: true },
-  { id: 'sp-4', name: 'Carbonext', tier: 'Silver', logoUrl: '', altText: 'Carbonext', websiteUrl: '', icon: 'fas fa-leaf', order: 4, visible: true },
-  { id: 'sp-5', name: 'EIPRISM', tier: 'Silver', logoUrl: '', altText: 'EIPRISM', websiteUrl: '', icon: 'fas fa-cube', order: 5, visible: true },
-  { id: 'sp-11', name: 'Vashi INTEGRATE SOLUTIONS', tier: 'Associate', logoUrl: '', altText: 'Vashi INTEGRATE SOLUTIONS', websiteUrl: '', icon: 'fas fa-wave-square', order: 6, visible: true },
-  { id: 'sp-12', name: 'PERFECTIO', tier: 'Associate', logoUrl: '', altText: 'PERFECTIO', websiteUrl: '', icon: 'fas fa-star', order: 7, visible: true },
-  { id: 'sp-13', name: 'ADAPT.IMPROVISE.OVERCOME', tier: 'Associate', logoUrl: '', altText: 'ADAPT.IMPROVISE.OVERCOME', websiteUrl: '', icon: 'fas fa-arrows-rotate', order: 8, visible: true },
+  { id: 'sp-2', name: 'MORP', tier: 'Gold', logoUrl: '', altText: 'MORP', websiteUrl: '', icon: 'fas fa-cog', order: 1, visible: true },
+  { id: 'sp-3', name: 'MATLAB', tier: 'Gold', logoUrl: '', altText: 'MATLAB', websiteUrl: '', icon: 'fas fa-chart-simple', order: 2, visible: true },
+  { id: 'sp-4', name: 'Carbonext', tier: 'Silver', logoUrl: '', altText: 'Carbonext', websiteUrl: '', icon: 'fas fa-leaf', order: 3, visible: true },
+  { id: 'sp-5', name: 'EIPRISM', tier: 'Silver', logoUrl: '', altText: 'EIPRISM', websiteUrl: '', icon: 'fas fa-cube', order: 4, visible: true },
+  { id: 'sp-11', name: 'Vashi INTEGRATE SOLUTIONS', tier: 'Associate', logoUrl: '', altText: 'Vashi INTEGRATE SOLUTIONS', websiteUrl: '', icon: 'fas fa-wave-square', order: 5, visible: true },
+  { id: 'sp-12', name: 'PERFECTIO', tier: 'Associate', logoUrl: '', altText: 'PERFECTIO', websiteUrl: '', icon: 'fas fa-star', order: 6, visible: true },
+  { id: 'sp-13', name: 'ADAPT.IMPROVISE.OVERCOME', tier: 'Associate', logoUrl: '', altText: 'ADAPT.IMPROVISE.OVERCOME', websiteUrl: '', icon: 'fas fa-arrows-rotate', order: 7, visible: true },
 ];
 
 const DEFAULT_TIERS = [
@@ -128,6 +127,27 @@ const isObsoleteCategory = (str) => {
   );
 };
 
+const isTeamLogoOrName = (item) => {
+  if (!item || typeof item !== 'object') return false;
+  const name = (item.name || item.altText || '').toLowerCase().trim();
+  if (
+    name === 'e-formula ashwa riders' ||
+    name === 'ashwa riders' ||
+    name === 'ashwariders' ||
+    name.includes('ashwa riders')
+  ) {
+    return true;
+  }
+  const logo = (item.logoUrl || '').toLowerCase().trim();
+  if (
+    logo.includes('092-removebg-preview_jwh6b6') ||
+    logo.includes('save_20260111')
+  ) {
+    return true;
+  }
+  return false;
+};
+
 /**
  * Retrieve or initialize the singleton SponsorPageContent document.
  */
@@ -135,9 +155,9 @@ const getOrSeedSponsorDoc = async () => {
   let doc = await SponsorPageContent.findOne();
   if (doc) {
     let needsSave = false;
-    // Clean obsolete rail items
+    // Clean obsolete rail items and any team logo entries
     if (doc.rail && Array.isArray(doc.rail.items)) {
-      const filtered = doc.rail.items.filter((item) => !isObsoleteCategory(item.tier));
+      const filtered = doc.rail.items.filter((item) => !isObsoleteCategory(item.tier) && !isTeamLogoOrName(item));
       if (filtered.length !== doc.rail.items.length) {
         doc.rail.items = filtered;
         needsSave = true;
@@ -264,10 +284,11 @@ const getPublicSponsorContent = async (req, res) => {
       ? (doc.draftVersion || doc.toObject())
       : (doc.publishedVersion || doc.toObject());
 
-    // Filter rail items by visibility and sort by order
-    let rawRailItems = [...(source.rail?.items || DEFAULT_SPONSORS)];
+    // Authoritative rail items from CMS configuration
+    let rawRailItems = [...(source.rail?.items && source.rail.items.length > 0 ? source.rail.items : DEFAULT_SPONSORS)];
 
-    // Check standalone Sponsor collection to bridge any direct resource additions
+    // Check standalone Sponsor collection to bridge any direct resource additions,
+    // ensuring team logos or unselected placeholder entries never pollute the rail
     try {
       const Sponsor = require('../models/Sponsor');
       const standaloneSponsors = await Sponsor.find(
@@ -275,6 +296,9 @@ const getPublicSponsorContent = async (req, res) => {
       ).lean();
 
       standaloneSponsors.forEach((sp) => {
+        // Exclude team itself or placeholder records referencing the team logo
+        if (isTeamLogoOrName(sp)) return;
+
         const existingIdx = rawRailItems.findIndex(
           (r) => (r.id && String(r.id) === String(sp._id)) || (r.name && r.name.toLowerCase() === sp.name.toLowerCase())
         );
@@ -292,12 +316,20 @@ const getPublicSponsorContent = async (req, res) => {
         };
 
         if (existingIdx >= 0) {
+          // Preserve valid CMS logo if already present
+          const currentLogo = rawRailItems[existingIdx].logoUrl;
+          const mergedLogo = currentLogo && !isTeamLogoOrName({ logoUrl: currentLogo })
+            ? currentLogo
+            : itemObj.logoUrl;
+
           rawRailItems[existingIdx] = {
             ...rawRailItems[existingIdx],
             ...itemObj,
-            visible: isItemVisible && rawRailItems[existingIdx].visible !== false,
+            logoUrl: mergedLogo,
+            order: rawRailItems[existingIdx].order !== undefined ? rawRailItems[existingIdx].order : itemObj.order,
+            visible: rawRailItems[existingIdx].visible !== false,
           };
-        } else {
+        } else if (sp.showInRail === true && itemObj.logoUrl && !isTeamLogoOrName(itemObj)) {
           rawRailItems.push(itemObj);
         }
       });
@@ -305,6 +337,7 @@ const getPublicSponsorContent = async (req, res) => {
 
     const railItems = rawRailItems
       .filter((item) => !isObsoleteCategory(item.tier))
+      .filter((item) => !isTeamLogoOrName(item))
       .filter((item) => isPreview || item.visible !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -442,6 +475,8 @@ const updateSponsorDraft = async (req, res) => {
       if (hasObsolete) {
         return sendError(res, 400, 'Technical, Education, and Media partner categories are permanently removed and cannot be added.');
       }
+      // Sanitize rail items to permanently prevent team logo or team name entries
+      payload.rail.items = payload.rail.items.filter((i) => !isTeamLogoOrName(i));
     }
     if (payload.tiersSection?.tiers && Array.isArray(payload.tiersSection.tiers)) {
       const hasObsolete = payload.tiersSection.tiers.some((t) => isObsoleteCategory(t.name) || isObsoleteCategory(t.title));
