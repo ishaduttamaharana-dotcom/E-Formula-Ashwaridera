@@ -468,59 +468,10 @@ const computeCategoryCounts = (categories, achievements) => {
 };
 
 /**
- * Bridges standalone Achievement collection documents into the achievements array
+ * Authoritative achievements helper (legacy bridge removed to prevent state corruption)
  */
-const bridgeStandaloneAchievements = async (baseList, isPreview) => {
-  try {
-    const Achievement = require('../models/Achievement');
-    const filter = isPreview ? { status: { $ne: 'archived' } } : { status: 'published' };
-    const standaloneItems = await Achievement.find(filter).lean();
-
-    const merged = [...baseList];
-
-    standaloneItems.forEach((standalone) => {
-      const sId = String(standalone._id);
-      const existingIdx = merged.findIndex(
-        (a) => (a.id && String(a.id) === sId) || (a.title && a.title.trim().toLowerCase() === standalone.title.trim().toLowerCase())
-      );
-
-      const isItemPublished = standalone.status === 'published' || (standalone.isActive !== false && standalone.status !== 'archived');
-      const mapped = {
-        id: sId,
-        year: standalone.date || '2026',
-        title: standalone.title,
-        description: standalone.description || '',
-        category: (standalone.category || 'competition').toLowerCase(),
-        imageUrl: standalone.imageUrl || '',
-        imageAlt: standalone.title,
-        event: standalone.competitionName || '',
-        rank: standalone.position || '',
-        awardName: '',
-        location: 'India',
-        organization: standalone.competitionName || '',
-        externalUrl: standalone.buttonLink || '',
-        tags: [standalone.competitionName, standalone.position].filter(Boolean),
-        order: standalone.order !== undefined ? standalone.order : (standalone.displayOrder !== undefined ? standalone.displayOrder : 99),
-        published: isItemPublished,
-        featured: standalone.featured || false,
-      };
-
-      if (existingIdx >= 0) {
-        merged[existingIdx] = {
-          ...merged[existingIdx],
-          ...mapped,
-          published: isItemPublished && merged[existingIdx].published !== false,
-        };
-      } else {
-        merged.push(mapped);
-      }
-    });
-
-    return merged;
-  } catch (err) {
-    console.warn('Notice: Could not bridge standalone achievements:', err.message);
-    return baseList;
-  }
+const bridgeStandaloneAchievements = async (baseList) => {
+  return baseList || [];
 };
 
 /**
@@ -542,12 +493,15 @@ const getPublicAchievementsContent = async (req, res) => {
     }
 
     const rawAchievements = content.achievementsSection?.achievements || [];
-    const bridgedAchievements = await bridgeStandaloneAchievements(rawAchievements, isPreview);
 
-    // Filter achievements and timeline events for public visibility
-    const visibleAchievements = bridgedAchievements
+    // Filter achievements for public visibility and preserve authoritative order
+    const visibleAchievements = rawAchievements
       .filter((a) => isPreview || a.published !== false)
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
+      .map((a, idx) => ({
+        ...a,
+        order: (a.order !== undefined && a.order !== null && a.order > 0) ? a.order : (idx + 1),
+      }))
+      .sort((a, b) => a.order - b.order);
 
     const visibleCategories = (content.achievementsSection?.categories || [])
       .filter((c) => c.enabled !== false)
@@ -560,7 +514,11 @@ const getPublicAchievementsContent = async (req, res) => {
 
     const visibleTimelineEvents = (content.timelineSection?.events || [])
       .filter((ev) => isPreview || ev.published !== false)
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
+      .map((ev, idx) => ({
+        ...ev,
+        order: (ev.order !== undefined && ev.order !== null && ev.order > 0) ? ev.order : (idx + 1),
+      }))
+      .sort((a, b) => a.order - b.order);
 
     return sendSuccess(res, 200, 'Achievements page content retrieved.', {
       isPreview,
@@ -596,11 +554,13 @@ const getAdminAchievementsContent = async (req, res) => {
     const doc = await getOrSeedAchievementsPageDoc();
 
     const data = doc.draftVersion || doc.toObject();
-    const rawAchievements = data.achievementsSection?.achievements || [];
-    const bridgedAchievements = await bridgeStandaloneAchievements(rawAchievements, true);
+    const rawAchievements = (data.achievementsSection?.achievements || []).map((a, idx) => ({
+      ...a,
+      order: (a.order !== undefined && a.order !== null && a.order > 0) ? a.order : (idx + 1),
+    }));
 
     const categories = data.achievementsSection?.categories || [];
-    const { allCount, categories: computedCategories } = computeCategoryCounts(categories, bridgedAchievements);
+    const { allCount, categories: computedCategories } = computeCategoryCounts(categories, rawAchievements);
 
     // Fetch shared footer reference for status display
     const footerRef = await NavFooterSettings.findOne().lean().catch(() => null);
@@ -616,7 +576,7 @@ const getAdminAchievementsContent = async (req, res) => {
         ...data.achievementsSection,
         allCount,
         categories: computedCategories,
-        achievements: bridgedAchievements,
+        achievements: rawAchievements,
       },
       timelineSection: data.timelineSection,
       footerSummary: footerRef ? {
@@ -641,11 +601,25 @@ const updateAchievementsDraft = async (req, res) => {
 
     const currentDraft = doc.draftVersion || doc.toObject();
 
+    const achSection = payload.achievementsSection !== undefined ? payload.achievementsSection : currentDraft.achievementsSection;
+    if (achSection && Array.isArray(achSection.achievements)) {
+      achSection.achievements = achSection.achievements.map((item, idx) => ({
+        ...item,
+        order: idx + 1,
+      }));
+      const { allCount, categories: computedCats } = computeCategoryCounts(
+        achSection.categories || [],
+        achSection.achievements
+      );
+      achSection.allCount = allCount;
+      achSection.categories = computedCats;
+    }
+
     const updatedDraft = {
       ...currentDraft,
       settings: payload.settings !== undefined ? payload.settings : currentDraft.settings,
       hero: payload.hero !== undefined ? payload.hero : currentDraft.hero,
-      achievementsSection: payload.achievementsSection !== undefined ? payload.achievementsSection : currentDraft.achievementsSection,
+      achievementsSection: achSection,
       timelineSection: payload.timelineSection !== undefined ? payload.timelineSection : currentDraft.timelineSection,
     };
 
@@ -677,6 +651,19 @@ const publishAchievements = async (req, res) => {
 
     const draft = doc.draftVersion || doc.toObject();
 
+    if (draft.achievementsSection && Array.isArray(draft.achievementsSection.achievements)) {
+      draft.achievementsSection.achievements = draft.achievementsSection.achievements.map((item, idx) => ({
+        ...item,
+        order: idx + 1,
+      }));
+      const { allCount, categories: computedCats } = computeCategoryCounts(
+        draft.achievementsSection.categories || [],
+        draft.achievementsSection.achievements
+      );
+      draft.achievementsSection.allCount = allCount;
+      draft.achievementsSection.categories = computedCats;
+    }
+
     doc.publishedVersion = JSON.parse(JSON.stringify(draft));
     doc.status = 'published';
     doc.version = (doc.version || 1) + 1;
@@ -690,6 +677,34 @@ const publishAchievements = async (req, res) => {
     if (draft.timelineSection) doc.timelineSection = draft.timelineSection;
 
     await doc.save();
+
+    // Sync published items to standalone Achievement collection for consistency
+    try {
+      const Achievement = require('../models/Achievement');
+      const publishedList = (draft.achievementsSection?.achievements || []).filter(a => a.published !== false);
+      for (const item of publishedList) {
+        await Achievement.findOneAndUpdate(
+          { $or: [{ _id: item.id && item.id.length === 24 ? item.id : null }, { title: item.title }] },
+          {
+            $set: {
+              title: item.title,
+              description: item.description || '',
+              date: item.year || '2026',
+              category: (item.category || 'competition').toLowerCase(),
+              imageUrl: item.imageUrl || '',
+              competitionName: item.event || '',
+              position: item.rank || '',
+              order: item.order || 1,
+              status: 'published',
+              isActive: true,
+            },
+          },
+          { upsert: false }
+        ).catch(() => {});
+      }
+    } catch (syncErr) {
+      console.warn('Notice: Background sync to standalone Achievement model skipped:', syncErr.message);
+    }
 
     if (req.user) {
       await logActivity(

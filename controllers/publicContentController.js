@@ -26,6 +26,7 @@ const ContactInfo = require('../models/ContactInfo');
 const ContactMessage = require('../models/ContactMessage');
 const NavFooterSettings = require('../models/NavFooterSettings');
 const SiteSeoSettings = require('../models/SiteSeoSettings');
+const AchievementsPageContent = require('../models/AchievementsPageContent');
 
 /**
  * Extract public payload from a published record snapshot or document.
@@ -148,12 +149,21 @@ const getPublicTeam = async (req, res) => {
 // ─── 5. ACHIEVEMENTS PAGE PUBLIC ENDPOINT ────────────────────
 const getPublicAchievements = async (req, res) => {
   try {
-    const filter = { status: 'published' };
+    const doc = await AchievementsPageContent.findOne().lean();
+    const source = doc?.publishedVersion || doc || {};
+    let items = (source.achievementsSection?.achievements || [])
+      .filter(a => a.published !== false)
+      .map((a, idx) => ({
+        ...a,
+        order: (a.order !== undefined && a.order !== null && a.order > 0) ? a.order : (idx + 1),
+      }))
+      .sort((a, b) => a.order - b.order);
+
     if (req.query.category && req.query.category !== 'all') {
-      filter.category = req.query.category.toLowerCase();
+      const cat = req.query.category.toLowerCase();
+      items = items.filter(a => (a.category || '').toLowerCase() === cat);
     }
-    const items = await Achievement.find(filter).sort({ order: 1, createdAt: -1 });
-    return sendSuccess(res, 200, 'Achievements retrieved.', items.map(formatPublicItem));
+    return sendSuccess(res, 200, 'Achievements retrieved.', items);
   } catch (err) {
     return sendError(res, 500, 'Error retrieving Achievements: ' + err.message);
   }
