@@ -260,13 +260,14 @@ const createMediaAssetFromDirectUpload = async (req, res, next) => {
     }
 
     const MAX_LIMITS = {
-      image: 1000 * 1024 * 1024,
-      video: 1000 * 1024 * 1024,
-      raw: 1000 * 1024 * 1024,
+      image: 10 * 1024 * 1024,
+      video: 100 * 1024 * 1024,
+      raw: 10 * 1024 * 1024,
     };
-    if (bytes && bytes > (MAX_LIMITS[resourceType] || 1000 * 1024 * 1024)) {
-      const limitMb = Math.round((MAX_LIMITS[resourceType] || 1000 * 1024 * 1024) / (1024 * 1024));
-      return sendError(res, 400, `File size exceeds the maximum permitted limit of ${limitMb}MB for ${resourceType} assets.`);
+    if (bytes && bytes > (MAX_LIMITS[resourceType] || 10 * 1024 * 1024)) {
+      const limitMb = Math.round((MAX_LIMITS[resourceType] || 10 * 1024 * 1024) / (1024 * 1024));
+      const sizeMb = (bytes / (1024 * 1024)).toFixed(1);
+      return sendError(res, 400, `File size (${sizeMb} MB) exceeds maximum permitted limit of ${limitMb}MB for ${resourceType} assets on this storage plan.`);
     }
 
     // Verify asset exists in storage

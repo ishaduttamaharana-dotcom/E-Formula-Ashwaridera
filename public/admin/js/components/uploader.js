@@ -15,15 +15,15 @@
 (function () {
   'use strict';
 
-  // Authoritative upload size limits (1000 MB for all media formats)
-  const MAX_IMAGE_SIZE = 1000 * 1024 * 1024; // 1000 MB max (auto-optimized via 4K canvas if >10MB)
-  const MAX_VIDEO_SIZE = 1000 * 1024 * 1024; // 1000 MB max
-  const MAX_DOC_SIZE   = 1000 * 1024 * 1024; // 1000 MB max
-  const CLOUDINARY_MAX_DIRECT_IMAGE = 10 * 1024 * 1024; // 10 MB Cloudinary Free single image limit (auto-optimized)
+  // Verified Cloudinary Free Tier Account Storage Limits
+  const MAX_IMAGE_INPUT_SIZE = 50 * 1024 * 1024; // Up to 50 MB input (auto-optimized via multi-pass canvas)
+  const CLOUDINARY_MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10.0 MB (Cloudinary account ceiling: 10485760 bytes)
+  const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100.0 MB (Cloudinary account ceiling: 104857600 bytes)
+  const MAX_DOC_SIZE   = 10 * 1024 * 1024;  // 10.0 MB (Cloudinary account ceiling: 10485760 bytes)
 
   const ALLOWED_IMAGE_TYPES = [
     'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
-    'image/gif', 'image/svg+xml', 'image/bmp', 'image/tiff',
+    'image/gif', 'image/svg+xml', 'image/bmp', 'image/tiff', 'image/avif',
   ];
   const ALLOWED_VIDEO_TYPES = [
     'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
@@ -32,6 +32,7 @@
   const ALLOWED_DOC_TYPES = [
     'application/pdf', 'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
   ];
 
   /**
@@ -47,7 +48,7 @@
 
     const isImage = ALLOWED_IMAGE_TYPES.includes(type) || type.startsWith('image/') || /^(jpg|jpeg|png|webp|gif|svg|bmp|tiff|avif|ico)$/i.test(ext);
     const isVideo = ALLOWED_VIDEO_TYPES.includes(type) || type.startsWith('video/') || /^(mp4|webm|ogg|mov|avi|mkv|m4v)$/i.test(ext);
-    const isDoc   = ALLOWED_DOC_TYPES.includes(type) || /^(pdf|doc|docx)$/i.test(ext) || type.includes('pdf');
+    const isDoc   = ALLOWED_DOC_TYPES.includes(type) || /^(pdf|doc|docx|txt)$/i.test(ext) || type.includes('pdf');
 
     const targetType = (allowedType || 'all').toLowerCase();
 
@@ -64,14 +65,17 @@
       throw new Error(`Unsupported file format (.${ext}). Supported formats: PNG, JPG, WEBP, GIF, MP4, WEBM, PDF.`);
     }
 
-    if (isImage && size > MAX_IMAGE_SIZE) {
-      throw new Error(`Image is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1000 MB.`);
+    if (isImage && size > MAX_IMAGE_INPUT_SIZE) {
+      throw new Error(`Image is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size for images is 50.0 MB (images > 10MB are auto-optimized).`);
+    }
+    if (isImage && (ext === 'gif' || ext === 'svg') && size > CLOUDINARY_MAX_IMAGE_SIZE) {
+      throw new Error(`GIF/SVG images cannot be compressed and cannot exceed the 10.0 MB storage plan limit (selected: ${(size / (1024 * 1024)).toFixed(1)} MB).`);
     }
     if (isVideo && size > MAX_VIDEO_SIZE) {
-      throw new Error(`Video is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1000 MB.`);
+      throw new Error(`Video is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed video size on this storage plan is 100.0 MB.`);
     }
     if (isDoc && size > MAX_DOC_SIZE) {
-      throw new Error(`Document is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1000 MB.`);
+      throw new Error(`Document is too large (${(size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed document size on this storage plan is 10.0 MB.`);
     }
 
     return {
@@ -79,19 +83,25 @@
       isImage,
       isVideo,
       isDoc,
+      ext,
       folder: isVideo ? 'ashwa_cms/videos' : (isDoc ? 'ashwa_cms/documents' : 'ashwa_cms/images'),
     };
   }
 
   /**
    * Client-Side Image Optimizer:
-   * When a high-res photo exceeds Cloudinary's 10 MB limit (e.g. DSLR/RAW or 20MB PNG),
-   * dynamically resizes to crisp 4K UHD and compresses to high-quality JPEG.
-   * Enables immediate Cloudinary CDN acceptance without any "File size too large" error.
+   * Multi-pass resolution downscaling and progressive compression.
+   * Enables large photos (up to 50MB) to compress strictly under the 10MB Cloudinary ceiling.
    */
   async function compressImageIfNeeded(file, maxBytes = 9.5 * 1024 * 1024) {
-    if (!file || !file.type || !file.type.startsWith('image/')) return file;
-    if (file.type === 'image/svg+xml' || file.type === 'image/gif') return file;
+    if (!file) return file;
+    const name = file.name || '';
+    const type = file.type || '';
+    const ext = (name.split('.').pop() || '').toLowerCase();
+
+    const isImage = type.startsWith('image/') || /^(jpg|jpeg|png|webp|bmp|tiff|avif)$/i.test(ext);
+    if (!isImage) return file;
+    if (type === 'image/svg+xml' || type === 'image/gif' || ext === 'svg' || ext === 'gif') return file;
     if (file.size <= maxBytes) return file;
 
     return new Promise((resolve) => {
@@ -101,50 +111,73 @@
 
         img.onload = () => {
           URL.revokeObjectURL(blobUrl);
-          let width = img.naturalWidth || img.width;
-          let height = img.naturalHeight || img.height;
+          const origWidth = img.naturalWidth || img.width;
+          const origHeight = img.naturalHeight || img.height;
 
-          // Max resolution bound: 3840px (4K Ultra HD)
-          const MAX_DIM = 3840;
-          if (width > MAX_DIM || height > MAX_DIM) {
-            if (width > height) {
-              height = Math.round((height * MAX_DIM) / width);
-              width = MAX_DIM;
-            } else {
-              width = Math.round((width * MAX_DIM) / height);
-              height = MAX_DIM;
+          // Progressive resolution bounds: 4K UHD -> 2.5K QHD -> 1080p FHD -> 720p HD
+          const scaleTargets = [3840, 2560, 1920, 1280];
+          let currentTargetIdx = 0;
+
+          function processScale() {
+            const maxDim = scaleTargets[currentTargetIdx];
+            let width = origWidth;
+            let height = origHeight;
+
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
             }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            function tryQuality(q) {
+              canvas.toBlob(
+                (blob) => {
+                  if (blob && blob.size <= maxBytes) {
+                    const newName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                    const optimizedFile = new File([blob], newName, {
+                      type: 'image/jpeg',
+                      lastModified: Date.now(),
+                    });
+                    console.log(`[UPLOADER] Auto-optimized image: ${(file.size / (1024 * 1024)).toFixed(1)}MB -> ${(optimizedFile.size / (1024 * 1024)).toFixed(1)}MB (${width}x${height} @ q=${q.toFixed(2)})`);
+                    return resolve(optimizedFile);
+                  }
+
+                  if (q > 0.55) {
+                    tryQuality(q - 0.12);
+                  } else if (currentTargetIdx < scaleTargets.length - 1) {
+                    currentTargetIdx++;
+                    processScale();
+                  } else {
+                    if (blob && blob.size < file.size) {
+                      const newName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                      const optimizedFile = new File([blob], newName, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now(),
+                      });
+                      return resolve(optimizedFile);
+                    }
+                    resolve(file);
+                  }
+                },
+                'image/jpeg',
+                q
+              );
+            }
+
+            tryQuality(0.85);
           }
 
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Progressive quality reduction to fit under maxBytes
-          const tryJpeg = (quality) => {
-            canvas.toBlob(
-              (blob) => {
-                if (!blob || blob.size <= maxBytes || quality <= 0.5) {
-                  const outBlob = blob || file;
-                  const newName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
-                  const optimizedFile = new File([outBlob], newName, {
-                    type: 'image/jpeg',
-                    lastModified: Date.now(),
-                  });
-                  console.log(`[UPLOADER] Auto-optimized image: ${(file.size / (1024 * 1024)).toFixed(1)}MB -> ${(optimizedFile.size / (1024 * 1024)).toFixed(1)}MB`);
-                  resolve(optimizedFile);
-                } else {
-                  tryJpeg(quality - 0.12);
-                }
-              },
-              'image/jpeg',
-              quality
-            );
-          };
-
-          tryJpeg(0.88);
+          processScale();
         };
 
         img.onerror = () => {
@@ -160,10 +193,89 @@
   }
 
   /**
+   * Helper: Chunked Cloudinary Upload for large files (videos > 20MB up to 100MB).
+   * Splits transfer into 6MB slices with Content-Range and X-Unique-Upload-Id headers.
+   */
+  const executeChunkedUpload = (sigData, targetFile, resourceType, onProgress) => {
+    return new Promise((resolve, reject) => {
+      const cloudUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/${resourceType}/upload`;
+      const totalSize = targetFile.size;
+      const chunkSize = 6 * 1024 * 1024;
+      const uniqueId = `cms_chunk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      let offset = 0;
+
+      const uploadNextChunk = () => {
+        if (offset >= totalSize) return;
+
+        const end = Math.min(offset + chunkSize, totalSize);
+        const chunk = targetFile.slice(offset, end);
+        const cfd = new FormData();
+        cfd.append('file', chunk);
+        cfd.append('api_key', sigData.apiKey);
+        cfd.append('timestamp', sigData.timestamp);
+        cfd.append('signature', sigData.signature);
+        cfd.append('folder', sigData.folder);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', cloudUrl);
+        xhr.setRequestHeader('Content-Range', `bytes ${offset}-${end - 1}/${totalSize}`);
+        xhr.setRequestHeader('X-Unique-Upload-Id', uniqueId);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const currentTotalLoaded = offset + e.loaded;
+            const p = 15 + Math.round((currentTotalLoaded / totalSize) * 65);
+            const loadedMb = (currentTotalLoaded / (1024 * 1024)).toFixed(1);
+            const totalMb = (totalSize / (1024 * 1024)).toFixed(1);
+            onProgress(p, `Uploading large ${resourceType} in chunks to Cloudinary CDN (${loadedMb}MB / ${totalMb}MB)...`);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const resData = JSON.parse(xhr.responseText);
+              if (end >= totalSize) {
+                resolve(resData);
+              } else {
+                offset = end;
+                uploadNextChunk();
+              }
+            } catch (err) {
+              reject(new Error('Invalid JSON response from Cloudinary chunked upload.'));
+            }
+          } else {
+            let errorMsg = `Cloudinary rejected chunked upload (HTTP ${xhr.status})`;
+            try {
+              const parsed = JSON.parse(xhr.responseText);
+              if (parsed.error && parsed.error.message) {
+                errorMsg = `Cloudinary rejected upload: ${parsed.error.message}`;
+              }
+            } catch (e) {}
+            reject(new Error(errorMsg));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network connection error during chunked video upload.'));
+        xhr.ontimeout = () => reject(new Error('Cloudinary chunk upload timed out.'));
+        xhr.timeout = 180000; // 3 min per chunk
+        xhr.send(cfd);
+      };
+
+      uploadNextChunk();
+    });
+  };
+
+  /**
    * Helper: Direct Cloudinary XHR upload with real progress tracking.
    * Uploads file directly to api.cloudinary.com so no file bytes touch Vercel functions.
    */
   const executeDirectUpload = (sigData, targetFile, resourceType, onProgress) => {
+    // For files > 20MB (large videos), use chunked upload for network stability
+    if (targetFile.size > 20 * 1024 * 1024) {
+      return executeChunkedUpload(sigData, targetFile, resourceType, onProgress);
+    }
+
     return new Promise((resolve, reject) => {
       const cloudUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/${resourceType}/upload`;
       const cfd = new FormData();
@@ -178,7 +290,6 @@
 
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) {
-          // Transfer represents 15% to 80% of entire pipeline
           const p = 15 + Math.round((e.loaded / e.total) * 65);
           const loadedMb = (e.loaded / (1024 * 1024)).toFixed(1);
           const totalMb = (e.total / (1024 * 1024)).toFixed(1);
@@ -242,15 +353,18 @@
       throw new Error('Admin API client not initialized.');
     }
 
-    // Step 1: Client-Side Optimization for high-res images (>10MB up to 25MB)
+    // Step 1: Client-Side Optimization for high-res images (>10MB up to 50MB)
     let uploadTarget = file;
-    if (meta.isImage && file.size > CLOUDINARY_MAX_DIRECT_IMAGE) {
+    if (meta.isImage && file.size > CLOUDINARY_MAX_IMAGE_SIZE) {
       onStatus(8, `Optimizing high-resolution image (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`);
       try {
-        uploadTarget = await compressImageIfNeeded(file, CLOUDINARY_MAX_DIRECT_IMAGE);
+        uploadTarget = await compressImageIfNeeded(file, CLOUDINARY_MAX_IMAGE_SIZE - 200 * 1024);
         onStatus(12, `Optimized to ${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB`);
       } catch (e) {
         uploadTarget = file;
+      }
+      if (uploadTarget.size > CLOUDINARY_MAX_IMAGE_SIZE) {
+        throw new Error(`Image could not be compressed under 10.0 MB limit (${(uploadTarget.size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size on this storage tier is 10.0 MB.`);
       }
     }
 
@@ -341,10 +455,11 @@
     validateFile,
     verifyMedia,
     compressImageIfNeeded,
-    MAX_IMAGE_SIZE,
+    MAX_IMAGE_INPUT_SIZE,
+    MAX_IMAGE_SIZE: MAX_IMAGE_INPUT_SIZE,
     MAX_VIDEO_SIZE,
     MAX_DOC_SIZE,
-    CLOUDINARY_MAX_IMAGE_SIZE: CLOUDINARY_MAX_DIRECT_IMAGE,
+    CLOUDINARY_MAX_IMAGE_SIZE,
     CLOUDINARY_MAX_VIDEO_SIZE: MAX_VIDEO_SIZE,
     CLOUDINARY_MAX_DOC_SIZE: MAX_DOC_SIZE,
   };
@@ -357,5 +472,5 @@
     window.dispatchEvent(new CustomEvent('admin-uploader:ready', { detail: uploaderInstance }));
   } catch (e) {}
 
-  console.log('✅ [AdminUploader] Subsystem initialized and ready (Limits: 1000MB Images/Videos/Docs).');
+  console.log('✅ [AdminUploader] Subsystem initialized with verified limits: Images (50MB auto-optimized to 10MB), Videos (100MB chunked), Docs (10MB).');
 })();

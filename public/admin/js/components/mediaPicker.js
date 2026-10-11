@@ -100,7 +100,7 @@ const MediaPicker = (function () {
               </div>
               <h4 style="color:#FFFFFF; font-weight:700; font-size:1.05rem; margin-bottom:6px;">Drag & drop media files here, or click to browse</h4>
               <p style="color:var(--text-muted, #6B7280); font-size:0.82rem; font-family:var(--font-mono, monospace);">
-                PNG, JPG, WEBP, GIF • MP4, WEBM • PDF, DOC, DOCX (up to 1000MB)
+                Images (up to 50MB, auto-optimized) • Videos (up to 100MB) • Documents (up to 10MB)
               </p>
               <input type="file" id="pickerFileInput" style="display:none;" accept="image/*,video/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             </div>
