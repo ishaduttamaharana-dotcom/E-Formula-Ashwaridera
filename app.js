@@ -297,6 +297,21 @@ const getRobotsTxt = () => {
   }
   return `User-agent: *
 Allow: /
+
+User-agent: Googlebot
+Allow: /
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /favicon-*.png
+Allow: /apple-touch-icon*.png
+
+User-agent: Googlebot-Image
+Allow: /
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /favicon-*.png
+Allow: /apple-touch-icon*.png
+Allow: /assets/
 Allow: /about
 Allow: /car
 Allow: /team

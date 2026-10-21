@@ -151,7 +151,9 @@ async function runSeoValidation() {
 
     // Favicon links
     assert(html.includes('href="/favicon.ico"'), `${page.file} links to /favicon.ico`);
+    assert(html.includes('href="/favicon.png"'), `${page.file} links to /favicon.png`);
     assert(html.includes('href="/favicon-48x48.png"'), `${page.file} links to /favicon-48x48.png`);
+    assert(html.includes('href="/favicon-144x144.png"'), `${page.file} links to /favicon-144x144.png`);
     assert(html.includes('href="/apple-touch-icon.png"'), `${page.file} links to /apple-touch-icon.png`);
   }
   console.log('');
@@ -260,6 +262,15 @@ async function runSeoValidation() {
 
     const fav48Res = await fetchUrl('/favicon-48x48.png');
     assert(fav48Res.status === 200, 'GET /favicon-48x48.png returns HTTP 200');
+
+    const fav96Res = await fetchUrl('/favicon-96x96.png');
+    assert(fav96Res.status === 200, 'GET /favicon-96x96.png returns HTTP 200');
+
+    const fav144Res = await fetchUrl('/favicon-144x144.png');
+    assert(fav144Res.status === 200, 'GET /favicon-144x144.png returns HTTP 200');
+
+    const fav192Res = await fetchUrl('/favicon-192x192.png');
+    assert(fav192Res.status === 200, 'GET /favicon-192x192.png returns HTTP 200');
 
     const appleTouchRes = await fetchUrl('/apple-touch-icon.png');
     assert(appleTouchRes.status === 200, 'GET /apple-touch-icon.png returns HTTP 200');

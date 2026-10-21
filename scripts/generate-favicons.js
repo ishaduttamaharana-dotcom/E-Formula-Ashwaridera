@@ -18,7 +18,7 @@ const ASSETS = [
   },
   {
     name: 'favicon.png',
-    url: 'https://res.cloudinary.com/frjck4sc/image/upload/w_192,h_192,c_pad,b_transparent/v1785320787/092-removebg-preview_jwh6b6.png',
+    url: 'https://res.cloudinary.com/frjck4sc/image/upload/w_144,h_144,c_pad,b_transparent/v1785320787/092-removebg-preview_jwh6b6.png',
   },
   {
     name: 'favicon-48x48.png',
@@ -27,6 +27,10 @@ const ASSETS = [
   {
     name: 'favicon-96x96.png',
     url: 'https://res.cloudinary.com/frjck4sc/image/upload/w_96,h_96,c_pad,b_transparent/v1785320787/092-removebg-preview_jwh6b6.png',
+  },
+  {
+    name: 'favicon-144x144.png',
+    url: 'https://res.cloudinary.com/frjck4sc/image/upload/w_144,h_144,c_pad,b_transparent/v1785320787/092-removebg-preview_jwh6b6.png',
   },
   {
     name: 'favicon-192x192.png',
