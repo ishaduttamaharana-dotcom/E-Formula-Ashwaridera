@@ -89,13 +89,135 @@ const DEFAULT_CHANNEL_OPTIONS = [
 ];
 
 /**
+ * Helper to build default channels from authoritative ContactInfo
+ */
+const buildChannelsFromContactInfo = (contactInfoDoc) => {
+  const email = contactInfoDoc?.email || 'contact@ashwariders.com';
+  const phone = contactInfoDoc?.phone || '+91 90961 10224';
+  const altPhone = contactInfoDoc?.alternatePhone || '+91 93259 66459';
+  const wa = contactInfoDoc?.whatsapp || '9096110224';
+  const addr = contactInfoDoc?.address || 'Ashwa Riders Garage, SVPCET Campus, Wardha Road, Nagpur 441108';
+
+  return [
+    {
+      id: 'ch-email',
+      channelNumber: '01',
+      type: 'EMAIL',
+      name: email,
+      secondaryValue: '',
+      description: 'Best for sponsorship, press, and detailed queries',
+      status: 'MONITORED',
+      icon: 'fas fa-envelope',
+      actionUrl: `mailto:${email}`,
+      order: 1,
+      published: true,
+    },
+    {
+      id: 'ch-voice',
+      channelNumber: '02',
+      type: 'VOICE',
+      name: phone,
+      secondaryValue: altPhone,
+      description: contactInfoDoc?.officeHours || 'Mon–Sat, 9:00 AM – 7:00 PM IST',
+      status: 'ON DUTY',
+      icon: 'fas fa-phone',
+      actionUrl: `tel:${phone.replace(/\s+/g, '')}`,
+      order: 2,
+      published: true,
+    },
+    {
+      id: 'ch-wa',
+      channelNumber: '03',
+      type: 'RADIO',
+      name: `WhatsApp — ${wa.replace(/^(\+?91)?/, '+91 ')}`.trim(),
+      secondaryValue: '',
+      description: 'Fastest for quick questions',
+      status: 'LIVE',
+      icon: 'fab fa-whatsapp',
+      actionUrl: `https://wa.me/${wa.replace(/\D/g, '')}`,
+      order: 3,
+      published: true,
+    },
+    {
+      id: 'ch-pit',
+      channelNumber: '04',
+      type: 'PIT',
+      name: addr,
+      secondaryValue: '',
+      description: 'Visits welcome by appointment',
+      status: 'BY APPT.',
+      icon: 'fas fa-map-marker-alt',
+      actionUrl: '#pitlane',
+      order: 4,
+      published: true,
+    },
+  ];
+};
+
+/**
  * Retrieve or initialize the singleton ContactPageContent document.
  */
 const getOrSeedContactDoc = async () => {
   let doc = await ContactPageContent.findOne();
-  if (doc) return doc;
+  const contactInfoDoc = await ContactInfo.findOne().lean().catch(() => null);
+
+  if (doc) {
+    const channels = doc.channelsSection?.channels || [];
+    const publishedChannels = doc.publishedVersion?.channelsSection?.channels || [];
+    const draftChannels = doc.draftVersion?.channelsSection?.channels || [];
+
+    const heroStats = doc.heroSection?.stats || [];
+    const publishedHeroStats = doc.publishedVersion?.heroSection?.stats || [];
+    const draftHeroStats = doc.draftVersion?.heroSection?.stats || [];
+
+    let needsSave = false;
+
+    if (channels.length === 0 || publishedChannels.length === 0 || draftChannels.length === 0) {
+      const defaultChannels = buildChannelsFromContactInfo(contactInfoDoc);
+      if (!doc.channelsSection) doc.channelsSection = {};
+      if (channels.length === 0) doc.channelsSection.channels = defaultChannels;
+
+      if (!doc.publishedVersion) doc.publishedVersion = doc.toObject();
+      if (!doc.publishedVersion.channelsSection) doc.publishedVersion.channelsSection = {};
+      if (publishedChannels.length === 0) doc.publishedVersion.channelsSection.channels = defaultChannels;
+
+      if (!doc.draftVersion) doc.draftVersion = doc.toObject();
+      if (!doc.draftVersion.channelsSection) doc.draftVersion.channelsSection = {};
+      if (draftChannels.length === 0) doc.draftVersion.channelsSection.channels = defaultChannels;
+
+      doc.markModified('channelsSection');
+      needsSave = true;
+      console.log('⚡ Auto-repaired ContactPageContent channels with authoritative ContactInfo channels.');
+    }
+
+    if (heroStats.length === 0 || publishedHeroStats.length === 0 || draftHeroStats.length === 0) {
+      if (!doc.heroSection) doc.heroSection = {};
+      if (heroStats.length === 0) doc.heroSection.stats = DEFAULT_STATS;
+
+      if (!doc.publishedVersion) doc.publishedVersion = doc.toObject();
+      if (!doc.publishedVersion.heroSection) doc.publishedVersion.heroSection = {};
+      if (publishedHeroStats.length === 0) doc.publishedVersion.heroSection.stats = DEFAULT_STATS;
+
+      if (!doc.draftVersion) doc.draftVersion = doc.toObject();
+      if (!doc.draftVersion.heroSection) doc.draftVersion.heroSection = {};
+      if (draftHeroStats.length === 0) doc.draftVersion.heroSection.stats = DEFAULT_STATS;
+
+      doc.markModified('heroSection');
+      needsSave = true;
+      console.log('⚡ Auto-repaired ContactPageContent hero stats with DEFAULT_STATS.');
+    }
+
+    if (needsSave) {
+      doc.markModified('publishedVersion');
+      doc.markModified('draftVersion');
+      await doc.save();
+    }
+    return doc;
+  }
 
   console.log('⚡ Initializing Contact Page Control Center document with authentic defaults...');
+
+  const initialChannels = buildChannelsFromContactInfo(contactInfoDoc);
 
   const initialDoc = {
     status: 'published',
@@ -112,26 +234,26 @@ const getOrSeedContactDoc = async () => {
     },
     heroSection: {
       visible: true,
-      bgImageUrl: 'https://res.cloudinary.com/frjck4sc/image/upload/v1784491291/IMG_0234_1_csal4p.jpg',
-      overlayStrength: 0.72,
+      bgImageUrl: '',
+      overlayStrength: 0.85,
       eyebrow: 'RACE CONTROL — OPEN FREQUENCY',
-      heading: 'TALK TO ASHWA RIDERS',
-      headingHighlight: 'ASHWA RIDERS',
+      heading: 'TALK TO E-FORMULA ASHWA RIDERS',
+      headingHighlight: 'E-FORMULA ASHWA RIDERS',
       description: 'Sponsorship, recruitment, media, or just a question about the car — pick a channel below or send a transmission straight to the pit box.',
       stats: DEFAULT_STATS,
     },
     channelsSection: {
       visible: true,
       eyebrow: 'OPEN CHANNELS',
-      heading: 'PICK A FREQUENCY',
-      headingHighlight: 'FREQUENCY',
-      description: 'Every channel is monitored by the team. Choose whichever gets to the right people fastest.',
+      heading: 'HOW TO REACH US',
+      headingHighlight: 'CONNECT',
+      description: 'Select the best channel below to contact the team directly for sponsorship inquiries, student recruitment, or technical discussions.',
       sideNote: 'Message us through any channel — everything routes to the same pit box.',
-      channels: DEFAULT_CHANNELS,
+      channels: initialChannels,
       formSettings: {
         eyebrow: 'TRANSMIT MESSAGE',
         frequencyLabel: 'FREQ 88.6 MHz',
-        title: 'TRANSMIT MESSAGE',
+        title: 'Transmit Message',
         nameLabel: 'CALLSIGN (NAME)',
         namePlaceholder: 'Your full name',
         emailLabel: 'RETURN FREQUENCY (EMAIL)',
@@ -141,7 +263,7 @@ const getOrSeedContactDoc = async () => {
         channelOptions: DEFAULT_CHANNEL_OPTIONS,
         messageLabel: 'MESSAGE',
         messagePlaceholder: 'Tell us how we can help...',
-        submitButtonText: 'TRANSMIT MESSAGE',
+        submitButtonText: 'Transmit Message',
         footnote: 'All transmissions received within 24 hours, Mon–Sat',
         successMessage: 'Message received — pit box will reply within 24 hours.',
         errorMessage: 'Transmission failed. Please verify your details or use direct frequency.',
@@ -155,7 +277,7 @@ const getOrSeedContactDoc = async () => {
       description: 'Our workshop at St. Vincent Pallotti College of Engineering & Technology, Nagpur, where our electric Formula car gets built, tested, and race-prepped.',
       map: {
         provider: 'google_embed',
-        embedUrl: 'https://www.google.com/maps?q=St.+Vincent+Pallotti+College+of+Engineering+and+Technology,+Gavsi+Manapur,+Wardha+Road,+Nagpur,+Maharashtra+441108&output=embed',
+        embedUrl: contactInfoDoc?.googleMapUrl || 'https://www.google.com/maps?q=St.+Vincent+Pallotti+College+of+Engineering+and+Technology,+Gavsi+Manapur,+Wardha+Road,+Nagpur,+Maharashtra+441108&output=embed',
         latitude: '21.0047',
         longitude: '79.0476',
         zoom: 15,
@@ -163,10 +285,10 @@ const getOrSeedContactDoc = async () => {
       },
       workshop: {
         name: 'E-FORMULA ASHWA RIDERS WORKSHOP',
-        address: 'Ashwa Riders Garage, SVPCET Campus, Wardha Road, Nagpur 441108',
+        address: contactInfoDoc?.address || 'Ashwa Riders Garage, SVPCET Campus, Wardha Road, Nagpur 441108',
         coordinates: '21.0047°N / 79.0476°E',
         access: 'By Appointment',
-        hours: 'Mon–Sat, 9:00 AM – 7:00 PM IST',
+        hours: contactInfoDoc?.officeHours || 'Mon–Sat, 9:00 AM – 7:00 PM IST',
         visitorInstructions: 'Coming to visit? Reach out on Channel 01 or 03 first so the team can walk you through the garage.',
       },
     },
@@ -203,35 +325,103 @@ const getPublicContactContent = async (req, res) => {
       .filter((s) => isPreview || s.enabled !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    const visibleChannels = (content.channelsSection?.channels || [])
+    let visibleChannels = (content.channelsSection?.channels || [])
       .filter((ch) => isPreview || ch.published !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    const visibleChannelOptions = (content.channelsSection?.formSettings?.channelOptions || [])
+    const visibleChannelOptions = (content.channelsSection?.formSettings?.channelOptions || content.channelsSection?.formSettings?.subjectOptions || [])
       .filter((opt) => isPreview || opt.enabled !== false)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    // Fetch ContactInfo singleton to bridge socialLinks and fallback sync
+    // Fetch authoritative ContactInfo singleton to bridge socialLinks and contact details
     const contactInfoDoc = await ContactInfo.findOne().lean().catch(() => null);
 
-    const socialLinks = {
-      instagram: contactInfoDoc?.instagram || 'https://www.instagram.com/eformula_ashwariders/',
-      linkedin: contactInfoDoc?.linkedin || 'https://www.linkedin.com/company/e-formula-ashwa-riders',
-      youtube: contactInfoDoc?.youtube || '#',
-      twitter: contactInfoDoc?.twitter || '#',
-      whatsapp: contactInfoDoc?.whatsapp ? `https://wa.me/${contactInfoDoc.whatsapp.replace(/\D/g, '')}` : 'https://wa.me/919096110224',
-      facebook: contactInfoDoc?.facebook || '#',
-      website: contactInfoDoc?.website || 'https://ashwariders.com',
-      github: '#',
+    // If visibleChannels is empty or missing EMAIL/VOICE channels, synthesize from authoritative ContactInfo
+    const emailChannel = visibleChannels.find((ch) => ch.type === 'EMAIL');
+    const voiceChannel = visibleChannels.find((ch) => ch.type === 'VOICE');
+
+    const authoritativeEmail = contactInfoDoc?.email || (emailChannel ? emailChannel.name : '');
+    const authoritativePhone = contactInfoDoc?.phone || (voiceChannel ? voiceChannel.name : '');
+    const authoritativeAltPhone = contactInfoDoc?.alternatePhone || (voiceChannel ? voiceChannel.secondaryValue : '');
+
+    // Ensure email channel exists and has authoritative email
+    if (!emailChannel && authoritativeEmail) {
+      visibleChannels.unshift({
+        id: 'ch-email',
+        channelNumber: '01',
+        type: 'EMAIL',
+        name: authoritativeEmail,
+        secondaryValue: '',
+        description: 'Best for sponsorship, press, and detailed queries',
+        status: 'MONITORED',
+        icon: 'fas fa-envelope',
+        actionUrl: `mailto:${authoritativeEmail}`,
+        order: 1,
+        published: true,
+      });
+    } else if (emailChannel && authoritativeEmail && (!emailChannel.name || emailChannel.name.includes('example.com'))) {
+      emailChannel.name = authoritativeEmail;
+      emailChannel.actionUrl = `mailto:${authoritativeEmail}`;
+    }
+
+    // Ensure voice channel exists and has authoritative phone
+    if (!voiceChannel && authoritativePhone) {
+      const emailIdx = visibleChannels.findIndex((ch) => ch.type === 'EMAIL');
+      const voiceObj = {
+        id: 'ch-voice',
+        channelNumber: '02',
+        type: 'VOICE',
+        name: authoritativePhone,
+        secondaryValue: authoritativeAltPhone || '',
+        description: contactInfoDoc?.officeHours || 'Mon–Sat, 9:00 AM – 7:00 PM IST',
+        status: 'ON DUTY',
+        icon: 'fas fa-phone',
+        actionUrl: `tel:${authoritativePhone.replace(/\s+/g, '')}`,
+        order: 2,
+        published: true,
+      };
+      if (emailIdx >= 0) {
+        visibleChannels.splice(emailIdx + 1, 0, voiceObj);
+      } else {
+        visibleChannels.push(voiceObj);
+      }
+    } else if (voiceChannel && authoritativePhone && (!voiceChannel.name || voiceChannel.name.includes('00000'))) {
+      voiceChannel.name = authoritativePhone;
+      voiceChannel.actionUrl = `tel:${authoritativePhone.replace(/\s+/g, '')}`;
+      if (authoritativeAltPhone && !voiceChannel.secondaryValue) {
+        voiceChannel.secondaryValue = authoritativeAltPhone;
+      }
+    }
+
+    const formatWaUrl = (wa) => {
+      if (!wa || wa === '#') return '';
+      if (wa.startsWith('http://') || wa.startsWith('https://')) return wa;
+      return `https://wa.me/${wa.replace(/\D/g, '')}`;
     };
 
-    const heroTitle = content.heroSection?.heading || content.heroSection?.title || 'TALK TO ASHWA RIDERS';
-    const heroHighlight = content.heroSection?.headingHighlight || content.heroSection?.titleHighlight || 'ASHWA RIDERS';
-    const heroBg = content.heroSection?.bgImageUrl || content.heroSection?.backgroundImage || '';
-    const heroOverlay = content.heroSection?.overlayStrength !== undefined ? content.heroSection?.overlayStrength : (content.heroSection?.overlayIntensity !== undefined ? content.heroSection?.overlayIntensity : 0.72);
+    const cleanSocialUrl = (url) => {
+      if (!url || url === '#') return '';
+      return url.trim();
+    };
 
-    const channelsTitle = content.channelsSection?.heading || content.channelsSection?.title || 'PICK A FREQUENCY';
-    const channelsHighlight = content.channelsSection?.headingHighlight || content.channelsSection?.titleHighlight || 'FREQUENCY';
+    const socialLinks = {
+      instagram: cleanSocialUrl(contactInfoDoc?.instagram || content.socialLinks?.instagram || content.channelsSection?.socialLinks?.instagram),
+      linkedin: cleanSocialUrl(contactInfoDoc?.linkedin || content.socialLinks?.linkedin || content.channelsSection?.socialLinks?.linkedin),
+      youtube: cleanSocialUrl(contactInfoDoc?.youtube || content.socialLinks?.youtube || content.channelsSection?.socialLinks?.youtube),
+      twitter: cleanSocialUrl(contactInfoDoc?.twitter || content.socialLinks?.twitter || content.channelsSection?.socialLinks?.twitter),
+      whatsapp: formatWaUrl(contactInfoDoc?.whatsapp || content.socialLinks?.whatsapp || content.channelsSection?.socialLinks?.whatsapp),
+      facebook: cleanSocialUrl(contactInfoDoc?.facebook || content.socialLinks?.facebook || content.channelsSection?.socialLinks?.facebook),
+      website: cleanSocialUrl(contactInfoDoc?.website || content.socialLinks?.website || content.channelsSection?.socialLinks?.website),
+      github: cleanSocialUrl(contactInfoDoc?.github || content.socialLinks?.github || content.channelsSection?.socialLinks?.github),
+    };
+
+    const heroTitle = content.heroSection?.heading || content.heroSection?.title || 'TALK TO E-FORMULA ASHWA RIDERS';
+    const heroHighlight = content.heroSection?.headingHighlight || content.heroSection?.titleHighlight || 'E-FORMULA ASHWA RIDERS';
+    const heroBg = content.heroSection?.bgImageUrl || content.heroSection?.backgroundImage || '';
+    const heroOverlay = content.heroSection?.overlayStrength !== undefined ? content.heroSection?.overlayStrength : (content.heroSection?.overlayIntensity !== undefined ? content.heroSection?.overlayIntensity : 0.85);
+
+    const channelsTitle = content.channelsSection?.heading || content.channelsSection?.title || 'HOW TO REACH US';
+    const channelsHighlight = content.channelsSection?.headingHighlight || content.channelsSection?.titleHighlight || 'CONNECT';
 
     const findUsTitle = content.findUsSection?.heading || content.findUsSection?.title || 'THE PIT LANE';
     const findUsHighlight = content.findUsSection?.headingHighlight || content.findUsSection?.titleHighlight || 'PIT LANE';
@@ -242,6 +432,11 @@ const getPublicContactContent = async (req, res) => {
       version: doc.version,
       lastPublishedAt: doc.lastPublishedAt,
       settings: content.settings,
+      email: authoritativeEmail,
+      phone: authoritativePhone,
+      alternatePhone: authoritativeAltPhone,
+      address: contactInfoDoc?.address || content.findUsSection?.workshop?.address || '',
+      officeHours: contactInfoDoc?.officeHours || content.findUsSection?.workshop?.hours || '',
       socialLinks,
       heroSection: {
         ...content.heroSection,
@@ -265,8 +460,8 @@ const getPublicContactContent = async (req, res) => {
         socialLinks,
         formSettings: {
           ...content.channelsSection?.formSettings,
-          title: content.channelsSection?.formSettings?.title || content.channelsSection?.formSettings?.formTitle || 'TRANSMIT MESSAGE',
-          formTitle: content.channelsSection?.formSettings?.formTitle || content.channelsSection?.formSettings?.title || 'TRANSMIT MESSAGE',
+          title: content.channelsSection?.formSettings?.title || content.channelsSection?.formSettings?.formTitle || 'Transmit Message',
+          formTitle: content.channelsSection?.formSettings?.formTitle || content.channelsSection?.formSettings?.title || 'Transmit Message',
           channelOptions: visibleChannelOptions,
           subjectOptions: visibleChannelOptions,
         },
@@ -296,8 +491,20 @@ const getAdminContactContent = async (req, res) => {
     const data = doc.draftVersion || doc.toObject();
     const publishedData = doc.publishedVersion || doc.toObject();
 
-    // Fetch shared footer reference for status display
+    // Fetch authoritative ContactInfo and shared footer reference
+    const contactInfoDoc = await ContactInfo.findOne().lean().catch(() => null);
     const footerRef = await NavFooterSettings.findOne().lean().catch(() => null);
+
+    const socialLinks = {
+      instagram: contactInfoDoc?.instagram || data.socialLinks?.instagram || '',
+      linkedin: contactInfoDoc?.linkedin || data.socialLinks?.linkedin || '',
+      youtube: contactInfoDoc?.youtube || data.socialLinks?.youtube || '',
+      twitter: contactInfoDoc?.twitter || data.socialLinks?.twitter || '',
+      whatsapp: contactInfoDoc?.whatsapp || data.socialLinks?.whatsapp || '',
+      github: contactInfoDoc?.github || data.socialLinks?.github || '',
+      facebook: contactInfoDoc?.facebook || data.socialLinks?.facebook || '',
+      website: contactInfoDoc?.website || data.socialLinks?.website || '',
+    };
 
     return sendSuccess(res, 200, 'Contact CMS data retrieved.', {
       page: doc,
@@ -309,6 +516,8 @@ const getAdminContactContent = async (req, res) => {
       heroSection: data.heroSection,
       channelsSection: data.channelsSection,
       findUsSection: data.findUsSection,
+      socialLinks,
+      contactInfo: contactInfoDoc,
       footerSummary: footerRef ? {
         lastPublishedAt: footerRef.lastPublishedAt,
         status: footerRef.status,
@@ -343,6 +552,7 @@ const updateContactDraft = async (req, res) => {
       heroSection: payload.heroSection !== undefined ? payload.heroSection : currentDraft.heroSection,
       channelsSection: payload.channelsSection !== undefined ? payload.channelsSection : currentDraft.channelsSection,
       findUsSection: payload.findUsSection !== undefined ? payload.findUsSection : currentDraft.findUsSection,
+      socialLinks: payload.socialLinks !== undefined ? payload.socialLinks : (currentDraft.socialLinks || {}),
     };
 
     doc.draftVersion = updatedDraft;
@@ -384,6 +594,7 @@ const publishContact = async (req, res) => {
     if (draft.heroSection) doc.heroSection = draft.heroSection;
     if (draft.channelsSection) doc.channelsSection = draft.channelsSection;
     if (draft.findUsSection) doc.findUsSection = draft.findUsSection;
+    if (draft.socialLinks) doc.socialLinks = draft.socialLinks;
 
     await doc.save();
 
@@ -408,6 +619,14 @@ const publishContact = async (req, res) => {
       }
       if (draft.findUsSection?.workshop?.hours) {
         contactInfoUpdates.officeHours = draft.findUsSection.workshop.hours;
+      }
+      if (draft.socialLinks) {
+        if (draft.socialLinks.instagram !== undefined) contactInfoUpdates.instagram = draft.socialLinks.instagram;
+        if (draft.socialLinks.linkedin !== undefined) contactInfoUpdates.linkedin = draft.socialLinks.linkedin;
+        if (draft.socialLinks.youtube !== undefined) contactInfoUpdates.youtube = draft.socialLinks.youtube;
+        if (draft.socialLinks.twitter !== undefined) contactInfoUpdates.twitter = draft.socialLinks.twitter;
+        if (draft.socialLinks.github !== undefined) contactInfoUpdates.github = draft.socialLinks.github;
+        if (draft.socialLinks.whatsapp !== undefined) contactInfoUpdates.whatsapp = draft.socialLinks.whatsapp;
       }
 
       await ContactInfo.findOneAndUpdate({}, contactInfoUpdates, { upsert: true, new: true });

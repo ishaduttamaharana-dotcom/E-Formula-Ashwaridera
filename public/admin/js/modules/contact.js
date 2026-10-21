@@ -117,16 +117,92 @@
     currentData.settings = currentData.settings || {};
     currentData.heroSection = currentData.heroSection || {};
     currentData.heroSection.stats = currentData.heroSection.stats || [];
-    currentData.heroSection.title = currentData.heroSection.title || currentData.heroSection.heading || 'TALK TO ASHWA RIDERS';
-    currentData.heroSection.titleHighlight = currentData.heroSection.titleHighlight || currentData.heroSection.headingHighlight || 'ASHWA RIDERS';
+    if (currentData.heroSection.stats.length === 0) {
+      currentData.heroSection.stats = [
+        { id: 'stat-reply', value: '< 24H', label: 'Avg. Reply Time', order: 1, enabled: true },
+        { id: 'stat-channels', value: '04', label: 'Open Channels', order: 2, enabled: true },
+        { id: 'stat-hq', value: 'Nagpur', label: 'Home Workshop', order: 3, enabled: true },
+        { id: 'stat-duty', value: 'Mon–Sat', label: 'On Duty', order: 4, enabled: true },
+      ];
+    }
+    currentData.heroSection.title = currentData.heroSection.title || currentData.heroSection.heading || 'TALK TO E-FORMULA ASHWA RIDERS';
+    currentData.heroSection.titleHighlight = currentData.heroSection.titleHighlight || currentData.heroSection.headingHighlight || 'E-FORMULA ASHWA RIDERS';
     currentData.heroSection.backgroundImage = currentData.heroSection.backgroundImage || currentData.heroSection.bgImageUrl || '';
     currentData.heroSection.overlayIntensity = currentData.heroSection.overlayIntensity !== undefined ? currentData.heroSection.overlayIntensity : (currentData.heroSection.overlayStrength !== undefined ? currentData.heroSection.overlayStrength : 0.85);
 
     currentData.channelsSection = currentData.channelsSection || {};
     currentData.channelsSection.channels = currentData.channelsSection.channels || [];
-    currentData.channelsSection.title = currentData.channelsSection.title || currentData.channelsSection.heading || 'PICK A FREQUENCY';
-    currentData.channelsSection.titleHighlight = currentData.channelsSection.titleHighlight || currentData.channelsSection.headingHighlight || 'FREQUENCY';
+    currentData.channelsSection.title = currentData.channelsSection.title || currentData.channelsSection.heading || 'HOW TO REACH US';
+    currentData.channelsSection.titleHighlight = currentData.channelsSection.titleHighlight || currentData.channelsSection.headingHighlight || 'CONNECT';
     currentData.channelsSection.formSettings = currentData.channelsSection.formSettings || {};
+
+    if (currentData.channelsSection.channels.length === 0 && currentData.contactInfo) {
+      const ci = currentData.contactInfo;
+      currentData.channelsSection.channels = [
+        {
+          id: 'ch-email',
+          channelNumber: '01',
+          type: 'EMAIL',
+          name: ci.email || 'contact@ashwariders.com',
+          secondaryValue: '',
+          description: 'Best for sponsorship, press, and detailed queries',
+          status: 'MONITORED',
+          icon: 'fas fa-envelope',
+          actionUrl: `mailto:${ci.email || 'contact@ashwariders.com'}`,
+          order: 1,
+          published: true,
+        },
+        {
+          id: 'ch-voice',
+          channelNumber: '02',
+          type: 'VOICE',
+          name: ci.phone || '+91 90961 10224',
+          secondaryValue: ci.alternatePhone || '+91 93259 66459',
+          description: ci.officeHours || 'Mon–Sat, 9:00 AM – 7:00 PM IST',
+          status: 'ON DUTY',
+          icon: 'fas fa-phone',
+          actionUrl: `tel:${(ci.phone || '+91 90961 10224').replace(/\s+/g, '')}`,
+          order: 2,
+          published: true,
+        },
+        {
+          id: 'ch-wa',
+          channelNumber: '03',
+          type: 'RADIO',
+          name: `WhatsApp — ${ci.whatsapp || '+91 90961 10224'}`,
+          secondaryValue: '',
+          description: 'Fastest for quick questions',
+          status: 'LIVE',
+          icon: 'fab fa-whatsapp',
+          actionUrl: `https://wa.me/${(ci.whatsapp || '9096110224').replace(/\D/g, '')}`,
+          order: 3,
+          published: true,
+        },
+        {
+          id: 'ch-pit',
+          channelNumber: '04',
+          type: 'PIT',
+          name: ci.address || 'Ashwa Riders Garage, SVPCET Campus, Wardha Road, Nagpur 441108',
+          secondaryValue: '',
+          description: 'Visits welcome by appointment',
+          status: 'BY APPT.',
+          icon: 'fas fa-map-marker-alt',
+          actionUrl: '#pitlane',
+          order: 4,
+          published: true,
+        },
+      ];
+    }
+
+    currentData.socialLinks = currentData.socialLinks || {};
+    if (currentData.contactInfo) {
+      currentData.socialLinks.instagram = currentData.socialLinks.instagram !== undefined ? currentData.socialLinks.instagram : (currentData.contactInfo.instagram || '');
+      currentData.socialLinks.linkedin = currentData.socialLinks.linkedin !== undefined ? currentData.socialLinks.linkedin : (currentData.contactInfo.linkedin || '');
+      currentData.socialLinks.youtube = currentData.socialLinks.youtube !== undefined ? currentData.socialLinks.youtube : (currentData.contactInfo.youtube || '');
+      currentData.socialLinks.twitter = currentData.socialLinks.twitter !== undefined ? currentData.socialLinks.twitter : (currentData.contactInfo.twitter || '');
+      currentData.socialLinks.github = currentData.socialLinks.github !== undefined ? currentData.socialLinks.github : (currentData.contactInfo.github || '');
+      currentData.socialLinks.whatsapp = currentData.socialLinks.whatsapp !== undefined ? currentData.socialLinks.whatsapp : (currentData.contactInfo.whatsapp || '');
+    }
     
     // Support both subjectOptions and channelOptions
     const opts = currentData.channelsSection.formSettings.subjectOptions || currentData.channelsSection.formSettings.channelOptions || [];
@@ -158,6 +234,7 @@
     const findUs = currentData.findUsSection || {};
     const map = findUs.map || {};
     const workshop = findUs.workshop || {};
+    const socialLinks = currentData.socialLinks || {};
 
     const overlayPercent = Math.round(((hero.overlayIntensity !== undefined ? hero.overlayIntensity : 0.85) * 100));
 
@@ -234,7 +311,7 @@
                   <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#8E929E; margin-bottom:6px;">
                     Title Highlight Text (Orange Accent)
                   </label>
-                  <input type="text" id="heroTitleHighlight" class="cms-input" value="${escapeHtml(hero.titleHighlight || 'ASHWA RIDERS')}" 
+                  <input type="text" id="heroTitleHighlight" class="cms-input" value="${escapeHtml(hero.titleHighlight || 'E-FORMULA ASHWA RIDERS')}" 
                     style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:10px 14px; color:#fff; font-size:0.9rem;" />
                 </div>
               </div>
@@ -243,7 +320,7 @@
                 <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#8E929E; margin-bottom:6px;">
                   Hero Title *
                 </label>
-                <input type="text" id="heroTitle" class="cms-input" value="${escapeHtml(hero.title || 'TALK TO ASHWA RIDERS')}" 
+                <input type="text" id="heroTitle" class="cms-input" value="${escapeHtml(hero.title || 'TALK TO E-FORMULA ASHWA RIDERS')}" 
                   style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:10px 14px; color:#fff; font-size:0.95rem; font-weight:700;" />
               </div>
 
@@ -580,7 +657,74 @@
           </div>
 
           <!-- ══════════════════════════════════════════════════════════
-               BLOCK 04: GLOBAL FOOTER REFERENCE
+               BLOCK 04: BROADCAST CHANNELS & SOCIAL MEDIA LINKS
+          ══════════════════════════════════════════════════════════ -->
+          <div class="cms-card" style="background:#141419; border:1px solid #242430; border-radius:12px; overflow:hidden;">
+            <div style="background:#181820; border-bottom:1px solid #242430; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:32px; height:32px; border-radius:6px; background:rgba(242,89,18,0.15); color:#F25912; display:flex; align-items:center; justify-content:center; font-size:0.95rem;">
+                  <i class="fas fa-share-nodes"></i>
+                </div>
+                <div>
+                  <h3 style="font-size:1.05rem; font-weight:800; color:#FFFFFF; margin:0;">04. Broadcast Channels (Social Links)</h3>
+                  <p style="font-size:0.78rem; color:#8E929E; margin:0;">Configure public broadcast destinations for Instagram, LinkedIn, YouTube, X, GitHub, and WhatsApp</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:22px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="cms-field">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#8E929E; margin-bottom:6px;">
+                  <i class="fab fa-instagram" style="color:#E1306C;"></i> Instagram URL
+                </label>
+                <input type="text" id="socialInstagram" class="cms-input" value="${escapeHtml(socialLinks.instagram || '')}" placeholder="https://www.instagram.com/eformula_ashwariders/"
+                  style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:9px 12px; color:#fff; font-size:0.85rem;" />
+              </div>
+
+              <div class="cms-field">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#8E929E; margin-bottom:6px;">
+                  <i class="fab fa-linkedin-in" style="color:#0A66C2;"></i> LinkedIn URL
+                </label>
+                <input type="text" id="socialLinkedin" class="cms-input" value="${escapeHtml(socialLinks.linkedin || '')}" placeholder="https://www.linkedin.com/company/e-formula-ashwa-riders"
+                  style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:9px 12px; color:#fff; font-size:0.85rem;" />
+              </div>
+
+              <div class="cms-field">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#8E929E; margin-bottom:6px;">
+                  <i class="fab fa-youtube" style="color:#FF0000;"></i> YouTube URL
+                </label>
+                <input type="text" id="socialYoutube" class="cms-input" value="${escapeHtml(socialLinks.youtube || '')}" placeholder="https://youtube.com/ashwariders"
+                  style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:9px 12px; color:#fff; font-size:0.85rem;" />
+              </div>
+
+              <div class="cms-field">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#8E929E; margin-bottom:6px;">
+                  <i class="fab fa-x-twitter" style="color:#ECECF1;"></i> X (Twitter) URL
+                </label>
+                <input type="text" id="socialTwitter" class="cms-input" value="${escapeHtml(socialLinks.twitter || '')}" placeholder="https://x.com/ashwariders"
+                  style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:9px 12px; color:#fff; font-size:0.85rem;" />
+              </div>
+
+              <div class="cms-field">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#8E929E; margin-bottom:6px;">
+                  <i class="fab fa-github" style="color:#ECECF1;"></i> GitHub URL
+                </label>
+                <input type="text" id="socialGithub" class="cms-input" value="${escapeHtml(socialLinks.github || '')}" placeholder="https://github.com/..."
+                  style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:9px 12px; color:#fff; font-size:0.85rem;" />
+              </div>
+
+              <div class="cms-field">
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#8E929E; margin-bottom:6px;">
+                  <i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp Direct Number or Link
+                </label>
+                <input type="text" id="socialWhatsapp" class="cms-input" value="${escapeHtml(socialLinks.whatsapp || '')}" placeholder="+91 90961 10224 or https://wa.me/919096110224"
+                  style="width:100%; background:#0B0B0E; border:1px solid #2D2D3B; border-radius:8px; padding:9px 12px; color:#fff; font-size:0.85rem;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════════════════════════
+               BLOCK 05: GLOBAL FOOTER REFERENCE
           ══════════════════════════════════════════════════════════ -->
           <div class="cms-card" style="background:#141419; border:1px solid #242430; border-radius:12px; padding:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
             <div style="display:flex; align-items:center; gap:14px;">
@@ -588,7 +732,7 @@
                 <i class="fas fa-layer-group"></i>
               </div>
               <div>
-                <h4 style="font-size:0.95rem; font-weight:800; color:#FFFFFF; margin:0 0 3px 0;">04. Global Footer Synchronization</h4>
+                <h4 style="font-size:0.95rem; font-weight:800; color:#FFFFFF; margin:0 0 3px 0;">05. Global Footer Synchronization</h4>
                 <p style="font-size:0.8rem; color:#8E929E; margin:0;">
                   Publishing this page automatically keeps public contact numbers, email, address, and hours synced across the whole website.
                 </p>
@@ -1233,8 +1377,8 @@
   function gatherPayload() {
     const heroBg = ensureCleanUrl(document.getElementById('heroBackgroundImage')?.value);
 
-    const heroTitle = document.getElementById('heroTitle')?.value.trim() || 'TALK TO ASHWA RIDERS';
-    const heroHighlight = document.getElementById('heroTitleHighlight')?.value.trim() || 'ASHWA RIDERS';
+    const heroTitle = document.getElementById('heroTitle')?.value.trim() || 'TALK TO E-FORMULA ASHWA RIDERS';
+    const heroHighlight = document.getElementById('heroTitleHighlight')?.value.trim() || 'E-FORMULA ASHWA RIDERS';
     const heroOverlay = parseFloat(document.getElementById('heroOverlayIntensity')?.value || 0.85);
 
     const channelsTitle = document.getElementById('channelsTitle')?.value.trim() || 'PICK A FREQUENCY';
@@ -1310,6 +1454,14 @@
           hours: document.getElementById('workshopHours')?.value.trim() || 'Mon–Sat, 10AM–6PM',
           visitorInstructions: document.getElementById('workshopNote')?.value.trim() || '',
         },
+      },
+      socialLinks: {
+        instagram: document.getElementById('socialInstagram')?.value.trim() || '',
+        linkedin: document.getElementById('socialLinkedin')?.value.trim() || '',
+        youtube: document.getElementById('socialYoutube')?.value.trim() || '',
+        twitter: document.getElementById('socialTwitter')?.value.trim() || '',
+        github: document.getElementById('socialGithub')?.value.trim() || '',
+        whatsapp: document.getElementById('socialWhatsapp')?.value.trim() || '',
       },
     };
 

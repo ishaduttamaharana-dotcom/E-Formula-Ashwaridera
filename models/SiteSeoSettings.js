@@ -19,6 +19,34 @@ const siteSeoSettingsSchema = new mongoose.Schema(
       type: String,
       default: '/logo.png.png',
     },
+    defaultTitle: {
+      type: String,
+      default: 'E-Formula Ashwa Riders | Formula Student Electric Racing Team',
+    },
+    defaultDescription: {
+      type: String,
+      default: "Official website of E-Formula Ashwa Riders, Central India's premier Formula Student Electric racing team representing SVPCET Nagpur. Discover our car, team, and innovations.",
+    },
+    canonicalUrl: {
+      type: String,
+      default: 'https://www.e-formulaashwariders.in',
+    },
+    homeTitle: { type: String, default: '' },
+    homeDescription: { type: String, default: '' },
+    aboutTitle: { type: String, default: '' },
+    aboutDescription: { type: String, default: '' },
+    carTitle: { type: String, default: '' },
+    carDescription: { type: String, default: '' },
+    teamTitle: { type: String, default: '' },
+    teamDescription: { type: String, default: '' },
+    achievementsTitle: { type: String, default: '' },
+    achievementsDescription: { type: String, default: '' },
+    galleryTitle: { type: String, default: '' },
+    galleryDescription: { type: String, default: '' },
+    sponsorsTitle: { type: String, default: '' },
+    sponsorsDescription: { type: String, default: '' },
+    contactTitle: { type: String, default: '' },
+    contactDescription: { type: String, default: '' },
     pagesSeo: [
       {
         pageKey: { type: String, required: true }, // e.g. 'home', 'about', 'car', 'team', 'achievements', 'gallery', 'sponsors', 'contact'
@@ -57,6 +85,7 @@ const siteSeoSettingsSchema = new mongoose.Schema(
     collection: 'site_seo_settings',
     timestamps: true,
     versionKey: false,
+    strict: false,
   }
 );
 

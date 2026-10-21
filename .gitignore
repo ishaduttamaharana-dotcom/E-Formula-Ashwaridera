@@ -27,5 +27,9 @@ Thumbs.db
 cookies.txt
 scratch/
 logs/
+backup_*.json
+scripts/backup-*.js
+scripts/inspect-*.js
+
 
 

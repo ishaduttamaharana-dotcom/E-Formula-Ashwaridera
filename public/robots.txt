@@ -1,0 +1,60 @@
+# ============================================================
+#  robots.txt — E-Formula Ashwa Riders
+#  Formula Student Electric Team | SVPCET Nagpur
+#  Production URL: https://www.e-formulaashwariders.in
+# ============================================================
+
+User-agent: *
+
+# Allow crawling of all public motorsport website pages & assets
+Allow: /
+Allow: /index.html
+Allow: /about
+Allow: /about.html
+Allow: /car
+Allow: /car.html
+Allow: /team
+Allow: /team.html
+Allow: /achievements
+Allow: /achievements.html
+Allow: /gallery
+Allow: /gallery.html
+Allow: /sponsors
+Allow: /sponsors.html
+Allow: /contact
+Allow: /contact.html
+Allow: /public/
+Allow: /assets/
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /favicon-*.png
+Allow: /apple-touch-icon.png
+Allow: /apple-touch-icon-precomposed.png
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+Allow: /*.svg$
+Allow: /*.ico$
+Allow: /*.gif$
+
+# Disallow private administrative consoles, auth endpoints, and internal APIs
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /public/admin
+Disallow: /public/admin/
+Disallow: /public/admin/*
+Disallow: /api/
+Disallow: /api/*
+Disallow: /api/v1/
+Disallow: /api/v1/*
+Disallow: /v1/
+Disallow: /v1/*
+Disallow: /cookies.txt
+Disallow: /logs/
+
+# Authoritative Production XML Sitemap
+Sitemap: https://www.e-formulaashwariders.in/sitemap.xml

@@ -69,6 +69,11 @@ const contactInfoSchema = new mongoose.Schema(
       trim: true,
       default: '+91 90961 10224',
     },
+    github: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     officeHours: {
       type: String,
       trim: true,

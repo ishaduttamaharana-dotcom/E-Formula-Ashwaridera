@@ -71,12 +71,12 @@ const contactPageContentSchema = new mongoose.Schema(
       },
       bgImageUrl: {
         type: String,
-        default: 'https://res.cloudinary.com/frjck4sc/image/upload/v1784491291/IMG_0234_1_csal4p.jpg',
+        default: '',
         trim: true,
       },
       overlayStrength: {
         type: Number,
-        default: 0.72,
+        default: 0.85,
         min: 0,
         max: 1,
       },
@@ -87,12 +87,12 @@ const contactPageContentSchema = new mongoose.Schema(
       },
       heading: {
         type: String,
-        default: 'TALK TO ASHWA RIDERS',
+        default: 'TALK TO E-FORMULA ASHWA RIDERS',
         trim: true,
       },
       headingHighlight: {
         type: String,
-        default: 'ASHWA RIDERS',
+        default: 'E-FORMULA ASHWA RIDERS',
         trim: true,
       },
       description: {
@@ -334,6 +334,10 @@ const contactPageContentSchema = new mongoose.Schema(
           trim: true,
         },
       },
+    },
+    socialLinks: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
     draftVersion: {
       type: mongoose.Schema.Types.Mixed,

@@ -16,8 +16,8 @@ module.exports = (req, res) => {
       req.url.startsWith('/admin') ||
       req.url.startsWith('/public') ||
       req.url.startsWith('/uploads') ||
-      /\.(html|css|js|png|jpg|jpeg|gif|svg|ico|webp|json|woff2?|ttf|eot)$/i.test(req.url.split('?')[0]) ||
-      /^\/(about|car|team|gallery|sponsors|contact|achievements|my-applications)?(\.html)?($|\?)/i.test(req.url);
+      /\.(html|css|js|png|jpg|jpeg|gif|svg|ico|webp|json|xml|txt|woff2?|ttf|eot)$/i.test(req.url.split('?')[0]) ||
+      /^\/(robots\.txt|sitemap(\.xml)?|about|car|team|gallery|sponsors|contact|achievements|my-applications)?(\.html)?($|\?)/i.test(req.url);
 
     if (!req.url.startsWith('/api') && !isPublicOrStatic) {
       req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);

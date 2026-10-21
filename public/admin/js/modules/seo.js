@@ -62,7 +62,7 @@
                   id="defaultTitle" 
                   name="defaultTitle" 
                   required 
-                  placeholder="Ashwa Riders — Formula Student Electric Team"
+                  placeholder="E-Formula Ashwa Riders | Formula Student Electric Racing Team"
                   style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" 
                 />
               </div>
@@ -126,12 +126,12 @@
                 <i class="fab fa-google"></i> Live Search Engine Result Preview
               </div>
               <div style="font-family: Arial, sans-serif;">
-                <div style="font-size:0.8rem; color:#BDC1C6; margin-bottom:2px;" id="previewCanonical">https://ashwariders.com</div>
+                <div style="font-size:0.8rem; color:#BDC1C6; margin-bottom:2px;" id="previewCanonical">https://www.e-formulaashwariders.in/</div>
                 <div style="font-size:1.1rem; color:#8AB4F8; font-weight:400; text-decoration:underline; cursor:pointer; margin-bottom:4px; line-height:1.3;" id="previewTitle">
-                  Ashwa Riders — Formula Student Electric Team
+                  E-Formula Ashwa Riders | Formula Student Electric Racing Team
                 </div>
                 <div style="font-size:0.85rem; color:#BDC1C6; line-height:1.4;" id="previewDescription">
-                  Official website of Ashwa Riders, Formula Student Electric race team representing SVPCET Nagpur.
+                  Official website of E-Formula Ashwa Riders, Central India's premier Formula Student Electric racing team representing SVPCET Nagpur. Discover our car, team, and innovations.
                 </div>
               </div>
             </div>
@@ -227,6 +227,34 @@
                 id="sponsorsTitle" 
                 name="sponsorsTitle" 
                 placeholder="Corporate Sponsors & Support Ashwa Riders" 
+                style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" 
+              />
+            </div>
+
+            <div class="cms-field">
+              <label class="cms-label" style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted, #8E929E); margin-bottom:6px;">
+                Gallery Page Title
+              </label>
+              <input 
+                type="text" 
+                class="cms-input" 
+                id="galleryTitle" 
+                name="galleryTitle" 
+                placeholder="Media Gallery — Track, Workshop & Events | E-Formula Ashwa Riders" 
+                style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" 
+              />
+            </div>
+
+            <div class="cms-field">
+              <label class="cms-label" style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted, #8E929E); margin-bottom:6px;">
+                Contact Page Title
+              </label>
+              <input 
+                type="text" 
+                class="cms-input" 
+                id="contactTitle" 
+                name="contactTitle" 
+                placeholder="Contact Race Control — Get in Touch | E-Formula Ashwa Riders" 
                 style="width:100%; background:var(--bg-dark, #111116); border:1px solid var(--border-hairline, #2D2D3B); border-radius:8px; padding:11px 14px; color:#fff; font-size:0.92rem; outline:none;" 
               />
             </div>
@@ -343,7 +371,7 @@
     if (titleInput) {
       titleInput.addEventListener('input', (e) => {
         const previewTitle = document.getElementById('previewTitle');
-        if (previewTitle) previewTitle.textContent = e.target.value || 'Ashwa Riders — Formula Student Electric Team';
+        if (previewTitle) previewTitle.textContent = e.target.value || 'E-Formula Ashwa Riders | Formula Student Electric Racing Team';
         markDirty();
       });
     }
@@ -352,7 +380,7 @@
     if (descInput) {
       descInput.addEventListener('input', (e) => {
         const previewDesc = document.getElementById('previewDescription');
-        if (previewDesc) previewDesc.textContent = e.target.value || 'Official website of Ashwa Riders, Formula Student Electric race team representing SVPCET Nagpur.';
+        if (previewDesc) previewDesc.textContent = e.target.value || "Official website of E-Formula Ashwa Riders, Central India's premier Formula Student Electric racing team representing SVPCET Nagpur. Discover our car, team, and innovations.";
         markDirty();
       });
     }
@@ -433,16 +461,20 @@
     document.getElementById('teamTitle').value = data.teamTitle || 'Ashwa Riders — Team';
     document.getElementById('achievementsTitle').value = data.achievementsTitle || 'Ashwa Riders — Achievements';
     document.getElementById('sponsorsTitle').value = data.sponsorsTitle || 'Ashwa Riders — Corporate Sponsors';
+    const galInput = document.getElementById('galleryTitle');
+    if (galInput) galInput.value = data.galleryTitle || 'Ashwa Riders — Gallery';
+    const conInput = document.getElementById('contactTitle');
+    if (conInput) conInput.value = data.contactTitle || 'Ashwa Riders — Contact / Race Control';
 
     // Sync Live Snippet Preview
     const pTitle = document.getElementById('previewTitle');
-    if (pTitle) pTitle.textContent = data.defaultTitle || 'Ashwa Riders — Formula Student Electric Team';
+    if (pTitle) pTitle.textContent = data.defaultTitle || 'E-Formula Ashwa Riders | Formula Student Electric Racing Team';
 
     const pDesc = document.getElementById('previewDescription');
-    if (pDesc) pDesc.textContent = data.defaultDescription || 'Official website of Ashwa Riders, Formula Student Electric race team representing SVPCET Nagpur.';
+    if (pDesc) pDesc.textContent = data.defaultDescription || "Official website of E-Formula Ashwa Riders, Central India's premier Formula Student Electric racing team representing SVPCET Nagpur. Discover our car, team, and innovations.";
 
     const pUrl = document.getElementById('previewCanonical');
-    if (pUrl) pUrl.textContent = data.canonicalUrl || 'http://localhost:5000';
+    if (pUrl) pUrl.textContent = data.canonicalUrl || 'https://www.e-formulaashwariders.in';
   }
 
   async function loadSeoData() {
@@ -463,6 +495,9 @@
   async function saveSeoDraft() {
     setSaveState('saving');
 
+    const galEl = document.getElementById('galleryTitle');
+    const conEl = document.getElementById('contactTitle');
+
     const payload = {
       defaultTitle: document.getElementById('defaultTitle').value.trim(),
       defaultDescription: document.getElementById('defaultDescription').value.trim(),
@@ -474,6 +509,8 @@
       teamTitle: document.getElementById('teamTitle').value.trim(),
       achievementsTitle: document.getElementById('achievementsTitle').value.trim(),
       sponsorsTitle: document.getElementById('sponsorsTitle').value.trim(),
+      galleryTitle: galEl ? galEl.value.trim() : '',
+      contactTitle: conEl ? conEl.value.trim() : '',
     };
 
     try {

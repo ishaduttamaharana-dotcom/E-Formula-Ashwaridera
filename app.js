@@ -13,6 +13,7 @@ const compression   = require('compression');
 const cookieParser  = require('cookie-parser');
 const rateLimit     = require('express-rate-limit');
 const path          = require('path');
+const fs            = require('fs');
 
 // ─── Internal modules ────────────────────────────────────────
 const apiRouter         = require('./routes/index');
@@ -262,6 +263,77 @@ const servePublicHtml = (fileName) => (req, res) => {
   res.sendFile(path.join(__dirname, 'public', fileName));
 };
 
+// Robots.txt & XML Sitemap resilient content getters
+const getSitemapXml = () => {
+  const filePath = path.join(__dirname, 'public', 'sitemap.xml');
+  try {
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+  } catch (err) {
+    // Fall back to in-memory sitemap
+  }
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.e-formulaashwariders.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/car</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/team</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/achievements</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/gallery</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/sponsors</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.e-formulaashwariders.in/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+</urlset>`;
+};
+
+const getRobotsTxt = () => {
+  const filePath = path.join(__dirname, 'public', 'robots.txt');
+  try {
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+  } catch (err) {
+    // Fall back to in-memory robots.txt
+  }
+  return `User-agent: *
+Allow: /
+Allow: /about
+Allow: /car
+Allow: /team
+Allow: /achievements
+Allow: /gallery
+Allow: /sponsors
+Allow: /contact
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /favicon-*.png
+Allow: /apple-touch-icon*.png
+Allow: /assets/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cookies.txt
+Disallow: /logs/
+
+Sitemap: https://www.e-formulaashwariders.in/sitemap.xml
+`;
+};
+
+app.get(['/robots.txt', '/public/robots.txt', '/api/robots.txt', '/api/v1/robots.txt'], (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.send(getRobotsTxt());
+});
+
+app.get(['/sitemap.xml', '/sitemap', '/public/sitemap.xml', '/api/sitemap.xml', '/api/v1/sitemap.xml'], (req, res) => {
+  res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.send(getSitemapXml());
+});
+
+app.get(['/', '/index.html', '/public/index.html'], servePublicHtml('index.html'));
 app.get(['/team', '/team.html', '/Team.html', '/public/team.html', '/public/Team.html'], servePublicHtml('team.html'));
 app.get(['/about', '/about.html', '/About.html', '/public/about.html', '/public/About.html'], servePublicHtml('about.html'));
 app.get(['/car', '/car.html', '/Car.html', '/public/car.html', '/public/Car.html'], servePublicHtml('car.html'));

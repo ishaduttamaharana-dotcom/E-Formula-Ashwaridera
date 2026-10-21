@@ -56,7 +56,7 @@ const updateContactInfo = async (req, res, next) => {
   try {
     const {
       email, phone, alternatePhone, address, googleMapUrl,
-      website, facebook, instagram, linkedin, youtube, twitter, whatsapp, officeHours,
+      website, facebook, instagram, linkedin, youtube, twitter, whatsapp, github, officeHours,
     } = req.body;
 
     // Validation checks
@@ -92,6 +92,10 @@ const updateContactInfo = async (req, res, next) => {
       return sendError(res, 400, 'Invalid Twitter/X URL provided.');
     }
 
+    if (github !== undefined && !isValidUrl(github.trim())) {
+      return sendError(res, 400, 'Invalid GitHub URL provided.');
+    }
+
     let contact = await ContactInfo.findOne();
     if (!contact) {
       contact = new ContactInfo({});
@@ -109,6 +113,7 @@ const updateContactInfo = async (req, res, next) => {
     if (youtube !== undefined)        contact.youtube        = youtube.trim();
     if (twitter !== undefined)        contact.twitter        = twitter.trim();
     if (whatsapp !== undefined)       contact.whatsapp       = whatsapp.trim();
+    if (github !== undefined)          contact.github         = github.trim();
     if (officeHours !== undefined)    contact.officeHours    = officeHours.trim();
 
     await contact.save();
@@ -118,12 +123,27 @@ const updateContactInfo = async (req, res, next) => {
       const pageDoc = await ContactPageContent.findOne();
       if (pageDoc) {
         const updateChannelsInContainer = (container) => {
-          if (!container || !Array.isArray(container.channels)) return;
+          if (!container) return;
+          if (!Array.isArray(container.channels)) container.channels = [];
           if (email !== undefined) {
             const emCh = container.channels.find(c => c.type === 'EMAIL');
             if (emCh) {
               emCh.name = email.trim();
               emCh.actionUrl = `mailto:${email.trim()}`;
+            } else {
+              container.channels.push({
+                id: 'ch-email',
+                channelNumber: '01',
+                type: 'EMAIL',
+                name: email.trim(),
+                secondaryValue: '',
+                description: 'Best for sponsorship, press, and detailed queries',
+                status: 'MONITORED',
+                icon: 'fas fa-envelope',
+                actionUrl: `mailto:${email.trim()}`,
+                order: 1,
+                published: true,
+              });
             }
           }
           if (phone !== undefined) {
@@ -134,6 +154,20 @@ const updateContactInfo = async (req, res, next) => {
               if (alternatePhone !== undefined) {
                 phCh.secondaryValue = alternatePhone.trim();
               }
+            } else {
+              container.channels.push({
+                id: 'ch-voice',
+                channelNumber: '02',
+                type: 'VOICE',
+                name: phone.trim(),
+                secondaryValue: alternatePhone !== undefined ? alternatePhone.trim() : (contact.alternatePhone || ''),
+                description: officeHours !== undefined ? officeHours.trim() : (contact.officeHours || 'Mon–Sat, 9:00 AM – 7:00 PM IST'),
+                status: 'ON DUTY',
+                icon: 'fas fa-phone',
+                actionUrl: `tel:${phone.trim().replace(/\s+/g, '')}`,
+                order: 2,
+                published: true,
+              });
             }
           }
           if (whatsapp !== undefined) {
@@ -141,6 +175,20 @@ const updateContactInfo = async (req, res, next) => {
             if (waCh) {
               waCh.name = `WhatsApp — ${whatsapp.trim()}`;
               waCh.actionUrl = `https://wa.me/${whatsapp.trim().replace(/\D/g, '')}`;
+            } else if (whatsapp.trim()) {
+              container.channels.push({
+                id: 'ch-wa',
+                channelNumber: '03',
+                type: 'RADIO',
+                name: `WhatsApp — ${whatsapp.trim()}`,
+                secondaryValue: '',
+                description: 'Fastest for quick questions',
+                status: 'LIVE',
+                icon: 'fab fa-whatsapp',
+                actionUrl: `https://wa.me/${whatsapp.trim().replace(/\D/g, '')}`,
+                order: 3,
+                published: true,
+              });
             }
           }
         };
